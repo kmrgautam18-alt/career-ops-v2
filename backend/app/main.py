@@ -30,6 +30,10 @@ def root():
 def health():
     return {"status": "ok"}
 
+@app.get("/jobs")
+def get_jobs():
+    return list_jobs()
+
 @app.get("/jobs/{job_id}")
 def get_single_job(job_id: int):
     return get_job(job_id)
@@ -43,3 +47,12 @@ def create_job(job: Job):
     return add_job(job)
 
 
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "backend.app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+    )
