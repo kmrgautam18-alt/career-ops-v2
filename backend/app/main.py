@@ -1,6 +1,15 @@
 from fastapi import FastAPI
-from backend.app.database.db import get_connection
 from pydantic import BaseModel
+
+from backend.app.database.db import get_connection
+
+from backend.app.exceptions.handlers import (
+    global_exception_handler,
+    job_not_found_exception_handler,
+)
+
+from backend.app.exceptions.custom_exceptions import JobNotFoundException
+
 from backend.app.services.job_service import (
     list_jobs,
     add_job,
@@ -15,9 +24,20 @@ class Job(BaseModel):
     title: str
     url: str
 
+
 app = FastAPI(
     title="Career-Ops v2",
     version="0.1.0"
+)
+
+app.add_exception_handler(
+    JobNotFoundException,
+    job_not_found_exception_handler
+)
+
+app.add_exception_handler(
+    Exception,
+    global_exception_handler
 )
 
 @app.get("/")

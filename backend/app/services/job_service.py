@@ -1,3 +1,4 @@
+from backend.app.exceptions.custom_exceptions import JobNotFoundException
 from backend.app.repositories.job_repository import (
     get_all_jobs,
     create_job,
@@ -36,9 +37,7 @@ def get_job(job_id):
     job = get_job_by_id(job_id)
 
     if job is None:
-        return {
-            "message": "Job not found"
-        }
+       raise JobNotFoundException(job_id)
 
     return job
 
