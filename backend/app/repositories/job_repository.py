@@ -124,3 +124,22 @@ def update_job(job_id, company, title, url):
     conn.close()
 
     return updated
+
+def delete_job(job_id):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM jobs
+        WHERE id = ?
+    """, (job_id,))
+
+    conn.commit()
+
+    deleted = cursor.rowcount
+
+    conn.close()
+
+    return deleted

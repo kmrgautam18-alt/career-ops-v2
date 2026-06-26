@@ -3,6 +3,7 @@ from backend.app.repositories.job_repository import (
     create_job,
     get_job_by_id,
     update_job,
+    delete_job,
 )
 
 
@@ -57,4 +58,17 @@ def update_existing_job(job_id, job):
 
     return {
         "message": "Job updated successfully."
+    }
+
+def delete_existing_job(job_id):
+
+    deleted = delete_job(job_id)
+
+    if deleted == 0:
+        return {
+            "message": "Job not found"
+        }
+
+    return {
+        "message": "Job deleted successfully."
     }
