@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Environment Variables
+.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Test Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type Checker
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+
+# Python Packaging
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary Files
+*.tmp
+*.swp
