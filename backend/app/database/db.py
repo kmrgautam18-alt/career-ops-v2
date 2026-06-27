@@ -1,8 +1,8 @@
-import sqlite3
+from sqlalchemy import create_engine
 
 from backend.app.core.config import settings
 
-DB_PATH = settings.DATABASE_URL.replace("sqlite:///", "")
-
-def get_connection():
-    return sqlite3.connect(DB_PATH)
+engine = create_engine(
+    settings.DATABASE_URL,
+    echo=False
+)

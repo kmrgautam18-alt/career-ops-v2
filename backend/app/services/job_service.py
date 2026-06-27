@@ -1,5 +1,8 @@
+from sqlalchemy.orm import Session
+
 from backend.app.exceptions.custom_exceptions import JobNotFoundException
-from backend.app.repositories.job_repository import (
+
+from backend.app.repositories.job_repository_sa import (
     get_all_jobs,
     create_job,
     get_job_by_id,
@@ -8,66 +11,79 @@ from backend.app.repositories.job_repository import (
 )
 
 
-def list_jobs():
+def list_jobs(db: Session):
 
-    jobs = get_all_jobs()
+    jobs = get_all_jobs(db)
 
     return {
         "count": len(jobs),
-        "jobs": jobs
+        "jobs": jobs,
     }
 
 
-def add_job(job):
+def add_job(db: Session, job):
 
-    job_id = create_job(
+    created_job = create_job(
+        db=db,
         company=job.company,
         title=job.title,
-        url=job.url
+        url=job.url,
     )
 
     return {
         "message": "Job created successfully.",
-        "job_id": job_id
+        "job_id": created_job.id,
     }
 
 
-def get_job(job_id):
+def get_job(db: Session, job_id: int):
 
-    job = get_job_by_id(job_id)
+    job = get_job_by_id(
+        db=db,
+        job_id=job_id,
+    )
 
     if job is None:
-       raise JobNotFoundException(job_id)
+        raise JobNotFoundException(job_id)
 
     return job
 
-def update_existing_job(job_id, job):
 
-    updated = update_job(
+def update_existing_job(
+    db: Session,
+    job_id: int,
+    job,
+):
+
+    updated_job = update_job(
+        db=db,
         job_id=job_id,
         company=job.company,
         title=job.title,
-        url=job.url
+        url=job.url,
     )
 
-    if updated == 0:
-        return {
-            "message": "Job not found"
-        }
+    if updated_job is None:
+        raise JobNotFoundException(job_id)
 
     return {
-        "message": "Job updated successfully."
+        "message": "Job updated successfully.",
     }
 
-def delete_existing_job(job_id):
 
-    deleted = delete_job(job_id)
+def delete_existing_job(
+    db: Session,
+    job_id: int,
+):
 
-    if deleted == 0:
-        return {
-            "message": "Job not found"
-        }
+    deleted = delete_job(
+        db=db,
+        job_id=job_id,
+    )
+
+    if not deleted:
+        raise JobNotFoundException(job_id)
 
     return {
-        "message": "Job deleted successfully."
+        "message": "Job deleted successfully.",
     }
