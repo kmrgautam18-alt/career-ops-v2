@@ -55,3 +55,6 @@ dist/
 # Temporary Files
 *.tmp
 *.swp
+
+# Backup Files
+*.bak
