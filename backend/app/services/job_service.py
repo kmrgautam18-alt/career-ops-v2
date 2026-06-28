@@ -1,16 +1,23 @@
+from math import ceil
+
 from sqlalchemy.orm import Session
 
 from backend.app.exceptions.custom_exceptions import JobNotFoundException
 
 from backend.app.repositories.job_repository_sa import (
     get_all_jobs,
+    get_jobs_paginated,
     create_job,
     get_job_by_id,
     update_job,
     delete_job,
 )
 
-from backend.app.schemas.common_schema import ApiResponse
+from backend.app.schemas.common_schema import (
+    ApiResponse,
+    Pagination,
+)
+
 from backend.app.schemas.job_schema import JobResponse
 
 
@@ -30,6 +37,38 @@ def list_jobs(db: Session):
             "count": len(job_list),
             "jobs": job_list,
         },
+    )
+
+
+def list_jobs_paginated(
+    db: Session,
+    page: int,
+    size: int,
+):
+
+    jobs, total = get_jobs_paginated(
+        db=db,
+        page=page,
+        size=size,
+    )
+
+    job_list = [
+        JobResponse.model_validate(job)
+        for job in jobs
+    ]
+
+    pagination = Pagination(
+        page=page,
+        size=size,
+        total=total,
+        pages=ceil(total / size) if total else 0,
+    )
+
+    return ApiResponse(
+        success=True,
+        message="Jobs retrieved successfully.",
+        pagination=pagination,
+        data=job_list,
     )
 
 

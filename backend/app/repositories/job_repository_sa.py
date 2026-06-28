@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from backend.app.models.job import Job
@@ -14,6 +14,32 @@ def get_all_jobs(db: Session):
     ).all()
 
     return jobs
+
+
+def get_jobs_paginated(
+    db: Session,
+    page: int,
+    size: int,
+):
+    """
+    Retrieve jobs using pagination.
+    """
+
+    offset = (page - 1) * size
+
+    jobs = db.scalars(
+        select(Job)
+        .order_by(Job.id)
+        .offset(offset)
+        .limit(size)
+    ).all()
+
+    total = db.scalar(
+        select(func.count())
+        .select_from(Job)
+    )
+
+    return jobs, total
 
 
 def create_job(
