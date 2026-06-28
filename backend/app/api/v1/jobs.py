@@ -26,18 +26,57 @@ def health():
 
 @router.get("")
 def get_jobs(
-    page: int | None = Query(default=None, ge=1),
-    size: int | None = Query(default=None, ge=1, le=100),
+    page: int | None = Query(
+        default=None,
+        ge=1,
+        description="Page number",
+    ),
+    size: int | None = Query(
+        default=None,
+        ge=1,
+        le=100,
+        description="Page size",
+    ),
+    search: str | None = Query(
+        default=None,
+        min_length=1,
+        description="Search by company or job title",
+    ),
     db: Session = Depends(get_db),
 ):
+    """
+    List jobs.
 
+    Supported:
+
+    GET /jobs
+
+    GET /jobs?page=1&size=10
+
+    GET /jobs?search=google
+
+    GET /jobs?page=1&size=10&search=google
+    """
+
+    # Pagination (with optional search)
     if page is not None and size is not None:
         return list_jobs_paginated(
             db=db,
             page=page,
             size=size,
+            search=search,
         )
 
+    # Search without pagination
+    if search:
+        return list_jobs_paginated(
+            db=db,
+            page=1,
+            size=1000,
+            search=search,
+        )
+
+    # Default listing
     return list_jobs(db)
 
 
@@ -64,9 +103,9 @@ def update_job_route(
     db: Session = Depends(get_db),
 ):
     return update_existing_job(
-        db,
-        job_id,
-        job,
+        db=db,
+        job_id=job_id,
+        job=job,
     )
 
 
@@ -76,6 +115,6 @@ def delete_job_route(
     db: Session = Depends(get_db),
 ):
     return delete_existing_job(
-        db,
-        job_id,
+        db=db,
+        job_id=job_id,
     )

@@ -44,12 +44,14 @@ def list_jobs_paginated(
     db: Session,
     page: int,
     size: int,
+    search: str | None = None,
 ):
 
     jobs, total = get_jobs_paginated(
         db=db,
         page=page,
         size=size,
+        search=search,
     )
 
     job_list = [

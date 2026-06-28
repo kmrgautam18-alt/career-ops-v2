@@ -20,24 +20,32 @@ def get_jobs_paginated(
     db: Session,
     page: int,
     size: int,
+    search: str | None = None,
 ):
     """
-    Retrieve jobs using pagination.
+    Retrieve paginated jobs with optional search.
     """
+
+    query = select(Job)
+
+    if search:
+        query = query.where(
+            Job.company.ilike(f"%{search}%")
+            | Job.title.ilike(f"%{search}%")
+        )
+
+    total = db.scalar(
+        select(func.count())
+        .select_from(query.subquery())
+    )
 
     offset = (page - 1) * size
 
     jobs = db.scalars(
-        select(Job)
-        .order_by(Job.id)
+        query.order_by(Job.id)
         .offset(offset)
         .limit(size)
     ).all()
-
-    total = db.scalar(
-        select(func.count())
-        .select_from(Job)
-    )
 
     return jobs, total
 
@@ -46,7 +54,7 @@ def create_job(
     db: Session,
     company: str,
     title: str,
-    url: str
+    url: str,
 ):
     """
     Create a new job.
@@ -56,7 +64,7 @@ def create_job(
         company=company,
         title=title,
         url=url,
-        status="NEW"
+        status="NEW",
     )
 
     db.add(job)
@@ -68,7 +76,7 @@ def create_job(
 
 def get_job_by_id(
     db: Session,
-    job_id: int
+    job_id: int,
 ):
     """
     Retrieve a single job by ID.
@@ -82,7 +90,7 @@ def update_job(
     job_id: int,
     company: str,
     title: str,
-    url: str
+    url: str,
 ):
     """
     Update an existing job.
@@ -105,7 +113,7 @@ def update_job(
 
 def delete_job(
     db: Session,
-    job_id: int
+    job_id: int,
 ):
     """
     Delete a job.
