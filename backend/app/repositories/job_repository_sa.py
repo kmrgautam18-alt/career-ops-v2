@@ -2,6 +2,10 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from backend.app.models.job import Job
+from backend.app.schemas.query_schema import (
+    SortField,
+    SortOrder,
+)
 
 
 def get_all_jobs(db: Session):
@@ -21,30 +25,58 @@ def get_jobs_paginated(
     page: int,
     size: int,
     search: str | None = None,
+    company: str | None = None,
+    status: str | None = None,
+    sort: SortField = SortField.id,
+    order: SortOrder = SortOrder.asc,
 ):
     """
-    Retrieve paginated jobs with optional search.
+    Retrieve paginated jobs with enterprise filtering and sorting.
     """
 
     query = select(Job)
 
+    # Search
     if search:
         query = query.where(
             Job.company.ilike(f"%{search}%")
             | Job.title.ilike(f"%{search}%")
         )
 
+    # Company Filter
+    if company:
+        query = query.where(
+            Job.company.ilike(f"%{company}%")
+        )
+
+    # Status Filter
+    if status:
+        query = query.where(
+            Job.status == status.upper()
+        )
+
     total = db.scalar(
-        select(func.count())
-        .select_from(query.subquery())
+        select(func.count()).select_from(query.subquery())
     )
+
+    sort_mapping = {
+        SortField.id: Job.id,
+        SortField.company: Job.company,
+        SortField.title: Job.title,
+        SortField.status: Job.status,
+    }
+
+    sort_column = sort_mapping[sort]
+
+    if order == SortOrder.desc:
+        query = query.order_by(sort_column.desc())
+    else:
+        query = query.order_by(sort_column.asc())
 
     offset = (page - 1) * size
 
     jobs = db.scalars(
-        query.order_by(Job.id)
-        .offset(offset)
-        .limit(size)
+        query.offset(offset).limit(size)
     ).all()
 
     return jobs, total

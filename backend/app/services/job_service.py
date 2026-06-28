@@ -19,6 +19,10 @@ from backend.app.schemas.common_schema import (
 )
 
 from backend.app.schemas.job_schema import JobResponse
+from backend.app.schemas.query_schema import (
+    SortField,
+    SortOrder,
+)
 
 
 def list_jobs(db: Session):
@@ -45,6 +49,10 @@ def list_jobs_paginated(
     page: int,
     size: int,
     search: str | None = None,
+    company: str | None = None,
+    status: str | None = None,
+    sort: SortField = SortField.id,
+    order: SortOrder = SortOrder.asc,
 ):
 
     jobs, total = get_jobs_paginated(
@@ -52,6 +60,10 @@ def list_jobs_paginated(
         page=page,
         size=size,
         search=search,
+        company=company,
+        status=status,
+        sort=sort,
+        order=order,
     )
 
     job_list = [
@@ -92,10 +104,7 @@ def add_job(db: Session, job):
 
 def get_job(db: Session, job_id: int):
 
-    job = get_job_by_id(
-        db=db,
-        job_id=job_id,
-    )
+    job = get_job_by_id(db=db, job_id=job_id)
 
     if job is None:
         raise JobNotFoundException(job_id)

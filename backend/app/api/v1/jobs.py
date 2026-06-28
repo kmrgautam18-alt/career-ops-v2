@@ -3,6 +3,10 @@ from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
 from backend.app.schemas.job_schema import JobCreate
+from backend.app.schemas.query_schema import (
+    SortField,
+    SortOrder,
+)
 
 from backend.app.services.job_service import (
     list_jobs,
@@ -26,57 +30,58 @@ def health():
 
 @router.get("")
 def get_jobs(
-    page: int | None = Query(
-        default=None,
-        ge=1,
-        description="Page number",
-    ),
-    size: int | None = Query(
-        default=None,
-        ge=1,
-        le=100,
-        description="Page size",
-    ),
-    search: str | None = Query(
-        default=None,
-        min_length=1,
-        description="Search by company or job title",
-    ),
+    page: int | None = Query(default=None, ge=1),
+    size: int | None = Query(default=None, ge=1, le=100),
+
+    search: str | None = Query(default=None),
+
+    company: str | None = Query(default=None),
+
+    status: str | None = Query(default=None),
+
+    sort: SortField = Query(default=SortField.id),
+
+    order: SortOrder = Query(default=SortOrder.asc),
+
     db: Session = Depends(get_db),
 ):
-    """
-    List jobs.
 
-    Supported:
-
-    GET /jobs
-
-    GET /jobs?page=1&size=10
-
-    GET /jobs?search=google
-
-    GET /jobs?page=1&size=10&search=google
-    """
-
-    # Pagination (with optional search)
     if page is not None and size is not None:
+
         return list_jobs_paginated(
             db=db,
             page=page,
             size=size,
             search=search,
+            company=company,
+            status=status,
+            sort=sort,
+            order=order,
         )
 
-    # Search without pagination
-    if search:
+    if search or company or status:
+
         return list_jobs_paginated(
             db=db,
             page=1,
             size=1000,
             search=search,
+            company=company,
+            status=status,
+            sort=sort,
+            order=order,
         )
 
-    # Default listing
+    if sort != SortField.id or order != SortOrder.asc:
+
+        return list_jobs_paginated(
+            db=db,
+            page=1,
+            size=1000,
+            sort=sort,
+            order=order,
+        )
+
     return list_jobs(db)
 
 
