@@ -10,15 +10,27 @@ from backend.app.repositories.job_repository_sa import (
     delete_job,
 )
 
+from backend.app.schemas.common_schema import ApiResponse
+from backend.app.schemas.job_schema import JobResponse
+
 
 def list_jobs(db: Session):
 
     jobs = get_all_jobs(db)
 
-    return {
-        "count": len(jobs),
-        "jobs": jobs,
-    }
+    job_list = [
+        JobResponse.model_validate(job)
+        for job in jobs
+    ]
+
+    return ApiResponse(
+        success=True,
+        message="Jobs retrieved successfully.",
+        data={
+            "count": len(job_list),
+            "jobs": job_list,
+        },
+    )
 
 
 def add_job(db: Session, job):
@@ -27,13 +39,14 @@ def add_job(db: Session, job):
         db=db,
         company=job.company,
         title=job.title,
-        url=job.url,
+        url=str(job.url),
     )
 
-    return {
-        "message": "Job created successfully.",
-        "job_id": created_job.id,
-    }
+    return ApiResponse(
+        success=True,
+        message="Job created successfully.",
+        data=JobResponse.model_validate(created_job),
+    )
 
 
 def get_job(db: Session, job_id: int):
@@ -46,7 +59,11 @@ def get_job(db: Session, job_id: int):
     if job is None:
         raise JobNotFoundException(job_id)
 
-    return job
+    return ApiResponse(
+        success=True,
+        message="Job retrieved successfully.",
+        data=JobResponse.model_validate(job),
+    )
 
 
 def update_existing_job(
@@ -60,15 +77,17 @@ def update_existing_job(
         job_id=job_id,
         company=job.company,
         title=job.title,
-        url=job.url,
+        url=str(job.url),
     )
 
     if updated_job is None:
         raise JobNotFoundException(job_id)
 
-    return {
-        "message": "Job updated successfully.",
-    }
+    return ApiResponse(
+        success=True,
+        message="Job updated successfully.",
+        data=JobResponse.model_validate(updated_job),
+    )
 
 
 def delete_existing_job(
@@ -84,6 +103,10 @@ def delete_existing_job(
     if not deleted:
         raise JobNotFoundException(job_id)
 
-    return {
-        "message": "Job deleted successfully.",
-    }
+    return ApiResponse(
+        success=True,
+        message="Job deleted successfully.",
+        data={
+            "job_id": job_id,
+        },
+    )
