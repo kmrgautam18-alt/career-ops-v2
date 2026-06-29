@@ -5,10 +5,22 @@ from backend.app.api.router import api_router
 from backend.app.exceptions.handlers import (
     global_exception_handler,
     job_not_found_exception_handler,
+    duplicate_email_exception_handler,
+    duplicate_username_exception_handler,
+    user_not_found_exception_handler,
+    invalid_credentials_exception_handler,
+    inactive_user_exception_handler,
+    unauthorized_exception_handler,
 )
 
 from backend.app.exceptions.custom_exceptions import (
     JobNotFoundException,
+    DuplicateEmailException,
+    DuplicateUsernameException,
+    UserNotFoundException,
+    InvalidCredentialsException,
+    InactiveUserException,
+    UnauthorizedException,
 )
 
 app = FastAPI(
@@ -19,6 +31,36 @@ app = FastAPI(
 app.add_exception_handler(
     JobNotFoundException,
     job_not_found_exception_handler,
+)
+
+app.add_exception_handler(
+    DuplicateEmailException,
+    duplicate_email_exception_handler,
+)
+
+app.add_exception_handler(
+    DuplicateUsernameException,
+    duplicate_username_exception_handler,
+)
+
+app.add_exception_handler(
+    UserNotFoundException,
+    user_not_found_exception_handler,
+)
+
+app.add_exception_handler(
+    InvalidCredentialsException,
+    invalid_credentials_exception_handler,
+)
+
+app.add_exception_handler(
+    InactiveUserException,
+    inactive_user_exception_handler,
+)
+
+app.add_exception_handler(
+    UnauthorizedException,
+    unauthorized_exception_handler,
 )
 
 app.add_exception_handler(

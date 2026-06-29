@@ -14,6 +14,12 @@ from backend.app.schemas.user_schema import UserResponse
 
 from backend.app.security.password import hash_password
 
+from backend.app.exceptions.custom_exceptions import (
+    DuplicateEmailException,
+    DuplicateUsernameException,
+    UserNotFoundException,
+)
+
 
 def register_user(
     db: Session,
@@ -27,10 +33,10 @@ def register_user(
     """
 
     if get_user_by_email(db, email):
-        raise ValueError("Email already registered.")
+        raise DuplicateEmailException(email)
 
     if get_user_by_username(db, username):
-        raise ValueError("Username already exists.")
+        raise DuplicateUsernameException(username)
 
     user = create_user(
         db=db,
@@ -58,7 +64,7 @@ def get_user(
     user = get_user_by_id(db, user_id)
 
     if user is None:
-        raise ValueError("User not found.")
+        raise UserNotFoundException(user_id)
 
     return ApiResponse(
         success=True,
