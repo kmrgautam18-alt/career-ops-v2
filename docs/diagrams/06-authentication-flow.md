@@ -16,7 +16,7 @@ Authentication uses:
 
 # Authentication Sequence
 
-```text
+```mermaid
                            Authentication Flow
 
 +--------------------+
