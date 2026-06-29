@@ -1,203 +1,139 @@
-# Authentication Flow Architecture
+# Authentication Flow Diagram
 
-## Module
+## Overview
 
-Authentication & Authorization
+This document describes the authentication workflow implemented in Career-Ops v2.
 
----
+Authentication uses:
 
-# Objective
-
-Provide secure, scalable and cloud-ready authentication for Career-Ops using JWT while keeping the architecture modular and production-ready.
-
----
-
-# Authentication Components
-
-```text
-Client
-   │
-   ▼
-Authentication API
-   │
-   ▼
-Authentication Service
-   │
-   ├── Password Verification
-   ├── JWT Generator
-   └── User Validation
-   │
-   ▼
-Database
-```
-
----
-
-# Registration Flow
-
-```text
-User
-
-│
-
-POST /users/register
-
-│
-
-User API
-
-│
-
-User Service
-
-│
-
-Hash Password (Argon2)
-
-│
-
-Repository
-
-│
-
-SQLite / PostgreSQL
-
-│
-
-Success Response
-```
-
----
-
-# Login Flow
-
-```text
-User
-
-│
-
-POST /auth/login
-
-│
-
-Authentication API
-
-│
-
-Authentication Service
-
-│
-
-Verify Password (Argon2)
-
-│
-
-Generate JWT
-
-│
-
-Access Token
-
-│
-
-Refresh Token
-
-│
-
-Return Response
-```
-
----
-
-# Protected Request Flow
-
-```text
-Client
-
-│
-
-Authorization: Bearer <Access Token>
-
-│
-
-JWT Verification
-
-│
-
-Token Validation
-
-│
-
-Protected API
-
-│
-
-Business Logic
-
-│
-
-Database
-```
-
----
-
-# Security Decisions
-
-* Password hashing uses Argon2.
-* JWT uses HS256.
-* Access Token is short-lived.
-* Refresh Token is long-lived.
-* Authentication is stateless.
-* APIs require Bearer authentication.
-* No plain-text passwords are stored.
-* Security logic is isolated inside the security module.
-
----
-
-# Current Security Structure
-
-```text
-backend/app/security/
-
-password.py
-jwt.py
-dependencies.py
-permissions.py
-```
-
----
-
-# Future Expansion
-
-Phase 1
-
-* User Registration
-* Login
-* JWT
-* Protected APIs
-
-Phase 2
-
-* Refresh Token Rotation
-* Device Sessions
-* Token Revocation
-
-Phase 3
-
-* OAuth (Google/GitHub)
-* MFA
-* SSO
-* Enterprise Identity Integration
-
----
-
-# Architecture Principles
-
-* Clean Architecture
-* SOLID Principles
+* Argon2 Password Hashing
+* JWT Access Token
+* JWT Refresh Token
 * Stateless Authentication
-* Cloud Ready
-* High Scalability
-* Low Runtime Overhead
-* Security by Design
-* Future Proof Design
+* Custom Exception Handling
+
+---
+
+# Authentication Sequence
+
+```text
+                           Authentication Flow
+
++--------------------+
+|      Client        |
++--------------------+
+          |
+          | POST /api/v1/auth/login
+          v
++--------------------+
+|  FastAPI Router    |
+|    auth.py         |
++--------------------+
+          |
+          v
++--------------------+
+|   Auth Service     |
+| login_user()       |
++--------------------+
+          |
+          v
++----------------------------+
+| User Repository            |
+| get_user_by_email()        |
++----------------------------+
+          |
+          v
++----------------------------+
+| SQLite Database            |
++----------------------------+
+          |
+          v
+User Found?
+     |
+ +---+------------------+
+ |                      |
+ | No                   | Yes
+ |                      |
+ v                      v
+401 Unauthorized   Verify Password
+                        |
+                        v
+                +------------------+
+                | Argon2 Verify    |
+                +------------------+
+                        |
+            +-----------+-----------+
+            |                       |
+            | Invalid               | Valid
+            |                       |
+            v                       v
+    401 Unauthorized       User Active?
+                                    |
+                        +-----------+-----------+
+                        |                       |
+                        | No                    | Yes
+                        |                       |
+                        v                       v
+                 403 Forbidden         Generate JWT
+                                              |
+                                              v
+                              +---------------------------+
+                              | JWT Utility               |
+                              |                           |
+                              | Access Token              |
+                              | Refresh Token             |
+                              +---------------------------+
+                                              |
+                                              v
+                              HTTP 200 OK Response
+```
+
+---
+
+# Components
+
+## API Layer
+
+* auth.py
+
+## Service Layer
+
+* auth_service.py
+
+## Repository Layer
+
+* user_repository_sa.py
+
+## Security Layer
+
+* password.py
+* jwt.py
+
+## Database
+
+* SQLite
+
+---
+
+# Exceptions
+
+| Exception                   | HTTP Status |
+| --------------------------- | ----------: |
+| InvalidCredentialsException |         401 |
+| InactiveUserException       |         403 |
+| UserNotFoundException       |         404 |
+| DuplicateEmailException     |         409 |
+| DuplicateUsernameException  |         409 |
+| UnauthorizedException       |         401 |
+
+---
+
+# Status
+
+Authentication Module v1
+
+* User Registration ✅
+* Login ✅
+* Password Hashing ✅
+* JWT Authentication ✅
+* Exception Handling ✅
