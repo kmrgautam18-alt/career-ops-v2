@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from backend.app.api.v1.jobs import router as jobs_router
+from backend.app.api.router import api_router
 
 from backend.app.exceptions.handlers import (
     global_exception_handler,
@@ -35,10 +35,7 @@ def root():
     }
 
 
-app.include_router(
-    jobs_router,
-    prefix="/api/v1",
-)
+app.include_router(api_router)
 
 
 if __name__ == "__main__":

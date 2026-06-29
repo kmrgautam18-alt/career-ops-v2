@@ -3,6 +3,7 @@ from backend.app.database.db import engine
 
 # Import all ORM models here
 from backend.app.models.job import Job
+from backend.app.models.user import User
 
 
 def init_database():
