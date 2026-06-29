@@ -12,13 +12,15 @@ from backend.app.repositories.user_repository_sa import (
 from backend.app.schemas.common_schema import ApiResponse
 from backend.app.schemas.user_schema import UserResponse
 
+from backend.app.security.password import hash_password
+
 
 def register_user(
     db: Session,
     email: str,
     username: str,
     full_name: str,
-    hashed_password: str,
+    password: str,
 ):
     """
     Register a new user.
@@ -35,7 +37,7 @@ def register_user(
         email=email,
         username=username,
         full_name=full_name,
-        hashed_password=hashed_password,
+        hashed_password=hash_password(password),
     )
 
     return ApiResponse(

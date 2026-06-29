@@ -26,7 +26,7 @@ def create_user(
         email=user.email,
         username=user.username,
         full_name=user.full_name,
-        hashed_password=user.password,  # Temporary (will hash next)
+        password=user.password,
     )
 
 
