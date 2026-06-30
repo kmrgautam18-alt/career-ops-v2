@@ -8,6 +8,11 @@ from backend.app.schemas.user_schema import UserCreate
 from backend.app.services.user_service import (
     register_user,
     get_user,
+    get_current_user_profile,
+)
+
+from backend.app.security.dependencies import (
+    get_current_active_user,
 )
 
 router = APIRouter(
@@ -21,6 +26,10 @@ def create_user(
     user: UserCreate,
     db: Session = Depends(get_db),
 ):
+    """
+    Register a new user.
+    """
+
     return register_user(
         db=db,
         email=user.email,
@@ -30,11 +39,28 @@ def create_user(
     )
 
 
+@router.get("/me")
+def get_my_profile(
+    current_user=Depends(get_current_active_user),
+):
+    """
+    Return currently authenticated user's profile.
+    """
+
+    return get_current_user_profile(
+        current_user=current_user,
+    )
+
+
 @router.get("/{user_id}")
 def get_single_user(
     user_id: int,
     db: Session = Depends(get_db),
 ):
+    """
+    Get user by ID.
+    """
+
     return get_user(
         db=db,
         user_id=user_id,

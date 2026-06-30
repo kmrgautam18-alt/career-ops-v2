@@ -11,6 +11,7 @@ from backend.app.exceptions.custom_exceptions import (
     InvalidCredentialsException,
     InactiveUserException,
     UnauthorizedException,
+    ForbiddenException,
 )
 
 
@@ -112,6 +113,21 @@ async def unauthorized_exception_handler(
 
     return JSONResponse(
         status_code=401,
+        content={
+            "success": False,
+            "message": exc.message,
+        },
+    )
+
+
+async def forbidden_exception_handler(
+    request: Request,
+    exc: ForbiddenException,
+):
+    logger.warning(exc.message)
+
+    return JSONResponse(
+        status_code=403,
         content={
             "success": False,
             "message": exc.message,

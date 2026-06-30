@@ -60,9 +60,20 @@ class InactiveUserException(Exception):
 
 class UnauthorizedException(Exception):
     """
-    Raised when authentication token is invalid.
+    Raised when authentication fails.
     """
 
     def __init__(self):
         self.message = "Unauthorized."
+        super().__init__(self.message)
+
+
+class ForbiddenException(Exception):
+    """
+    Raised when the authenticated user does not have permission
+    to access the requested resource.
+    """
+
+    def __init__(self):
+        self.message = "Forbidden."
         super().__init__(self.message)

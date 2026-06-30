@@ -13,6 +13,10 @@ class UserLogin(BaseModel):
     password: str
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+
 class UserUpdate(BaseModel):
     full_name: str | None = None
     username: str | None = None

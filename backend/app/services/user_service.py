@@ -73,6 +73,20 @@ def get_user(
     )
 
 
+def get_current_user_profile(
+    current_user,
+):
+    """
+    Return authenticated user profile.
+    """
+
+    return ApiResponse(
+        success=True,
+        message="Current user retrieved successfully.",
+        data=UserResponse.model_validate(current_user),
+    )
+
+
 def update_existing_user(
     db: Session,
     user,
