@@ -58,3 +58,33 @@ dist/
 
 # Backup Files
 *.bak
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+
+# Environment
+.env
+
+# SQLite
+*.db
+*.db-journal
+
+# Upload Storage
+storage/resumes/
+
+# Test Files
+test-data/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store

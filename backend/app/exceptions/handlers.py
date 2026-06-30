@@ -11,7 +11,13 @@ from backend.app.exceptions.custom_exceptions import (
     InvalidCredentialsException,
     InactiveUserException,
     UnauthorizedException,
-    ForbiddenException,
+)
+
+from backend.app.exceptions.resume_exceptions import (
+    ResumeNotFoundException,
+    InvalidResumeFileException,
+    UnsupportedResumeTypeException,
+    ResumeTooLargeException,
 )
 
 
@@ -120,14 +126,59 @@ async def unauthorized_exception_handler(
     )
 
 
-async def forbidden_exception_handler(
+async def resume_not_found_exception_handler(
     request: Request,
-    exc: ForbiddenException,
+    exc: ResumeNotFoundException,
 ):
     logger.warning(exc.message)
 
     return JSONResponse(
-        status_code=403,
+        status_code=404,
+        content={
+            "success": False,
+            "message": exc.message,
+        },
+    )
+
+
+async def invalid_resume_file_exception_handler(
+    request: Request,
+    exc: InvalidResumeFileException,
+):
+    logger.warning(exc.message)
+
+    return JSONResponse(
+        status_code=400,
+        content={
+            "success": False,
+            "message": exc.message,
+        },
+    )
+
+
+async def unsupported_resume_type_exception_handler(
+    request: Request,
+    exc: UnsupportedResumeTypeException,
+):
+    logger.warning(exc.message)
+
+    return JSONResponse(
+        status_code=415,
+        content={
+            "success": False,
+            "message": exc.message,
+        },
+    )
+
+
+async def resume_too_large_exception_handler(
+    request: Request,
+    exc: ResumeTooLargeException,
+):
+    logger.warning(exc.message)
+
+    return JSONResponse(
+        status_code=413,
         content={
             "success": False,
             "message": exc.message,

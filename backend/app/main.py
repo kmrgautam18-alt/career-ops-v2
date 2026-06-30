@@ -11,7 +11,10 @@ from backend.app.exceptions.handlers import (
     invalid_credentials_exception_handler,
     inactive_user_exception_handler,
     unauthorized_exception_handler,
-    forbidden_exception_handler,
+    resume_not_found_exception_handler,
+    invalid_resume_file_exception_handler,
+    unsupported_resume_type_exception_handler,
+    resume_too_large_exception_handler,
 )
 
 from backend.app.exceptions.custom_exceptions import (
@@ -22,7 +25,13 @@ from backend.app.exceptions.custom_exceptions import (
     InvalidCredentialsException,
     InactiveUserException,
     UnauthorizedException,
-    ForbiddenException,
+)
+
+from backend.app.exceptions.resume_exceptions import (
+    ResumeNotFoundException,
+    InvalidResumeFileException,
+    UnsupportedResumeTypeException,
+    ResumeTooLargeException,
 )
 
 app = FastAPI(
@@ -66,8 +75,23 @@ app.add_exception_handler(
 )
 
 app.add_exception_handler(
-    ForbiddenException,
-    forbidden_exception_handler,
+    ResumeNotFoundException,
+    resume_not_found_exception_handler,
+)
+
+app.add_exception_handler(
+    InvalidResumeFileException,
+    invalid_resume_file_exception_handler,
+)
+
+app.add_exception_handler(
+    UnsupportedResumeTypeException,
+    unsupported_resume_type_exception_handler,
+)
+
+app.add_exception_handler(
+    ResumeTooLargeException,
+    resume_too_large_exception_handler,
 )
 
 app.add_exception_handler(
@@ -95,4 +119,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-    )   
+    )

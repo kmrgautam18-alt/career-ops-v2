@@ -4,7 +4,7 @@ from backend.app.database.db import engine
 # Import all ORM models here
 from backend.app.models.job import Job
 from backend.app.models.user import User
-
+from backend.app.models.resume import Resume
 
 def init_database():
     """
