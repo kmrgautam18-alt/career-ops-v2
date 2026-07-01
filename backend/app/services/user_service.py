@@ -1,24 +1,21 @@
 from sqlalchemy.orm import Session
 
-from backend.app.repositories.user_repository_sa import (
-    create_user,
-    get_user_by_email,
-    get_user_by_username,
-    get_user_by_id,
-    update_user,
-    delete_user,
-)
-
-from backend.app.schemas.common_schema import ApiResponse
-from backend.app.schemas.user_schema import UserResponse
-
-from backend.app.security.password import hash_password
-
 from backend.app.exceptions.custom_exceptions import (
     DuplicateEmailException,
     DuplicateUsernameException,
     UserNotFoundException,
 )
+from backend.app.repositories.user_repository_sa import (
+    create_user,
+    delete_user,
+    get_user_by_email,
+    get_user_by_id,
+    get_user_by_username,
+    update_user,
+)
+from backend.app.schemas.common_schema import ApiResponse
+from backend.app.schemas.user_schema import UserResponse
+from backend.app.security.password import hash_password
 
 
 def register_user(

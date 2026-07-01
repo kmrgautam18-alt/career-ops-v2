@@ -8,19 +8,16 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
-
 from backend.app.security.dependencies import (
     get_current_active_user,
 )
-
+from backend.app.services.resume_service import (
+    delete_user_resume,
+    get_user_resume,
+    list_user_resumes,
+)
 from backend.app.services.resume_upload_service import (
     upload_resume,
-)
-
-from backend.app.services.resume_service import (
-    list_user_resumes,
-    get_user_resume,
-    delete_user_resume,
 )
 
 router = APIRouter(

@@ -1,25 +1,21 @@
 from sqlalchemy.orm import Session
 
+from backend.app.exceptions.custom_exceptions import (
+    InactiveUserException,
+    InvalidCredentialsException,
+    UnauthorizedException,
+)
 from backend.app.repositories.user_repository_sa import (
     get_user_by_email,
     get_user_by_id,
 )
-
-from backend.app.security.password import verify_password
-
+from backend.app.schemas.common_schema import ApiResponse
 from backend.app.security.jwt import (
     create_access_token,
     create_refresh_token,
     decode_token,
 )
-
-from backend.app.schemas.common_schema import ApiResponse
-
-from backend.app.exceptions.custom_exceptions import (
-    InvalidCredentialsException,
-    InactiveUserException,
-    UnauthorizedException,
-)
+from backend.app.security.password import verify_password
 
 
 def login_user(
@@ -79,8 +75,8 @@ def refresh_access_token(
 
     try:
         payload = decode_token(refresh_token)
-    except Exception:
-        raise UnauthorizedException()
+    except Exception as err:
+        raise UnauthorizedException() from err
 
     if payload.get("type") != "refresh":
         raise UnauthorizedException()

@@ -1,17 +1,16 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+
 from backend.app.core.roles import Roles
-
 from backend.app.database.dependencies import get_db
-from backend.app.security.jwt import decode_token
-from backend.app.repositories.user_repository_sa import get_user_by_id
-
 from backend.app.exceptions.custom_exceptions import (
-    UnauthorizedException,
-    InactiveUserException,
     ForbiddenException,
+    InactiveUserException,
+    UnauthorizedException,
 )
+from backend.app.repositories.user_repository_sa import get_user_by_id
+from backend.app.security.jwt import decode_token
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login",
@@ -28,8 +27,8 @@ def get_current_user(
 
     try:
         payload = decode_token(token)
-    except Exception:
-        raise UnauthorizedException()
+    except Exception as err:
+        raise UnauthorizedException() from err
 
     user_id = int(payload["sub"])
 

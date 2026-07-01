@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import uuid4
 
 from jose import JWTError, jwt
@@ -15,8 +16,8 @@ def create_access_token(
     Generate JWT access token.
     """
 
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    expire = datetime.now(UTC) + timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
     )
 
     payload = {
@@ -24,15 +25,17 @@ def create_access_token(
         "email": email,
         "role": role,
         "type": "access",
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
         "exp": expire,
         "jti": str(uuid4()),
     }
 
-    return jwt.encode(
-        payload,
-        settings.SECRET_KEY,
-        algorithm=settings.ALGORITHM,
+    return str(
+        jwt.encode(
+            payload,
+            settings.SECRET_KEY,
+            algorithm=settings.ALGORITHM,
+        )
     )
 
 
@@ -43,36 +46,40 @@ def create_refresh_token(
     Generate JWT refresh token.
     """
 
-    expire = datetime.now(timezone.utc) + timedelta(
-        days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+    expire = datetime.now(UTC) + timedelta(
+        days=settings.REFRESH_TOKEN_EXPIRE_DAYS,
     )
 
     payload = {
         "sub": str(user_id),
         "type": "refresh",
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
         "exp": expire,
         "jti": str(uuid4()),
     }
 
-    return jwt.encode(
-        payload,
-        settings.SECRET_KEY,
-        algorithm=settings.ALGORITHM,
+    return str(
+        jwt.encode(
+            payload,
+            settings.SECRET_KEY,
+            algorithm=settings.ALGORITHM,
+        )
     )
 
 
 def decode_token(
     token: str,
-) -> dict:
+) -> dict[str, Any]:
     """
     Decode JWT token.
     """
 
-    return jwt.decode(
-        token,
-        settings.SECRET_KEY,
-        algorithms=[settings.ALGORITHM],
+    return dict(
+        jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
     )
 
 

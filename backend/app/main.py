@@ -1,37 +1,34 @@
 from fastapi import FastAPI
 
 from backend.app.api.router import api_router
-
-from backend.app.exceptions.handlers import (
-    global_exception_handler,
-    job_not_found_exception_handler,
-    duplicate_email_exception_handler,
-    duplicate_username_exception_handler,
-    user_not_found_exception_handler,
-    invalid_credentials_exception_handler,
-    inactive_user_exception_handler,
-    unauthorized_exception_handler,
-    resume_not_found_exception_handler,
-    invalid_resume_file_exception_handler,
-    unsupported_resume_type_exception_handler,
-    resume_too_large_exception_handler,
-)
-
 from backend.app.exceptions.custom_exceptions import (
-    JobNotFoundException,
     DuplicateEmailException,
     DuplicateUsernameException,
-    UserNotFoundException,
-    InvalidCredentialsException,
     InactiveUserException,
+    InvalidCredentialsException,
+    JobNotFoundException,
     UnauthorizedException,
+    UserNotFoundException,
 )
-
+from backend.app.exceptions.handlers import (
+    duplicate_email_exception_handler,
+    duplicate_username_exception_handler,
+    global_exception_handler,
+    inactive_user_exception_handler,
+    invalid_credentials_exception_handler,
+    invalid_resume_file_exception_handler,
+    job_not_found_exception_handler,
+    resume_not_found_exception_handler,
+    resume_too_large_exception_handler,
+    unauthorized_exception_handler,
+    unsupported_resume_type_exception_handler,
+    user_not_found_exception_handler,
+)
 from backend.app.exceptions.resume_exceptions import (
-    ResumeNotFoundException,
     InvalidResumeFileException,
-    UnsupportedResumeTypeException,
+    ResumeNotFoundException,
     ResumeTooLargeException,
+    UnsupportedResumeTypeException,
 )
 
 app = FastAPI(

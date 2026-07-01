@@ -6,7 +6,6 @@ This module centralizes all file upload related constants.
 
 from pathlib import Path
 
-
 # ==========================================================
 # Resume Upload
 # ==========================================================

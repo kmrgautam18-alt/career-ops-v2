@@ -2,12 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
-
 from backend.app.schemas.user_schema import (
-    UserLogin,
     RefreshTokenRequest,
+    UserLogin,
 )
-
 from backend.app.services.auth_service import (
     login_user,
     refresh_access_token,

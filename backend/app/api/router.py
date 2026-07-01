@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from backend.app.api.v1.jobs import router as jobs_router
-from backend.app.api.v1.users import router as users_router
-from backend.app.api.v1.auth import router as auth_router
 from backend.app.api.v1.admin import router as admin_router
+from backend.app.api.v1.auth import router as auth_router
+from backend.app.api.v1.jobs import router as jobs_router
 from backend.app.api.v1.resumes import router as resumes_router
+from backend.app.api.v1.users import router as users_router
 
 api_router = APIRouter(
     prefix="/api/v1",

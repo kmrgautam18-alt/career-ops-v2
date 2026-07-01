@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends
 
+from backend.app.schemas.common_schema import ApiResponse
 from backend.app.security.dependencies import (
     get_current_admin_user,
 )
-
-from backend.app.schemas.common_schema import ApiResponse
 
 router = APIRouter(
     prefix="/admin",

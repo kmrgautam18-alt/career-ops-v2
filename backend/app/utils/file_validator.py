@@ -13,11 +13,10 @@ from backend.app.core.file_constants import (
     ALLOWED_RESUME_TYPES,
     MAX_RESUME_SIZE_BYTES,
 )
-
 from backend.app.exceptions.resume_exceptions import (
     InvalidResumeFileException,
-    UnsupportedResumeTypeException,
     ResumeTooLargeException,
+    UnsupportedResumeTypeException,
 )
 
 
@@ -28,7 +27,12 @@ def validate_file_extension(
     Validate file extension.
     """
 
-    extension = Path(upload_file.filename).suffix.lower()
+    filename = upload_file.filename
+
+    if filename is None:
+        raise InvalidResumeFileException()
+
+    extension = Path(filename).suffix.lower()
 
     if extension not in ALLOWED_RESUME_EXTENSIONS:
         raise UnsupportedResumeTypeException()
@@ -67,7 +71,7 @@ def validate_resume_file(
     Perform all resume file validations.
     """
 
-    if not upload_file.filename:
+    if upload_file.filename is None:
         raise InvalidResumeFileException()
 
     validate_file_extension(upload_file)

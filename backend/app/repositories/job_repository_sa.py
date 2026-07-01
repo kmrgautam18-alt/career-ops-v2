@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.app.models.job import Job
@@ -60,11 +60,11 @@ def get_jobs_paginated(
     )
 
     sort_mapping = {
-        SortField.id: Job.id,
-        SortField.company: Job.company,
-        SortField.title: Job.title,
-        SortField.status: Job.status,
-    }
+    SortField.id: Job.id,
+    SortField.company: Job.company,
+    SortField.job_title: Job.title,
+    SortField.status: Job.status,
+}
 
     sort_column = sort_mapping[sort]
 

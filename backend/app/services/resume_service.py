@@ -2,21 +2,18 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from backend.app.repositories.resume_repository_sa import (
-    get_resume_by_id_and_user,
-    get_resumes_by_user,
-    delete_resume,
-)
-
-from backend.app.schemas.common_schema import ApiResponse
-from backend.app.schemas.resume_schema import ResumeResponse
-
-from backend.app.utils.file_storage import (
-    delete_uploaded_file,
-)
-
 from backend.app.exceptions.resume_exceptions import (
     ResumeNotFoundException,
+)
+from backend.app.repositories.resume_repository_sa import (
+    delete_resume,
+    get_resume_by_id_and_user,
+    get_resumes_by_user,
+)
+from backend.app.schemas.common_schema import ApiResponse
+from backend.app.schemas.resume_schema import ResumeResponse
+from backend.app.utils.file_storage import (
+    delete_uploaded_file,
 )
 
 

@@ -3,21 +3,18 @@ from math import ceil
 from sqlalchemy.orm import Session
 
 from backend.app.exceptions.custom_exceptions import JobNotFoundException
-
 from backend.app.repositories.job_repository_sa import (
-    get_all_jobs,
-    get_jobs_paginated,
     create_job,
-    get_job_by_id,
-    update_job,
     delete_job,
+    get_all_jobs,
+    get_job_by_id,
+    get_jobs_paginated,
+    update_job,
 )
-
 from backend.app.schemas.common_schema import (
     ApiResponse,
     Pagination,
 )
-
 from backend.app.schemas.job_schema import JobResponse
 from backend.app.schemas.query_schema import (
     SortField,

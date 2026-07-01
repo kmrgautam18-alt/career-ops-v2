@@ -1,24 +1,22 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from backend.app.utils.logger import logger
-
 from backend.app.exceptions.custom_exceptions import (
-    JobNotFoundException,
     DuplicateEmailException,
     DuplicateUsernameException,
-    UserNotFoundException,
-    InvalidCredentialsException,
     InactiveUserException,
+    InvalidCredentialsException,
+    JobNotFoundException,
     UnauthorizedException,
+    UserNotFoundException,
 )
-
 from backend.app.exceptions.resume_exceptions import (
-    ResumeNotFoundException,
     InvalidResumeFileException,
-    UnsupportedResumeTypeException,
+    ResumeNotFoundException,
     ResumeTooLargeException,
+    UnsupportedResumeTypeException,
 )
+from backend.app.utils.logger import logger
 
 
 async def job_not_found_exception_handler(
