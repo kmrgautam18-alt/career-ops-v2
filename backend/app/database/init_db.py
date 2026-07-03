@@ -1,6 +1,11 @@
 from backend.app.database.base import Base
 from backend.app.database.db import engine
 
+from backend.app.models.application import Application
+from backend.app.models.job import Job
+from backend.app.models.resume import Resume
+from backend.app.models.user import User
+
 # Import all ORM models here
 
 
