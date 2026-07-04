@@ -30,7 +30,10 @@ def get_current_user(
     except Exception as err:
         raise UnauthorizedException() from err
 
-    user_id = int(payload["sub"])
+    try:
+        user_id = int(payload["sub"])
+    except (KeyError, ValueError, TypeError) as err:
+        raise UnauthorizedException() from err
 
     user = get_user_by_id(
         db=db,
