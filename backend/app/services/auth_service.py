@@ -106,3 +106,21 @@ def refresh_access_token(
             "token_type": "bearer",
         },
     )
+
+
+def logout_user():
+    """
+    Logout the authenticated user.
+
+    JWT is stateless.
+    Client should remove access and refresh tokens.
+
+    Future:
+    Redis token blacklist will be implemented.
+    """
+
+    return ApiResponse(
+        success=True,
+        message="Logout successful.",
+        data=None,
+    )
