@@ -1,17 +1,37 @@
 from datetime import datetime
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+ResumeTitle = Annotated[
+    str,
+    Field(
+        min_length=2,
+        max_length=200,
+        strip_whitespace=True,
+        description="Resume title",
+        examples=["Senior DevOps Resume"],
+    ),
+]
 
 
 class ResumeCreate(BaseModel):
-    title: str
+    title: ResumeTitle
 
 
 class ResumeUpdate(BaseModel):
-    title: str
+    title: ResumeTitle
+
+
+class ResumeRename(BaseModel):
+    title: ResumeTitle
 
 
 class ResumeResponse(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
     id: int
     user_id: int
 
@@ -30,7 +50,3 @@ class ResumeResponse(BaseModel):
 
     created_at: datetime
     updated_at: datetime
-
-    model_config = ConfigDict(
-        from_attributes=True,
-    )

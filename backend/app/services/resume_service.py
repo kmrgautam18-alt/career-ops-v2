@@ -9,9 +9,13 @@ from backend.app.repositories.resume_repository_sa import (
     delete_resume,
     get_resume_by_id_and_user,
     get_resumes_by_user,
+    rename_resume,
 )
 from backend.app.schemas.common_schema import ApiResponse
-from backend.app.schemas.resume_schema import ResumeResponse
+from backend.app.schemas.resume_schema import (
+    ResumeRename,
+    ResumeResponse,
+)
 from backend.app.utils.file_storage import (
     delete_uploaded_file,
 )
@@ -88,12 +92,10 @@ def delete_user_resume(
     if resume is None:
         raise ResumeNotFoundException(resume_id)
 
-    # Delete physical file (ignore if already missing)
     delete_uploaded_file(
         Path(resume.file_path)
     )
 
-    # Delete database record
     delete_resume(
         db=db,
         resume=resume,
@@ -106,3 +108,37 @@ def delete_user_resume(
             "resume_id": resume_id,
         },
     )
+
+
+def rename_user_resume(
+    db: Session,
+    current_user,
+    resume_id: int,
+    request: ResumeRename,
+):
+    """
+    Rename a resume owned by the authenticated user.
+    """
+
+    resume = get_resume_by_id_and_user(
+        db=db,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+
+    if resume is None:
+        raise ResumeNotFoundException(resume_id)
+
+    resume = rename_resume(
+        db=db,
+        resume=resume,
+        title=request.title,
+    )
+
+    return ApiResponse(
+        success=True,
+        message="Resume renamed successfully.",
+        data=ResumeResponse.model_validate(resume),
+    )
+
+    

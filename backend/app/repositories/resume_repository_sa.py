@@ -70,6 +70,43 @@ def get_resume_by_id_and_user(
     )
 
 
+def get_resume_file(
+    db: Session,
+    resume_id: int,
+    user_id: int,
+) -> Resume | None:
+    """
+    Return resume file metadata only if it belongs to the user.
+    Used by download and preview endpoints.
+    """
+
+    return (
+        db.query(Resume)
+        .filter(
+            Resume.id == resume_id,
+            Resume.user_id == user_id,
+        )
+        .first()
+    )
+
+
+def rename_resume(
+    db: Session,
+    resume: Resume,
+    title: str,
+) -> Resume:
+    """
+    Rename a resume title.
+    """
+
+    resume.title = title
+
+    db.commit()
+    db.refresh(resume)
+
+    return resume
+
+
 def update_resume(
     db: Session,
     resume: Resume,

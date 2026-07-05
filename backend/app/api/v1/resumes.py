@@ -8,6 +8,7 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
+from backend.app.schemas.resume_schema import ResumeRename
 from backend.app.security.dependencies import (
     get_current_active_user,
 )
@@ -15,6 +16,7 @@ from backend.app.services.resume_service import (
     delete_user_resume,
     get_user_resume,
     list_user_resumes,
+    rename_user_resume,
 )
 from backend.app.services.resume_upload_service import (
     upload_resume,
@@ -74,6 +76,25 @@ def get_resume(
         db=db,
         current_user=current_user,
         resume_id=resume_id,
+    )
+
+
+@router.patch("/{resume_id}")
+def rename_resume_endpoint(
+    resume_id: int,
+    request: ResumeRename,
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Rename a resume.
+    """
+
+    return rename_user_resume(
+        db=db,
+        current_user=current_user,
+        resume_id=resume_id,
+        request=request,
     )
 
 
