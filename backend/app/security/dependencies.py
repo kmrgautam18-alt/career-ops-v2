@@ -9,7 +9,9 @@ from backend.app.exceptions.custom_exceptions import (
     InactiveUserException,
     UnauthorizedException,
 )
-from backend.app.repositories.user_repository_sa import get_user_by_id
+from backend.app.repositories.user_repository_sa import (
+    get_user_by_id,
+)
 from backend.app.security.jwt import decode_token
 
 oauth2_scheme = OAuth2PasswordBearer(

@@ -2,6 +2,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from backend.app.exceptions.custom_exceptions import (
+    ApplicationNotFoundException,
     DuplicateEmailException,
     DuplicateUsernameException,
     InactiveUserException,
@@ -22,6 +23,21 @@ from backend.app.utils.logger import logger
 async def job_not_found_exception_handler(
     request: Request,
     exc: JobNotFoundException,
+):
+    logger.warning(exc.message)
+
+    return JSONResponse(
+        status_code=404,
+        content={
+            "success": False,
+            "message": exc.message,
+        },
+    )
+
+
+async def application_not_found_exception_handler(
+    request: Request,
+    exc: ApplicationNotFoundException,
 ):
     logger.warning(exc.message)
 

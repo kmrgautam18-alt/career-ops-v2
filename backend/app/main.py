@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from backend.app.api.router import api_router
 from backend.app.exceptions.custom_exceptions import (
+    ApplicationNotFoundException,
     DuplicateEmailException,
     DuplicateUsernameException,
     InactiveUserException,
@@ -11,6 +12,7 @@ from backend.app.exceptions.custom_exceptions import (
     UserNotFoundException,
 )
 from backend.app.exceptions.handlers import (
+    application_not_found_exception_handler,
     duplicate_email_exception_handler,
     duplicate_username_exception_handler,
     global_exception_handler,
@@ -36,9 +38,15 @@ app = FastAPI(
     version="0.1.0",
 )
 
+
 app.add_exception_handler(
     JobNotFoundException,
     job_not_found_exception_handler,
+)
+
+app.add_exception_handler(
+    ApplicationNotFoundException,
+    application_not_found_exception_handler,
 )
 
 app.add_exception_handler(

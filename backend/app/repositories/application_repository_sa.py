@@ -6,49 +6,6 @@ from sqlalchemy.orm import Session
 from backend.app.models.application import Application
 
 
-def get_all_applications(
-    db: Session,
-    user_id: int,
-):
-    """
-    Retrieve all applications for a specific user.
-    """
-
-    return db.scalars(
-        select(Application)
-        .where(Application.user_id == user_id)
-        .order_by(Application.id)
-    ).all()
-
-
-def get_application_by_id(
-    db: Session,
-    application_id: int,
-):
-    """
-    Retrieve an application by ID.
-    """
-
-    return db.get(Application, application_id)
-
-
-def get_application_by_user_and_job(
-    db: Session,
-    user_id: int,
-    job_id: int,
-):
-    """
-    Return an existing application for the given user and job.
-    """
-
-    return db.scalar(
-        select(Application).where(
-            Application.user_id == user_id,
-            Application.job_id == job_id,
-        )
-    )
-
-
 def create_application(
     db: Session,
     user_id: int,
@@ -56,7 +13,7 @@ def create_application(
     applied_date: date,
     status: str,
     notes: str | None,
-):
+) -> Application:
     """
     Create a new application.
     """
@@ -76,25 +33,83 @@ def create_application(
     return application
 
 
-def update_application(
+def get_application_by_id(
     db: Session,
     application_id: int,
-    applied_date: date,
-    status: str,
-    notes: str | None,
-):
+) -> Application | None:
     """
-    Update an existing application.
+    Return an application by its ID.
     """
 
-    application = db.get(Application, application_id)
+    return db.get(
+        Application,
+        application_id,
+    )
 
-    if application is None:
-        return None
 
-    application.applied_date = applied_date
-    application.status = status
-    application.notes = notes
+def get_applications_by_user(
+    db: Session,
+    user_id: int,
+) -> list[Application]:
+    """
+    Return all applications belonging to a user.
+    """
+
+    return (
+        db.scalars(
+            select(Application)
+            .where(
+                Application.user_id == user_id,
+            )
+            .order_by(
+                Application.created_at.desc(),
+            )
+        )
+        .all()
+    )
+
+
+def get_application_by_user_and_job(
+    db: Session,
+    user_id: int,
+    job_id: int,
+) -> Application | None:
+    """
+    Return an application for a specific user and job.
+    """
+
+    return db.scalar(
+        select(Application).where(
+            Application.user_id == user_id,
+            Application.job_id == job_id,
+        )
+    )
+
+
+def get_application_by_id_and_user(
+    db: Session,
+    application_id: int,
+    user_id: int,
+) -> Application | None:
+    """
+    Return an application only if it belongs to the user.
+    """
+
+    return db.scalar(
+        select(Application).where(
+            Application.id == application_id,
+            Application.user_id == user_id,
+        )
+    )
+
+
+def update_application(
+    db: Session,
+    application: Application,
+) -> Application:
+    """
+    Persist changes to an existing application.
+    """
 
     db.commit()
     db.refresh(application)
@@ -104,18 +119,11 @@ def update_application(
 
 def delete_application(
     db: Session,
-    application_id: int,
-):
+    application: Application,
+) -> None:
     """
     Delete an application.
     """
 
-    application = db.get(Application, application_id)
-
-    if application is None:
-        return False
-
     db.delete(application)
     db.commit()
-
-    return True

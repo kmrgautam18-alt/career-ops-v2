@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 
 from backend.app.exceptions.custom_exceptions import (
-    JobNotFoundException,
+    ApplicationNotFoundException,
 )
 from backend.app.repositories.application_repository_sa import (
     create_application,
     delete_application,
-    get_all_applications,
-    get_application_by_id,
+    get_application_by_id_and_user,
     get_application_by_user_and_job,
+    get_applications_by_user,
     update_application,
 )
 from backend.app.schemas.application_schema import (
@@ -27,46 +27,47 @@ def list_applications(
     Retrieve all applications for the authenticated user.
     """
 
-    applications = get_all_applications(
+    applications = get_applications_by_user(
         db=db,
         user_id=user_id,
     )
 
-    application_list = [
-        ApplicationResponse.model_validate(application)
-        for application in applications
-    ]
-
     return ApiResponse(
         success=True,
         message="Applications retrieved successfully.",
-        data={
-            "count": len(application_list),
-            "applications": application_list,
-        },
+        data=[
+            ApplicationResponse.model_validate(application)
+            for application in applications
+        ],
     )
 
 
 def get_application(
     db: Session,
+    user_id: int,
     application_id: int,
 ):
     """
-    Retrieve a single application.
+    Retrieve a single application owned by the authenticated user.
     """
 
-    application = get_application_by_id(
+    application = get_application_by_id_and_user(
         db=db,
         application_id=application_id,
+        user_id=user_id,
     )
 
     if application is None:
-        raise JobNotFoundException(application_id)
+        raise ApplicationNotFoundException(
+            application_id
+        )
 
     return ApiResponse(
         success=True,
         message="Application retrieved successfully.",
-        data=ApplicationResponse.model_validate(application),
+        data=ApplicationResponse.model_validate(
+            application
+        ),
     )
 
 
@@ -85,7 +86,7 @@ def create_new_application(
         job_id=application.job_id,
     )
 
-    if existing:
+    if existing is not None:
         return ApiResponse(
             success=False,
             message="You have already applied for this job.",
@@ -104,12 +105,15 @@ def create_new_application(
     return ApiResponse(
         success=True,
         message="Application created successfully.",
-        data=ApplicationResponse.model_validate(created_application),
+        data=ApplicationResponse.model_validate(
+            created_application,
+        ),
     )
 
 
 def update_existing_application(
     db: Session,
+    user_id: int,
     application_id: int,
     application: ApplicationUpdate,
 ):
@@ -117,50 +121,66 @@ def update_existing_application(
     Update an existing application.
     """
 
-    existing = get_application_by_id(
+    existing = get_application_by_id_and_user(
         db=db,
         application_id=application_id,
+        user_id=user_id,
     )
 
     if existing is None:
-        raise JobNotFoundException(application_id)
+        raise ApplicationNotFoundException(
+            application_id
+        )
+
+    if application.applied_date is not None:
+        existing.applied_date = (
+            application.applied_date
+        )
+
+    if application.status is not None:
+        existing.status = application.status
+
+    if application.notes is not None:
+        existing.notes = application.notes
 
     updated = update_application(
         db=db,
-        application_id=application_id,
-        applied_date=application.applied_date
-        if application.applied_date is not None
-        else existing.applied_date,
-        status=application.status
-        if application.status is not None
-        else existing.status,
-        notes=application.notes
-        if application.notes is not None
-        else existing.notes,
+        application=existing,
     )
 
     return ApiResponse(
         success=True,
         message="Application updated successfully.",
-        data=ApplicationResponse.model_validate(updated),
+        data=ApplicationResponse.model_validate(
+            updated
+        ),
     )
 
 
 def remove_application(
     db: Session,
+    user_id: int,
     application_id: int,
 ):
     """
-    Delete an application.
+    Delete an application owned by the authenticated user.
     """
 
-    deleted = delete_application(
+    application = get_application_by_id_and_user(
         db=db,
         application_id=application_id,
+        user_id=user_id,
     )
 
-    if not deleted:
-        raise JobNotFoundException(application_id)
+    if application is None:
+        raise ApplicationNotFoundException(
+            application_id
+        )
+
+    delete_application(
+        db=db,
+        application=application,
+    )
 
     return ApiResponse(
         success=True,
