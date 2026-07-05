@@ -6,116 +6,102 @@ from backend.app.models.job import Job
 from backend.app.models.resume import Resume
 
 
-def get_dashboard_stats(
+def count_jobs(
     db: Session,
-    user_id: int,
-):
+) -> int:
     """
-    Retrieve dashboard statistics for the authenticated user.
+    Return total number of jobs.
     """
 
-    total_jobs = db.scalar(
+    return db.scalar(
         select(func.count()).select_from(Job)
     ) or 0
 
-    total_applications = db.scalar(
-        select(func.count())
-        .select_from(Application)
-        .where(Application.user_id == user_id)
+
+def count_applications(
+    db: Session,
+) -> int:
+    """
+    Return total number of applications.
+    """
+
+    return db.scalar(
+        select(func.count()).select_from(Application)
     ) or 0
 
-    total_resumes = db.scalar(
-        select(func.count())
-        .select_from(Resume)
-        .where(Resume.user_id == user_id)
+
+def count_resumes(
+    db: Session,
+) -> int:
+    """
+    Return total number of resumes.
+    """
+
+    return db.scalar(
+        select(func.count()).select_from(Resume)
     ) or 0
 
-    interviews = db.scalar(
+
+def count_applications_by_status(
+    db: Session,
+    status: str,
+) -> int:
+    """
+    Return number of applications by status.
+    """
+
+    return db.scalar(
         select(func.count())
         .select_from(Application)
-        .where(
-            Application.user_id == user_id,
-            Application.status == "Interview",
+        .where(Application.status == status)
+    ) or 0
+
+
+def get_recent_jobs(
+    db: Session,
+    limit: int = 5,
+) -> list[Job]:
+    """
+    Return most recently created jobs.
+    """
+
+    return (
+        db.scalars(
+            select(Job)
+            .order_by(Job.created_at.desc())
+            .limit(limit)
         )
-    ) or 0
-
-    offers = db.scalar(
-        select(func.count())
-        .select_from(Application)
-        .where(
-            Application.user_id == user_id,
-            Application.status == "Offer",
-        )
-    ) or 0
-
-    rejections = db.scalar(
-        select(func.count())
-        .select_from(Application)
-        .where(
-            Application.user_id == user_id,
-            Application.status == "Rejected",
-        )
-    ) or 0
-
-    pending = db.scalar(
-        select(func.count())
-        .select_from(Application)
-        .where(
-            Application.user_id == user_id,
-            Application.status == "Applied",
-        )
-    ) or 0
-
-    return {
-        "total_jobs": total_jobs,
-        "total_applications": total_applications,
-        "total_resumes": total_resumes,
-        "interviews": interviews,
-        "offers": offers,
-        "rejections": rejections,
-        "pending": pending,
-    }
+        .all()
+    )
 
 
 def get_recent_applications(
     db: Session,
-    user_id: int,
-    limit: int = 10,
-):
+    limit: int = 5,
+) -> list[Application]:
     """
-    Retrieve the most recent applications for the authenticated user.
-    """
-
-    return db.scalars(
-        select(Application)
-        .where(Application.user_id == user_id)
-        .order_by(Application.created_at.desc())
-        .limit(limit)
-    ).all()
-
-
-def get_application_status_summary(
-    db: Session,
-    user_id: int,
-):
-    """
-    Retrieve application counts grouped by status.
+    Return most recent applications.
     """
 
-    rows = db.execute(
-        select(
-            Application.status,
-            func.count(Application.id),
+    return (
+        db.scalars(
+            select(Application)
+            .order_by(Application.created_at.desc())
+            .limit(limit)
         )
-        .where(Application.user_id == user_id)
-        .group_by(Application.status)
-        .order_by(Application.status)
-    ).all()
+        .all()
+    )
 
-    return [
-        {
-            "status": status,
-            "count": count,
-        }
-        for status, count in rows
-    ]
+
+def get_latest_resume(
+    db: Session,
+) -> Resume | None:
+    """
+    Return the most recently uploaded resume.
+    """
+
+    return db.scalar(
+        select(Resume)
+        .order_by(Resume.created_at.desc())
+        .limit(1)
+    )
