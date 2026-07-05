@@ -10,15 +10,12 @@ from backend.app.schemas.query_schema import (
 
 def get_all_jobs(db: Session) -> list[Job]:
     """
+
     Return all jobs.
+
     """
 
-    return (
-        db.scalars(
-            select(Job).order_by(Job.id)
-        )
-        .all()
-    )
+    return list(db.scalars(select(Job).order_by(Job.id)).all())
 
 
 def get_jobs_paginated(
@@ -32,32 +29,28 @@ def get_jobs_paginated(
     order: SortOrder = SortOrder.asc,
 ):
     """
+
     Return paginated jobs with filtering.
+
     """
 
     query = select(Job)
 
     if search:
+
         query = query.where(
-            Job.company.ilike(f"%{search}%")
-            | Job.title.ilike(f"%{search}%")
+            Job.company.ilike(f"%{search}%") | Job.title.ilike(f"%{search}%")
         )
 
     if company:
-        query = query.where(
-            Job.company.ilike(f"%{company}%")
-        )
+
+        query = query.where(Job.company.ilike(f"%{company}%"))
 
     if status:
-        query = query.where(
-            Job.status == status.upper()
-        )
 
-    total = db.scalar(
-        select(func.count()).select_from(
-            query.subquery()
-        )
-    )
+        query = query.where(Job.status == status.upper())
+
+    total = db.scalar(select(func.count()).select_from(query.subquery()))
 
     sort_mapping = {
         SortField.id: Job.id,
@@ -69,13 +62,14 @@ def get_jobs_paginated(
     sort_column = sort_mapping[sort]
 
     if order == SortOrder.desc:
+
         query = query.order_by(sort_column.desc())
+
     else:
+
         query = query.order_by(sort_column.asc())
 
-    jobs = db.scalars(
-        query.offset((page - 1) * size).limit(size)
-    ).all()
+    jobs = list(db.scalars(query.offset((page - 1) * size).limit(size)).all())
 
     return jobs, total
 
@@ -87,7 +81,9 @@ def create_job(
     url: str,
 ) -> Job:
     """
+
     Create a job.
+
     """
 
     job = Job(
@@ -98,7 +94,9 @@ def create_job(
     )
 
     db.add(job)
+
     db.commit()
+
     db.refresh(job)
 
     return job
@@ -109,7 +107,9 @@ def get_job_by_id(
     job_id: int,
 ) -> Job | None:
     """
+
     Return job by ID.
+
     """
 
     return db.get(Job, job_id)
@@ -120,10 +120,13 @@ def update_job(
     job: Job,
 ) -> Job:
     """
+
     Persist changes.
+
     """
 
     db.commit()
+
     db.refresh(job)
 
     return job
@@ -134,8 +137,11 @@ def delete_job(
     job: Job,
 ) -> None:
     """
+
     Delete a job.
+
     """
 
     db.delete(job)
+
     db.commit()

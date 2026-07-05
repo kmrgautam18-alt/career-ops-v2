@@ -1,63 +1,41 @@
-annotated-doc==0.0.4
-annotated-types==0.7.0
-anyio==4.14.0
-argcomplete==3.2.2
-attrs==23.2.0
-Brlapi==0.8.5
-charset-normalizer==3.4.2
-click==8.4.1
-cockpit @ file:///builddir/build/BUILD/cockpit-356.2/tmp/wheel/cockpit-356.2-py3-none-any.whl#sha256=ab43df8a33cde74e5857706561e64dd4a2a720bf0a28a7f48ef5fd8888986766
-cupshelpers==1.0
-dasbus==1.7
-dbus-python==1.3.2
-decorator==5.1.1
-distro==1.9.0
-dnf==4.20.0
+# ==========================================
+# Career-Ops Production Dependencies
+# ==========================================
+
+# Web Framework
 fastapi==0.138.0
-file-magic==0.4.0
-h11==0.16.0
-idna==3.7
-iniparse==0.5
-insights-core==3.7.5
-jsonschema==4.19.1
-jsonschema-specifications==2023.11.2
-libcomps==0.1.21
-libdnf==0.73.1
-louis==3.28.0
-lxml==5.2.1
-nftables==0.1
-packaging==24.2
-perf==0.1
-pexpect==4.9.0
-ptyprocess==0.7.0
-pycairo==1.25.1
-pycups==2.0.1
-pydantic==2.13.4
-pydantic_core==2.46.4
-PyGObject==3.46.0
-pyinotify==0.9.6
-python-dateutil==2.9.0.post0
-python-linux-procfs==0.7.4
-python-pam==2.0.2
-pyudev==0.24.1
-PyYAML==6.0.1
-pyynl @ file:///builddir/build/BUILD/kernel-6.12.0-211.26.1.el10_2/linux-6.12.0-211.26.1.el10_2.aarch64/tools/net/ynl
-referencing==0.31.1
-requests==2.32.4
-rpds-py==0.17.1
-rpm==4.19.1.1
-selinux @ file:///builddir/build/BUILD/libselinux-3.10/src
-sepolicy @ file:///builddir/build/BUILD/selinux-3.10/python/sepolicy
-setools==4.6.0
-setroubleshoot @ file:///builddir/build/BUILD/setroubleshoot-3.3.35/src
-setuptools==69.0.3
-six==1.16.0
-sos==4.11.0
-starlette==1.3.1
-subscription-manager==1.30.12
-systemd-python==235
-typing-inspection==0.4.2
-typing_extensions==4.15.0
-urllib3==1.26.19
 uvicorn==0.49.0
+
+# Database
+SQLAlchemy==2.0.51
+alembic==1.18.5
+
+# Validation
+pydantic==2.13.4
+
+# Authentication
+python-jose==3.5.0
+pwdlib==0.3.0
+argon2-cffi==25.1.0
+
+# File Upload
 python-multipart==0.0.32
+file-magic==0.4.0
+
+# Environment
+python-dotenv==1.2.2
+
+# Email
+email-validator==2.3.0
+
+# HTTP
+requests==2.32.4
+
+# Testing
+pytest==9.1.1
+pytest-cov==7.1.0
+
+# Development
+black==26.5.1
+ruff==0.15.20
+mypy==2.1.0

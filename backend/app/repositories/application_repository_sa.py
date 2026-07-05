@@ -15,7 +15,9 @@ def create_application(
     notes: str | None,
 ) -> Application:
     """
+
     Create a new application.
+
     """
 
     application = Application(
@@ -27,7 +29,9 @@ def create_application(
     )
 
     db.add(application)
+
     db.commit()
+
     db.refresh(application)
 
     return application
@@ -38,7 +42,9 @@ def get_application_by_id(
     application_id: int,
 ) -> Application | None:
     """
+
     Return an application by its ID.
+
     """
 
     return db.get(
@@ -52,10 +58,12 @@ def get_applications_by_user(
     user_id: int,
 ) -> list[Application]:
     """
+
     Return all applications belonging to a user.
+
     """
 
-    return (
+    return list(
         db.scalars(
             select(Application)
             .where(
@@ -64,8 +72,7 @@ def get_applications_by_user(
             .order_by(
                 Application.created_at.desc(),
             )
-        )
-        .all()
+        ).all()
     )
 
 
@@ -75,7 +82,9 @@ def get_application_by_user_and_job(
     job_id: int,
 ) -> Application | None:
     """
+
     Return an application for a specific user and job.
+
     """
 
     return db.scalar(
@@ -92,7 +101,9 @@ def get_application_by_id_and_user(
     user_id: int,
 ) -> Application | None:
     """
+
     Return an application only if it belongs to the user.
+
     """
 
     return db.scalar(
@@ -108,10 +119,13 @@ def update_application(
     application: Application,
 ) -> Application:
     """
+
     Persist changes to an existing application.
+
     """
 
     db.commit()
+
     db.refresh(application)
 
     return application
@@ -122,8 +136,11 @@ def delete_application(
     application: Application,
 ) -> None:
     """
+
     Delete an application.
+
     """
 
     db.delete(application)
+
     db.commit()

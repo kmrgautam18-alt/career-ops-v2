@@ -46,9 +46,7 @@ class Settings:
         os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
     )
 
-    REFRESH_TOKEN_EXPIRE_DAYS: int = int(
-        os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7")
-    )
+    REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 
 settings = Settings()

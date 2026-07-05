@@ -58,16 +58,12 @@ def get_application(
     )
 
     if application is None:
-        raise ApplicationNotFoundException(
-            application_id
-        )
+        raise ApplicationNotFoundException(application_id)
 
     return ApiResponse(
         success=True,
         message="Application retrieved successfully.",
-        data=ApplicationResponse.model_validate(
-            application
-        ),
+        data=ApplicationResponse.model_validate(application),
     )
 
 
@@ -128,14 +124,10 @@ def update_existing_application(
     )
 
     if existing is None:
-        raise ApplicationNotFoundException(
-            application_id
-        )
+        raise ApplicationNotFoundException(application_id)
 
     if application.applied_date is not None:
-        existing.applied_date = (
-            application.applied_date
-        )
+        existing.applied_date = application.applied_date
 
     if application.status is not None:
         existing.status = application.status
@@ -151,9 +143,7 @@ def update_existing_application(
     return ApiResponse(
         success=True,
         message="Application updated successfully.",
-        data=ApplicationResponse.model_validate(
-            updated
-        ),
+        data=ApplicationResponse.model_validate(updated),
     )
 
 
@@ -173,9 +163,7 @@ def remove_application(
     )
 
     if application is None:
-        raise ApplicationNotFoundException(
-            application_id
-        )
+        raise ApplicationNotFoundException(application_id)
 
     delete_application(
         db=db,

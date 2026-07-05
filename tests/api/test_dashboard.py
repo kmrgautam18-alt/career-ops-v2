@@ -47,9 +47,7 @@ def test_dashboard_summary():
     body = response.json()
 
     assert body["success"] is True
-    assert body["message"] == (
-        "Dashboard statistics retrieved successfully."
-    )
+    assert body["message"] == ("Dashboard statistics retrieved successfully.")
 
     data = body["data"]
 
@@ -60,6 +58,7 @@ def test_dashboard_summary():
     assert "interviews" in data
     assert "offers" in data
     assert "rejections" in data
+
 
 def test_recent_jobs():
     """
@@ -76,9 +75,7 @@ def test_recent_jobs():
     body = response.json()
 
     assert body["success"] is True
-    assert body["message"] == (
-        "Recent jobs retrieved successfully."
-    )
+    assert body["message"] == ("Recent jobs retrieved successfully.")
 
     assert isinstance(body["data"], list)
 
@@ -90,6 +87,7 @@ def test_recent_jobs():
         assert "title" in job
         assert "url" in job
         assert "status" in job
+
 
 def test_recent_applications():
     """
@@ -106,9 +104,7 @@ def test_recent_applications():
     body = response.json()
 
     assert body["success"] is True
-    assert body["message"] == (
-        "Recent applications retrieved successfully."
-    )
+    assert body["message"] == ("Recent applications retrieved successfully.")
 
     assert isinstance(body["data"], list)
 
@@ -120,6 +116,7 @@ def test_recent_applications():
         assert "user_id" in application
         assert "status" in application
         assert "applied_date" in application
+
 
 def test_status_summary():
     """
@@ -136,9 +133,7 @@ def test_status_summary():
     body = response.json()
 
     assert body["success"] is True
-    assert body["message"] == (
-        "Application status summary retrieved successfully."
-    )
+    assert body["message"] == ("Application status summary retrieved successfully.")
 
     summary = body["data"]
 
@@ -160,6 +155,7 @@ def test_status_summary():
         assert isinstance(item["count"], int)
         assert item["count"] >= 0
 
+
 def test_resume_summary():
     """
     Retrieve latest uploaded resume.
@@ -175,9 +171,7 @@ def test_resume_summary():
     body = response.json()
 
     assert body["success"] is True
-    assert body["message"] == (
-        "Latest resume retrieved successfully."
-    )
+    assert body["message"] == ("Latest resume retrieved successfully.")
 
     resume = body["data"]
 
@@ -192,4 +186,4 @@ def test_resume_summary():
     assert "file_path" in resume
     assert "upload_status" in resume
 
-    assert resume["upload_status"] == "UPLOADED"        
+    assert resume["upload_status"] == "UPLOADED"

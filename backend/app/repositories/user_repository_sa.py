@@ -48,9 +48,7 @@ def get_user_by_email(
     Retrieve user by email.
     """
 
-    return db.scalar(
-        select(User).where(User.email == email)
-    )
+    return db.scalar(select(User).where(User.email == email))
 
 
 def get_user_by_username(
@@ -61,9 +59,7 @@ def get_user_by_username(
     Retrieve user by username.
     """
 
-    return db.scalar(
-        select(User).where(User.username == username)
-    )
+    return db.scalar(select(User).where(User.username == username))
 
 
 def update_user(

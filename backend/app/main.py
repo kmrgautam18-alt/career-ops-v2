@@ -1,4 +1,7 @@
+from typing import cast
+
 from fastapi import FastAPI
+from starlette.types import ExceptionHandler
 
 from backend.app.api.router import api_router
 from backend.app.exceptions.custom_exceptions import (
@@ -38,75 +41,75 @@ app = FastAPI(
     version="0.1.0",
 )
 
-
 app.add_exception_handler(
     JobNotFoundException,
-    job_not_found_exception_handler,
+    cast(ExceptionHandler, job_not_found_exception_handler),
 )
 
 app.add_exception_handler(
     ApplicationNotFoundException,
-    application_not_found_exception_handler,
+    cast(ExceptionHandler, application_not_found_exception_handler),
 )
 
 app.add_exception_handler(
     DuplicateEmailException,
-    duplicate_email_exception_handler,
+    cast(ExceptionHandler, duplicate_email_exception_handler),
 )
 
 app.add_exception_handler(
     DuplicateUsernameException,
-    duplicate_username_exception_handler,
+    cast(ExceptionHandler, duplicate_username_exception_handler),
 )
 
 app.add_exception_handler(
     UserNotFoundException,
-    user_not_found_exception_handler,
+    cast(ExceptionHandler, user_not_found_exception_handler),
 )
 
 app.add_exception_handler(
     InvalidCredentialsException,
-    invalid_credentials_exception_handler,
+    cast(ExceptionHandler, invalid_credentials_exception_handler),
 )
 
 app.add_exception_handler(
     InactiveUserException,
-    inactive_user_exception_handler,
+    cast(ExceptionHandler, inactive_user_exception_handler),
 )
 
 app.add_exception_handler(
     UnauthorizedException,
-    unauthorized_exception_handler,
+    cast(ExceptionHandler, unauthorized_exception_handler),
 )
 
 app.add_exception_handler(
     ResumeNotFoundException,
-    resume_not_found_exception_handler,
+    cast(ExceptionHandler, resume_not_found_exception_handler),
 )
 
 app.add_exception_handler(
     InvalidResumeFileException,
-    invalid_resume_file_exception_handler,
+    cast(ExceptionHandler, invalid_resume_file_exception_handler),
 )
 
 app.add_exception_handler(
     UnsupportedResumeTypeException,
-    unsupported_resume_type_exception_handler,
+    cast(ExceptionHandler, unsupported_resume_type_exception_handler),
 )
 
 app.add_exception_handler(
     ResumeTooLargeException,
-    resume_too_large_exception_handler,
+    cast(ExceptionHandler, resume_too_large_exception_handler),
 )
 
 app.add_exception_handler(
     Exception,
-    global_exception_handler,
+    cast(ExceptionHandler, global_exception_handler),
 )
 
 
 @app.get("/")
 def root():
+
     return {
         "application": "Career-Ops v2",
         "status": "healthy",
@@ -115,8 +118,8 @@ def root():
 
 app.include_router(api_router)
 
-
 if __name__ == "__main__":
+
     import uvicorn
 
     uvicorn.run(

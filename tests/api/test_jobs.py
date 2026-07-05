@@ -61,6 +61,8 @@ def test_create_job():
     assert body["success"] is True
     assert body["data"]["company"] == "Google"
     assert body["data"]["status"] == "NEW"
+
+
 def create_job() -> int:
     """
     Create a test job and return its ID.
@@ -78,7 +80,9 @@ def create_job() -> int:
 
     assert response.status_code == 200
 
-    return response.json()["data"]["id"] 
+    return response.json()["data"]["id"]
+
+
 def test_list_jobs():
     """
     Retrieve all jobs.
@@ -106,6 +110,7 @@ def test_list_jobs():
     assert "url" in latest_job
     assert "status" in latest_job
 
+
 def test_get_job_by_id():
     """
     Retrieve a single job.
@@ -126,6 +131,7 @@ def test_get_job_by_id():
     assert body["data"]["company"] == "Google"
     assert body["data"]["title"] == "Site Reliability Engineer"
     assert body["data"]["status"] == "NEW"
+
 
 def test_update_job():
     """
@@ -153,10 +159,7 @@ def test_update_job():
 
     assert body["data"]["id"] == job_id
     assert body["data"]["company"] == "Google"
-    assert (
-        body["data"]["title"]
-        == "Senior Site Reliability Engineer"
-    )
+    assert body["data"]["title"] == "Senior Site Reliability Engineer"
     assert body["data"]["status"] == "NEW"
 
     response = client.get(
@@ -167,10 +170,8 @@ def test_update_job():
 
     body = response.json()
 
-    assert (
-        body["data"]["title"]
-        == "Senior Site Reliability Engineer"
-    )    
+    assert body["data"]["title"] == "Senior Site Reliability Engineer"
+
 
 def test_delete_job():
     """
@@ -201,9 +202,8 @@ def test_delete_job():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        f"Job with id {job_id} not found."
-    )
+    assert body["message"] == (f"Job with id {job_id} not found.")
+
 
 def test_job_not_found():
     """
@@ -220,9 +220,7 @@ def test_job_not_found():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        "Job with id 999999 not found."
-    )
+    assert body["message"] == ("Job with id 999999 not found.")
 
     # PATCH
     response = client.patch(
@@ -240,9 +238,7 @@ def test_job_not_found():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        "Job with id 999999 not found."
-    )
+    assert body["message"] == ("Job with id 999999 not found.")
 
     # DELETE
     response = client.delete(
@@ -255,9 +251,8 @@ def test_job_not_found():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        "Job with id 999999 not found."
-    )
+    assert body["message"] == ("Job with id 999999 not found.")
+
 
 def test_delete_already_deleted_job():
     """
@@ -289,6 +284,4 @@ def test_delete_already_deleted_job():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        f"Job with id {job_id} not found."
-    )    
+    assert body["message"] == (f"Job with id {job_id} not found.")

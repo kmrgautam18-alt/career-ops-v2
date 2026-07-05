@@ -28,11 +28,7 @@ def get_resume_by_id(
     Return a resume by its ID.
     """
 
-    return (
-        db.query(Resume)
-        .filter(Resume.id == resume_id)
-        .first()
-    )
+    return db.query(Resume).filter(Resume.id == resume_id).first()
 
 
 def get_resumes_by_user(

@@ -87,9 +87,7 @@ def test_create_application():
         assert body["data"]["job_id"] == 1
         assert body["data"]["status"] == "Applied"
     else:
-        assert body["message"] == (
-            "You have already applied for this job."
-        )
+        assert body["message"] == ("You have already applied for this job.")
 
 
 def test_list_applications():
@@ -195,9 +193,7 @@ def test_application_not_found():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        "Application with id 999999 not found."
-    )
+    assert body["message"] == ("Application with id 999999 not found.")
 
     # PATCH
     response = client.patch(
@@ -213,9 +209,7 @@ def test_application_not_found():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        "Application with id 999999 not found."
-    )
+    assert body["message"] == ("Application with id 999999 not found.")
 
     # DELETE
     response = client.delete(
@@ -228,9 +222,9 @@ def test_application_not_found():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        "Application with id 999999 not found."
-    )
+    assert body["message"] == ("Application with id 999999 not found.")
+
+
 def test_duplicate_application():
     """
     A user should not be able to apply for the same job twice.
@@ -264,10 +258,10 @@ def test_duplicate_application():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        "You have already applied for this job."
-    )
+    assert body["message"] == ("You have already applied for this job.")
     assert body["data"] is None
+
+
 def test_delete_already_deleted_application():
     """
     Deleting an already deleted application should return 404.
@@ -298,6 +292,4 @@ def test_delete_already_deleted_application():
     body = response.json()
 
     assert body["success"] is False
-    assert body["message"] == (
-        f"Application with id {application_id} not found."
-    )    
+    assert body["message"] == (f"Application with id {application_id} not found.")

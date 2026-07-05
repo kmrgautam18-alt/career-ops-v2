@@ -74,10 +74,7 @@ def get_recent_dashboard_jobs(
     return ApiResponse(
         success=True,
         message="Recent jobs retrieved successfully.",
-        data=[
-            JobResponse.model_validate(job)
-            for job in jobs
-        ],
+        data=[JobResponse.model_validate(job) for job in jobs],
     )
 
 
@@ -138,9 +135,5 @@ def get_dashboard_resume_summary(
     return ApiResponse(
         success=True,
         message="Latest resume retrieved successfully.",
-        data=(
-            ResumeResponse.model_validate(resume)
-            if resume is not None
-            else None
-        ),
+        data=(ResumeResponse.model_validate(resume) if resume is not None else None),
     )

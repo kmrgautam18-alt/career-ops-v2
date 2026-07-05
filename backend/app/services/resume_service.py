@@ -37,10 +37,7 @@ def list_user_resumes(
     return ApiResponse(
         success=True,
         message="Resumes retrieved successfully.",
-        data=[
-            ResumeResponse.model_validate(resume)
-            for resume in resumes
-        ],
+        data=[ResumeResponse.model_validate(resume) for resume in resumes],
     )
 
 
@@ -92,9 +89,7 @@ def delete_user_resume(
     if resume is None:
         raise ResumeNotFoundException(resume_id)
 
-    delete_uploaded_file(
-        Path(resume.file_path)
-    )
+    delete_uploaded_file(Path(resume.file_path))
 
     delete_resume(
         db=db,
@@ -140,5 +135,3 @@ def rename_user_resume(
         message="Resume renamed successfully.",
         data=ResumeResponse.model_validate(resume),
     )
-
-    

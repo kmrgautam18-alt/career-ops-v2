@@ -14,9 +14,7 @@ class ApplicationNotFoundException(Exception):
     """
 
     def __init__(self, application_id: int):
-        self.message = (
-            f"Application with id {application_id} not found."
-        )
+        self.message = f"Application with id {application_id} not found."
         super().__init__(self.message)
 
 
@@ -26,9 +24,7 @@ class DuplicateEmailException(Exception):
     """
 
     def __init__(self, email: str):
-        self.message = (
-            f"Email '{email}' is already registered."
-        )
+        self.message = f"Email '{email}' is already registered."
         super().__init__(self.message)
 
 
@@ -38,9 +34,7 @@ class DuplicateUsernameException(Exception):
     """
 
     def __init__(self, username: str):
-        self.message = (
-            f"Username '{username}' already exists."
-        )
+        self.message = f"Username '{username}' already exists."
         super().__init__(self.message)
 
 

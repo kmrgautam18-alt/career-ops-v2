@@ -39,10 +39,7 @@ def list_jobs(
     return ApiResponse(
         success=True,
         message="Jobs retrieved successfully.",
-        data=[
-            JobResponse.model_validate(job)
-            for job in jobs
-        ],
+        data=[JobResponse.model_validate(job) for job in jobs],
     )
 
 
@@ -82,10 +79,7 @@ def list_jobs_paginated(
         success=True,
         message="Jobs retrieved successfully.",
         pagination=pagination,
-        data=[
-            JobResponse.model_validate(job)
-            for job in jobs
-        ],
+        data=[JobResponse.model_validate(job) for job in jobs],
     )
 
 
