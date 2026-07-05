@@ -2,7 +2,9 @@ from math import ceil
 
 from sqlalchemy.orm import Session
 
-from backend.app.exceptions.custom_exceptions import JobNotFoundException
+from backend.app.exceptions.custom_exceptions import (
+    JobNotFoundException,
+)
 from backend.app.repositories.job_repository_sa import (
     create_job,
     delete_job,
@@ -15,29 +17,32 @@ from backend.app.schemas.common_schema import (
     ApiResponse,
     Pagination,
 )
-from backend.app.schemas.job_schema import JobResponse
+from backend.app.schemas.job_schema import (
+    JobCreate,
+    JobResponse,
+)
 from backend.app.schemas.query_schema import (
     SortField,
     SortOrder,
 )
 
 
-def list_jobs(db: Session):
+def list_jobs(
+    db: Session,
+):
+    """
+    Return all jobs.
+    """
 
     jobs = get_all_jobs(db)
-
-    job_list = [
-        JobResponse.model_validate(job)
-        for job in jobs
-    ]
 
     return ApiResponse(
         success=True,
         message="Jobs retrieved successfully.",
-        data={
-            "count": len(job_list),
-            "jobs": job_list,
-        },
+        data=[
+            JobResponse.model_validate(job)
+            for job in jobs
+        ],
     )
 
 
@@ -51,6 +56,9 @@ def list_jobs_paginated(
     sort: SortField = SortField.id,
     order: SortOrder = SortOrder.asc,
 ):
+    """
+    Return paginated jobs.
+    """
 
     jobs, total = get_jobs_paginated(
         db=db,
@@ -63,11 +71,6 @@ def list_jobs_paginated(
         order=order,
     )
 
-    job_list = [
-        JobResponse.model_validate(job)
-        for job in jobs
-    ]
-
     pagination = Pagination(
         page=page,
         size=size,
@@ -79,11 +82,20 @@ def list_jobs_paginated(
         success=True,
         message="Jobs retrieved successfully.",
         pagination=pagination,
-        data=job_list,
+        data=[
+            JobResponse.model_validate(job)
+            for job in jobs
+        ],
     )
 
 
-def add_job(db: Session, job):
+def add_job(
+    db: Session,
+    job: JobCreate,
+):
+    """
+    Create a job.
+    """
 
     created_job = create_job(
         db=db,
@@ -95,13 +107,24 @@ def add_job(db: Session, job):
     return ApiResponse(
         success=True,
         message="Job created successfully.",
-        data=JobResponse.model_validate(created_job),
+        data=JobResponse.model_validate(
+            created_job,
+        ),
     )
 
 
-def get_job(db: Session, job_id: int):
+def get_job(
+    db: Session,
+    job_id: int,
+):
+    """
+    Return a job.
+    """
 
-    job = get_job_by_id(db=db, job_id=job_id)
+    job = get_job_by_id(
+        db=db,
+        job_id=job_id,
+    )
 
     if job is None:
         raise JobNotFoundException(job_id)
@@ -116,24 +139,33 @@ def get_job(db: Session, job_id: int):
 def update_existing_job(
     db: Session,
     job_id: int,
-    job,
+    job: JobCreate,
 ):
+    """
+    Update an existing job.
+    """
 
-    updated_job = update_job(
+    existing = get_job_by_id(
         db=db,
         job_id=job_id,
-        company=job.company,
-        title=job.title,
-        url=str(job.url),
     )
 
-    if updated_job is None:
+    if existing is None:
         raise JobNotFoundException(job_id)
+
+    existing.company = job.company
+    existing.title = job.title
+    existing.url = str(job.url)
+
+    updated = update_job(
+        db=db,
+        job=existing,
+    )
 
     return ApiResponse(
         success=True,
         message="Job updated successfully.",
-        data=JobResponse.model_validate(updated_job),
+        data=JobResponse.model_validate(updated),
     )
 
 
@@ -141,14 +173,22 @@ def delete_existing_job(
     db: Session,
     job_id: int,
 ):
+    """
+    Delete a job.
+    """
 
-    deleted = delete_job(
+    job = get_job_by_id(
         db=db,
         job_id=job_id,
     )
 
-    if not deleted:
+    if job is None:
         raise JobNotFoundException(job_id)
+
+    delete_job(
+        db=db,
+        job=job,
+    )
 
     return ApiResponse(
         success=True,

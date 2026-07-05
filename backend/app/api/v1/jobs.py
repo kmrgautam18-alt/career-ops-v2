@@ -7,6 +7,9 @@ from backend.app.schemas.query_schema import (
     SortField,
     SortOrder,
 )
+from backend.app.security.dependencies import (
+    get_current_active_user,
+)
 from backend.app.services.job_service import (
     add_job,
     delete_existing_job,
@@ -24,29 +27,31 @@ router = APIRouter(
 
 @router.get("/health")
 def health():
-    return {"status": "ok"}
+    """
+    Health endpoint.
+    """
+
+    return {
+        "status": "ok",
+    }
 
 
 @router.get("")
 def get_jobs(
     page: int | None = Query(default=None, ge=1),
     size: int | None = Query(default=None, ge=1, le=100),
-
     search: str | None = Query(default=None),
-
     company: str | None = Query(default=None),
-
     status: str | None = Query(default=None),
-
     sort: SortField = Query(default=SortField.id),
-
     order: SortOrder = Query(default=SortOrder.asc),
-
     db: Session = Depends(get_db),
 ):
+    """
+    Return jobs.
+    """
 
     if page is not None and size is not None:
-
         return list_jobs_paginated(
             db=db,
             page=page,
@@ -59,7 +64,6 @@ def get_jobs(
         )
 
     if search or company or status:
-
         return list_jobs_paginated(
             db=db,
             page=1,
@@ -72,7 +76,6 @@ def get_jobs(
         )
 
     if sort != SortField.id or order != SortOrder.asc:
-
         return list_jobs_paginated(
             db=db,
             page=1,
@@ -85,27 +88,47 @@ def get_jobs(
 
 
 @router.post("")
-def create_job(
+def create_job_endpoint(
     job: JobCreate,
+    current_user=Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    return add_job(db, job)
+    """
+    Create a new job.
+    """
+
+    return add_job(
+        db=db,
+        job=job,
+    )
 
 
 @router.get("/{job_id}")
-def get_single_job(
+def get_job_endpoint(
     job_id: int,
     db: Session = Depends(get_db),
 ):
-    return get_job(db, job_id)
+    """
+    Return a single job.
+    """
+
+    return get_job(
+        db=db,
+        job_id=job_id,
+    )
 
 
-@router.put("/{job_id}")
-def update_job_route(
+@router.patch("/{job_id}")
+def update_job_endpoint(
     job_id: int,
     job: JobCreate,
+    current_user=Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Update a job.
+    """
+
     return update_existing_job(
         db=db,
         job_id=job_id,
@@ -114,10 +137,15 @@ def update_job_route(
 
 
 @router.delete("/{job_id}")
-def delete_job_route(
+def delete_job_endpoint(
     job_id: int,
+    current_user=Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Delete a job.
+    """
+
     return delete_existing_job(
         db=db,
         job_id=job_id,
