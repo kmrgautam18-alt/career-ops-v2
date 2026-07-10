@@ -1,0 +1,92 @@
+AWS
+Amazon Web Services
+EC2
+S3
+EBS
+EFS
+IAM
+VPC
+CloudFormation
+CloudWatch
+CloudTrail
+Lambda
+SNS
+SQS
+RDS
+Aurora
+DynamoDB
+Route53
+ELB
+ALB
+NLB
+Auto Scaling
+ECS
+EKS
+Fargate
+Elastic Beanstalk
+CodeBuild
+CodeDeploy
+CodePipeline
+Secrets Manager
+Parameter Store
+Azure
+Microsoft Azure
+Azure DevOps
+Azure Kubernetes Service
+AKS
+Azure VM
+Azure Virtual Machine
+Azure Storage
+Azure Blob Storage
+Azure Files
+Azure SQL
+Azure Database
+Azure Functions
+Azure Monitor
+Azure Application Gateway
+Azure Load Balancer
+Azure DNS
+Azure Key Vault
+Azure Container Registry
+ACR
+Azure Resource Manager
+ARM
+Azure CLI
+Azure Portal
+Azure Networking
+Azure VNet
+Azure Bastion
+Azure Firewall
+Azure Entra ID
+Azure Active Directory
+AAD
+Azure Service Bus
+Azure Event Hub
+Azure Logic Apps
+Azure App Service
+Azure Container Apps
+Azure Cosmos DB
+Azure Data Factory
+Azure API Management
+GCP
+Google Cloud
+Google Cloud Platform
+Compute Engine
+Cloud Run
+Cloud Functions
+Cloud Storage
+BigQuery
+Cloud SQL
+Cloud DNS
+Cloud Build
+Cloud Logging
+Cloud Monitoring
+Artifact Registry
+GKE
+KMS
+Multi Cloud
+Hybrid Cloud
+Private Cloud
+Public Cloud
+Cloud Migration
+Cloud Native

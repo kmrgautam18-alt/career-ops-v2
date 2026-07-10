@@ -1,0 +1,55 @@
+Bachelor of Technology
+Bachelor of Engineering
+Bachelor of Science
+Bachelor of Computer Applications
+Bachelor of Commerce
+Bachelor of Arts
+Bachelor of Business Administration
+Bachelor of Pharmacy
+Bachelor of Architecture
+Bachelor of Dental Surgery
+Bachelor of Medicine
+Bachelor of Laws
+Bachelor of Education
+
+Master of Technology
+Master of Engineering
+Master of Science
+Master of Computer Applications
+Master of Business Administration
+Master of Commerce
+Master of Arts
+Master of Pharmacy
+Master of Laws
+
+Doctor of Philosophy
+Doctor of Medicine
+
+Diploma
+Advanced Diploma
+Post Graduate Diploma
+Polytechnic Diploma
+
+Higher Secondary
+Intermediate
+Senior Secondary
+
+Secondary School
+High School
+Matriculation
+SSC
+HSC
+
+B.Tech
+B.E.
+B.Sc
+BCA
+B.Com
+BA
+BBA
+MBA
+M.Tech
+M.E.
+MCA
+M.Sc
+PhD

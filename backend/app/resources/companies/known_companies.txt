@@ -1,0 +1,28 @@
+Google
+Microsoft
+Amazon
+Apple
+Meta
+Netflix
+OpenAI
+Anthropic
+IBM
+Oracle
+Intel
+NVIDIA
+Cisco
+Red Hat
+VMware
+Accenture
+Capgemini
+Infosys
+TCS
+Wipro
+HCLTech
+Tech Mahindra
+LTIMindtree
+Deloitte
+EY
+PwC
+KPMG
+Cognizant

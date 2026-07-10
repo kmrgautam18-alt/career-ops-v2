@@ -1,0 +1,20 @@
+Programming Languages
+Cloud
+DevOps
+Containers
+Container Orchestration
+Operating Systems
+Databases
+CI/CD
+Infrastructure as Code
+Configuration Management
+Monitoring
+Logging
+Networking
+Security
+Version Control
+Build Tools
+Testing
+Scripting
+Web Technologies
+Messaging

@@ -1,0 +1,90 @@
+Docker
+Podman
+Kubernetes
+OpenShift
+Helm
+Terraform
+Ansible
+Puppet
+Chef
+SaltStack
+Jenkins
+GitLab CI
+GitHub Actions
+Azure DevOps
+CircleCI
+Travis CI
+ArgoCD
+FluxCD
+Spinnaker
+Harbor
+Nexus
+Sonatype Nexus
+JFrog Artifactory
+Git
+Git Flow
+SVN
+CI/CD
+Infrastructure as Code
+IaC
+Bash
+Shell Scripting
+PowerShell
+Python
+YAML
+JSON
+Linux
+Ubuntu
+RHEL
+CentOS
+Debian
+Fedora
+Amazon Linux
+Containerization
+Microservices
+Service Mesh
+Istio
+Linkerd
+Ingress
+NGINX
+Apache
+HAProxy
+Keepalived
+Load Balancer
+Reverse Proxy
+Prometheus
+Grafana
+Alertmanager
+Loki
+Tempo
+Jaeger
+ELK
+ElasticSearch
+Logstash
+Kibana
+Fluentd
+Fluent Bit
+Graylog
+Vault
+Consul
+Nomad
+RabbitMQ
+Kafka
+Redis
+PostgreSQL
+MySQL
+MariaDB
+MongoDB
+SQLite
+Disaster Recovery
+High Availability
+Auto Scaling
+Blue Green Deployment
+Canary Deployment
+Rolling Deployment
+Monitoring
+Observability
+Logging
+Tracing
+SRE
+DevSecOps

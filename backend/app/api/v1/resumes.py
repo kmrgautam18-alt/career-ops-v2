@@ -14,8 +14,10 @@ from backend.app.security.dependencies import (
 )
 from backend.app.services.resume_service import (
     delete_user_resume,
+    download_user_resume,
     get_user_resume,
     list_user_resumes,
+    preview_user_resume,
     rename_user_resume,
 )
 from backend.app.services.resume_upload_service import (
@@ -95,6 +97,40 @@ def rename_resume_endpoint(
         current_user=current_user,
         resume_id=resume_id,
         request=request,
+    )
+
+
+@router.get("/{resume_id}/download")
+def download_resume_endpoint(
+    resume_id: int,
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Download a resume.
+    """
+
+    return download_user_resume(
+        db=db,
+        current_user=current_user,
+        resume_id=resume_id,
+    )
+
+
+@router.get("/{resume_id}/preview")
+def preview_resume_endpoint(
+    resume_id: int,
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Preview a resume in the browser.
+    """
+
+    return preview_user_resume(
+        db=db,
+        current_user=current_user,
+        resume_id=resume_id,
     )
 
 

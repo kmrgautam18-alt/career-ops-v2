@@ -5,6 +5,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text,
     func,
 )
 from sqlalchemy.orm import (
@@ -74,6 +75,25 @@ class Resume(Base):
         server_default=ResumeStatus.UPLOADED,
     )
 
+    # ==========================================
+    # Resume Parsing Metadata
+    # ==========================================
+
+    parsed_text: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    parser_version: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+    )
+
+    parsed_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
@@ -87,7 +107,29 @@ class Resume(Base):
         nullable=False,
     )
 
+    # ==========================================
+    # Relationships
+    # ==========================================
+
     user = relationship(
         "User",
         back_populates="resumes",
+    )
+
+    profile = relationship(
+        "ResumeProfile",
+        back_populates="resume",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+    skills = relationship(
+        "ResumeSkill",
+        back_populates="resume",
+        cascade="all, delete-orphan",
+    )
+    experiences = relationship(
+    "ResumeExperience",
+    back_populates="resume",
+    cascade="all, delete-orphan",
     )

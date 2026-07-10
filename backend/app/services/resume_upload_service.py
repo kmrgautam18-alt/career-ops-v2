@@ -1,3 +1,6 @@
+from datetime import datetime
+import logging
+
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
@@ -7,9 +10,25 @@ from backend.app.exceptions.resume_exceptions import (
 )
 from backend.app.repositories.resume_repository_sa import (
     create_resume,
+    update_resume,
+)
+from backend.app.repositories.resume_profile_repository import (
+    ResumeProfileRepository,
+)
+from backend.app.repositories.resume_skill_repository import (
+    ResumeSkillRepository,
 )
 from backend.app.schemas.common_schema import ApiResponse
 from backend.app.schemas.resume_schema import ResumeResponse
+from backend.app.services.resume_information_extractor import (
+    extract_profile,
+)
+from backend.app.services.resume_parser_service import (
+    parse_resume,
+)
+from backend.app.services.skill_extractor.skill_builder import (
+    build_skills,
+)
 from backend.app.utils.file_storage import (
     create_user_storage_directory,
     generate_uuid_filename,
@@ -19,6 +38,10 @@ from backend.app.utils.file_validator import (
     validate_resume_file,
 )
 
+logger = logging.getLogger(__name__)
+
+PARSER_VERSION = "1.0.0"
+
 
 def upload_resume(
     db: Session,
@@ -27,19 +50,21 @@ def upload_resume(
     upload_file: UploadFile,
 ):
     """
-    Upload a resume.
+    Upload and process a resume.
 
     Workflow
-    --------
+
     1. Validate file
-    2. Generate UUID filename
-    3. Create user storage directory
-    4. Save file
-    5. Store metadata
-    6. Return API response
+    2. Store PDF
+    3. Create DB record
+    4. Parse resume
+    5. Extract profile
+    6. Save profile
+    7. Extract skills
+    8. Save skills
+    9. Update parsing metadata
     """
 
-    # Validate uploaded file
     validate_resume_file(upload_file)
 
     filename = upload_file.filename
@@ -47,25 +72,21 @@ def upload_resume(
     if filename is None:
         raise InvalidResumeFileException()
 
-    # Generate unique filename
     stored_filename = generate_uuid_filename(
         filename,
     )
 
-    # Create user storage directory
     user_directory = create_user_storage_directory(
         user.id,
     )
 
     destination = user_directory / stored_filename
 
-    # Save file to disk
     save_uploaded_file(
         upload_file,
         destination,
     )
 
-    # Store metadata
     resume = create_resume(
         db=db,
         user_id=user.id,
@@ -77,6 +98,62 @@ def upload_resume(
         mime_type=upload_file.content_type,
         upload_status=ResumeStatus.UPLOADED,
     )
+
+    try:
+
+        logger.info(
+            "Parsing resume %s",
+            resume.id,
+        )
+
+        parsed = parse_resume(
+            str(destination),
+        )
+
+        normalized_text = parsed["normalized_text"]
+
+        resume.parsed_text = normalized_text
+        resume.parser_version = PARSER_VERSION
+        resume.parsed_at = datetime.utcnow()
+
+        profile = extract_profile(
+            normalized_text,
+        )
+
+        ResumeProfileRepository(
+            db,
+        ).create(
+            resume_id=resume.id,
+            profile=profile,
+        )
+
+        skills = build_skills(
+            normalized_text,
+        )
+
+        ResumeSkillRepository(
+            db,
+        ).save_skills(
+            resume_id=resume.id,
+            skills=skills,
+        )
+
+        resume = update_resume(
+            db=db,
+            resume=resume,
+        )
+
+        logger.info(
+            "Resume %s processed successfully",
+            resume.id,
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Resume processing failed for resume_id=%s",
+            resume.id,
+        )
 
     return ApiResponse(
         success=True,

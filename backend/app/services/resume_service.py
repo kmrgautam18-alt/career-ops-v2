@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from backend.app.exceptions.resume_exceptions import (
@@ -8,6 +9,7 @@ from backend.app.exceptions.resume_exceptions import (
 from backend.app.repositories.resume_repository_sa import (
     delete_resume,
     get_resume_by_id_and_user,
+    get_resume_file,
     get_resumes_by_user,
     rename_resume,
 )
@@ -66,21 +68,16 @@ def get_user_resume(
     )
 
 
-def delete_user_resume(
+def download_user_resume(
     db: Session,
     current_user,
     resume_id: int,
 ):
     """
-    Delete a resume owned by the authenticated user.
-
-    Steps:
-        1. Verify ownership.
-        2. Delete physical file.
-        3. Delete database record.
+    Download a resume.
     """
 
-    resume = get_resume_by_id_and_user(
+    resume = get_resume_file(
         db=db,
         resume_id=resume_id,
         user_id=current_user.id,
@@ -89,18 +86,47 @@ def delete_user_resume(
     if resume is None:
         raise ResumeNotFoundException(resume_id)
 
-    delete_uploaded_file(Path(resume.file_path))
+    file_path = Path(resume.file_path)
 
-    delete_resume(
-        db=db,
-        resume=resume,
+    if not file_path.exists():
+        raise ResumeNotFoundException(resume_id)
+
+    return FileResponse(
+        path=file_path,
+        media_type=resume.mime_type,
+        filename=resume.original_filename,
     )
 
-    return ApiResponse(
-        success=True,
-        message="Resume deleted successfully.",
-        data={
-            "resume_id": resume_id,
+
+def preview_user_resume(
+    db: Session,
+    current_user,
+    resume_id: int,
+):
+    """
+    Preview a resume in browser.
+    """
+
+    resume = get_resume_file(
+        db=db,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+
+    if resume is None:
+        raise ResumeNotFoundException(resume_id)
+
+    file_path = Path(resume.file_path)
+
+    if not file_path.exists():
+        raise ResumeNotFoundException(resume_id)
+
+    return FileResponse(
+        path=file_path,
+        media_type=resume.mime_type,
+        filename=resume.original_filename,
+        headers={
+            "Content-Disposition": f'inline; filename="{resume.original_filename}"'
         },
     )
 
@@ -134,4 +160,40 @@ def rename_user_resume(
         success=True,
         message="Resume renamed successfully.",
         data=ResumeResponse.model_validate(resume),
+    )
+
+
+def delete_user_resume(
+    db: Session,
+    current_user,
+    resume_id: int,
+):
+    """
+    Delete a resume owned by the authenticated user.
+    """
+
+    resume = get_resume_by_id_and_user(
+        db=db,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+
+    if resume is None:
+        raise ResumeNotFoundException(resume_id)
+
+    delete_uploaded_file(
+        Path(resume.file_path),
+    )
+
+    delete_resume(
+        db=db,
+        resume=resume,
+    )
+
+    return ApiResponse(
+        success=True,
+        message="Resume deleted successfully.",
+        data={
+            "resume_id": resume_id,
+        },
     )

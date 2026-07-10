@@ -8,6 +8,7 @@ from backend.app.database.base import Base
 from backend.app.models.application import Application  # noqa: F401
 from backend.app.models.job import Job  # noqa: F401
 from backend.app.models.resume import Resume  # noqa: F401
+from backend.app.models.resume_profile import ResumeProfile  # noqa: F401
 from backend.app.models.user import User  # noqa: F401
 
 config = context.config
