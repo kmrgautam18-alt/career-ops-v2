@@ -24,12 +24,21 @@ class ATSResponse(BaseModel):
     score: ATSScoreResponse
     recommendations: list[ATSRecommendationResponse]
 
+
 class ResumeOptimizerRequest(BaseModel):
     resume_text: str
     required_keywords: list[str]
+
+
+class OptimizationSuggestionResponse(BaseModel):
+    title: str
+    current: str
+    suggested: str
+    priority: str
+
 
 class ResumeOptimizerResponse(BaseModel):
     ats_score_before: float
     ats_score_after: float
     missing_keywords: list[str]
-    suggestions: list[str]
+    suggestions: list[OptimizationSuggestionResponse]
