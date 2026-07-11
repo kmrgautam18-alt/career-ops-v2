@@ -79,6 +79,7 @@ def create_job(
     company: str,
     title: str,
     url: str,
+    description: str | None = None,
 ) -> Job:
     """
 
@@ -87,11 +88,12 @@ def create_job(
     """
 
     job = Job(
-        company=company,
-        title=title,
-        url=url,
-        status="NEW",
-    )
+    company=company,
+    title=title,
+    url=url,
+    description=description,
+    status="NEW",
+)
 
     db.add(job)
 

@@ -5,9 +5,13 @@ import logging
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from backend.app.models.resume_skill import ResumeSkill
 from backend.app.repositories.base_repository import BaseRepository
+from backend.app.services.skill_extractor.skill_models import (
+    SkillRecord,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,43 +19,21 @@ logger = logging.getLogger(__name__)
 class ResumeSkillRepository(BaseRepository[ResumeSkill]):
     """
     Repository responsible for persisting normalized resume skills.
-
-    Features
-    --------
-    - Bulk Insert
-    - PostgreSQL UPSERT
-    - Duplicate Protection
-    - Structured Logging
-
-    NOTE
-    ----
-    Transaction management is intentionally handled by the
-    Service Layer (Unit of Work).
-
-    Repository should NOT start its own transaction.
     """
 
-    def __init__(self, db: Session):
+    def __init__(
+        self,
+        db: Session,
+    ):
         super().__init__(db)
 
     def save_skills(
         self,
         resume_id: int,
-        skills: list[dict],
+        skills: list[SkillRecord],
     ) -> None:
         """
         Persist extracted skills.
-
-        Expected input:
-
-        [
-            {
-                "name": "Docker",
-                "category": "DevOps",
-                "confidence": 1.0,
-                "source": "knowledge_base",
-            }
-        ]
         """
 
         if not skills:
@@ -60,19 +42,14 @@ class ResumeSkillRepository(BaseRepository[ResumeSkill]):
         rows = []
 
         for skill in skills:
+
             rows.append(
                 {
                     "resume_id": resume_id,
-                    "skill_name": skill["name"],
-                    "category": skill.get("category"),
-                    "confidence": skill.get(
-                        "confidence",
-                        1.0,
-                    ),
-                    "source": skill.get(
-                        "source",
-                        "knowledge_base",
-                    ),
+                    "skill_name": skill.name,
+                    "category": skill.category,
+                    "confidence": skill.confidence,
+                    "source": skill.source,
                 }
             )
 
@@ -85,6 +62,7 @@ class ResumeSkillRepository(BaseRepository[ResumeSkill]):
         )
 
         try:
+
             self.db.execute(statement)
 
             logger.info(
@@ -94,6 +72,7 @@ class ResumeSkillRepository(BaseRepository[ResumeSkill]):
             )
 
         except SQLAlchemyError:
+
             self.db.rollback()
 
             logger.exception(
@@ -102,3 +81,23 @@ class ResumeSkillRepository(BaseRepository[ResumeSkill]):
             )
 
             raise
+
+    def find_by_resume(
+        self,
+        resume_id: int,
+    ) -> list[ResumeSkill]:
+        """
+        Return all skills belonging to a resume.
+        """
+
+        return list(
+            self.db.scalars(
+                select(ResumeSkill)
+                .where(
+                    ResumeSkill.resume_id == resume_id,
+                )
+                .order_by(
+                    ResumeSkill.skill_name,
+                )
+            ).all()
+        )

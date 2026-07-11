@@ -9,7 +9,6 @@ CompanyStr = Annotated[
         max_length=100,
         strip_whitespace=True,
         description="Company name",
-        examples=["Google"],
     ),
 ]
 
@@ -20,7 +19,14 @@ TitleStr = Annotated[
         max_length=150,
         strip_whitespace=True,
         description="Job title",
-        examples=["Senior DevOps Engineer"],
+    ),
+]
+
+DescriptionStr = Annotated[
+    str | None,
+    Field(
+        default=None,
+        description="Complete job description",
     ),
 ]
 
@@ -29,12 +35,14 @@ class JobCreate(BaseModel):
     company: CompanyStr
     title: TitleStr
     url: HttpUrl
+    description: DescriptionStr = None
 
 
 class JobUpdate(BaseModel):
     company: CompanyStr
     title: TitleStr
     url: HttpUrl
+    description: DescriptionStr = None
 
 
 class JobResponse(BaseModel):
@@ -44,4 +52,5 @@ class JobResponse(BaseModel):
     company: str
     title: str
     url: str
+    description: str | None = None
     status: str

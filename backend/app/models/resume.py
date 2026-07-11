@@ -129,7 +129,13 @@ class Resume(Base):
         cascade="all, delete-orphan",
     )
     experiences = relationship(
-    "ResumeExperience",
-    back_populates="resume",
-    cascade="all, delete-orphan",
+        "ResumeExperience",
+        back_populates="resume",
+        cascade="all, delete-orphan",
+    )
+
+    educations = relationship(
+        "ResumeEducation",
+        back_populates="resume",
+        cascade="all, delete-orphan",
     )

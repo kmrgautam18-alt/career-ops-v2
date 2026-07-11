@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
+from backend.app.schemas.job_match_schema import JobMatchResponse
 from backend.app.schemas.job_schema import JobCreate
 from backend.app.schemas.query_schema import (
     SortField,
@@ -9,6 +10,9 @@ from backend.app.schemas.query_schema import (
 )
 from backend.app.security.dependencies import (
     get_current_active_user,
+)
+from backend.app.services.job_matching.job_match_service import (
+    match_job,
 )
 from backend.app.services.job_service import (
     add_job,
@@ -150,3 +154,31 @@ def delete_job_endpoint(
         db=db,
         job_id=job_id,
     )
+
+
+@router.post(
+    "/{job_id}/match",
+    response_model=JobMatchResponse,
+)
+def match_job_endpoint(
+    job_id: int,
+    resume_id: int = Query(..., gt=0),
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Match a resume against a job.
+    """
+
+    try:
+        return match_job(
+            db=db,
+            resume_id=resume_id,
+            job_id=job_id,
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        )

@@ -1,16 +1,22 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.app.models.resume_profile import ResumeProfile
 from backend.app.repositories.base_repository import BaseRepository
 
 
-class ResumeProfileRepository(BaseRepository[ResumeProfile]):
+class ResumeProfileRepository(
+    BaseRepository[ResumeProfile]
+):
     """
-    Repository responsible for ResumeProfile persistence.
+    Repository responsible for
+    ResumeProfile persistence.
     """
 
-    def __init__(self, db: Session):
-
+    def __init__(
+        self,
+        db: Session,
+    ):
         super().__init__(db)
 
     def create(
@@ -19,7 +25,10 @@ class ResumeProfileRepository(BaseRepository[ResumeProfile]):
         profile: dict,
     ) -> ResumeProfile:
         """
-        Create and persist a resume profile.
+        Create a resume profile.
+
+        Transaction is handled
+        by the service layer.
         """
 
         resume_profile = ResumeProfile(
@@ -33,4 +42,45 @@ class ResumeProfileRepository(BaseRepository[ResumeProfile]):
             location=profile.get("location"),
         )
 
-        return self.add(resume_profile)
+        self.db.add(resume_profile)
+
+        self.db.flush()
+        self.db.refresh(resume_profile)
+
+        return resume_profile
+
+    def find_by_resume(
+        self,
+        resume_id: int,
+    ) -> ResumeProfile | None:
+        """
+        Return the profile associated
+        with a resume.
+        """
+
+        return self.db.scalar(
+            select(
+                ResumeProfile,
+            ).where(
+                ResumeProfile.resume_id == resume_id,
+            )
+        )
+
+    def delete_by_resume(
+        self,
+        resume_id: int,
+    ) -> int:
+        """
+        Delete profile
+        belonging to a resume.
+        """
+
+        return (
+            self.db.query(
+                ResumeProfile,
+            )
+            .filter(
+                ResumeProfile.resume_id == resume_id,
+            )
+            .delete()
+        )

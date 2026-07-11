@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from backend.app.services.education_extractor.education_models import (
+    EducationRecord,
+)
 from backend.app.services.experience_extractor.experience_models import (
     ExperienceRecord,
 )
@@ -10,31 +13,16 @@ from backend.app.services.experience_extractor.experience_models import (
 @dataclass(slots=True)
 class ResumeInformation:
     """
-    Canonical resume information object.
+    Canonical structured resume information.
 
     Every extractor contributes to this model.
-
-    Experience Extractor
-        -> experiences
-
-    Education Extractor
-        -> education
-
-    Skills Extractor
-        -> skills
-
-    Project Extractor
-        -> projects
-
-    Certification Extractor
-        -> certifications
     """
 
     experiences: list[ExperienceRecord] = field(
         default_factory=list,
     )
 
-    education: list = field(
+    education: list[EducationRecord] = field(
         default_factory=list,
     )
 
@@ -42,10 +30,10 @@ class ResumeInformation:
         default_factory=list,
     )
 
-    projects: list = field(
+    certifications: list = field(
         default_factory=list,
     )
 
-    certifications: list = field(
+    projects: list = field(
         default_factory=list,
     )

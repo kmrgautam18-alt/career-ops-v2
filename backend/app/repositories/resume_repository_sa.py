@@ -9,12 +9,16 @@ def create_resume(
 ) -> Resume:
     """
     Create a new resume.
+
+    NOTE
+    ----
+    Transaction is handled by the service layer.
     """
 
     resume = Resume(**kwargs)
 
     db.add(resume)
-    db.commit()
+    db.flush()
     db.refresh(resume)
 
     return resume
@@ -25,10 +29,16 @@ def get_resume_by_id(
     resume_id: int,
 ) -> Resume | None:
     """
-    Return a resume by its ID.
+    Return a resume by ID.
     """
 
-    return db.query(Resume).filter(Resume.id == resume_id).first()
+    return (
+        db.query(Resume)
+        .filter(
+            Resume.id == resume_id,
+        )
+        .first()
+    )
 
 
 def get_resumes_by_user(
@@ -41,8 +51,12 @@ def get_resumes_by_user(
 
     return (
         db.query(Resume)
-        .filter(Resume.user_id == user_id)
-        .order_by(Resume.created_at.desc())
+        .filter(
+            Resume.user_id == user_id,
+        )
+        .order_by(
+            Resume.created_at.desc(),
+        )
         .all()
     )
 
@@ -53,7 +67,7 @@ def get_resume_by_id_and_user(
     user_id: int,
 ) -> Resume | None:
     """
-    Return a resume only if it belongs to the specified user.
+    Return a user's resume by ID.
     """
 
     return (
@@ -72,8 +86,7 @@ def get_resume_file(
     user_id: int,
 ) -> Resume | None:
     """
-    Return resume file metadata only if it belongs to the user.
-    Used by download and preview endpoints.
+    Return resume file metadata.
     """
 
     return (
@@ -92,12 +105,14 @@ def rename_resume(
     title: str,
 ) -> Resume:
     """
-    Rename a resume title.
+    Rename a resume.
+
+    Transaction handled by service layer.
     """
 
     resume.title = title
 
-    db.commit()
+    db.flush()
     db.refresh(resume)
 
     return resume
@@ -108,10 +123,12 @@ def update_resume(
     resume: Resume,
 ) -> Resume:
     """
-    Persist changes to an existing resume.
+    Persist resume updates.
+
+    Transaction handled by service layer.
     """
 
-    db.commit()
+    db.flush()
     db.refresh(resume)
 
     return resume
@@ -123,7 +140,8 @@ def delete_resume(
 ) -> None:
     """
     Delete a resume.
+
+    Transaction handled by service layer.
     """
 
     db.delete(resume)
-    db.commit()

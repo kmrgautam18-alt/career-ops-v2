@@ -1,0 +1,11 @@
+"""
+Configuration for Job Matching Engine.
+All weights must add up to 1.0 (100%).
+"""
+
+SKILL_WEIGHT = 0.50
+EXPERIENCE_WEIGHT = 0.20
+EDUCATION_WEIGHT = 0.10
+KEYWORD_WEIGHT = 0.10
+CERTIFICATION_WEIGHT = 0.05
+LOCATION_WEIGHT = 0.05

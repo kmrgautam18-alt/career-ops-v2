@@ -1,14 +1,21 @@
 from backend.app.database.base import Base
 from backend.app.database.db import engine
 
+# ==========================================================
 # Import ORM models so SQLAlchemy registers them.
+# ==========================================================
+
 from backend.app.models.application import Application  # noqa: F401
 from backend.app.models.job import Job  # noqa: F401
 from backend.app.models.resume import Resume  # noqa: F401
+from backend.app.models.resume_education import ResumeEducation  # noqa: F401
+from backend.app.models.resume_experience import ResumeExperience  # noqa: F401
+from backend.app.models.resume_profile import ResumeProfile  # noqa: F401
+from backend.app.models.resume_skill import ResumeSkill  # noqa: F401
 from backend.app.models.user import User  # noqa: F401
 
 
-def init_database():
+def init_database() -> None:
     """
     Create all database tables defined by SQLAlchemy ORM models.
     """

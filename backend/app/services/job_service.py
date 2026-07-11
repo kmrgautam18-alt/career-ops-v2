@@ -92,11 +92,12 @@ def add_job(
     """
 
     created_job = create_job(
-        db=db,
-        company=job.company,
-        title=job.title,
-        url=str(job.url),
-    )
+    db=db,
+    company=job.company,
+    title=job.title,
+    url=str(job.url),
+    description=job.description,
+)
 
     return ApiResponse(
         success=True,
@@ -150,6 +151,7 @@ def update_existing_job(
     existing.company = job.company
     existing.title = job.title
     existing.url = str(job.url)
+    existing.description = job.description
 
     updated = update_job(
         db=db,

@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from datetime import datetime
 import logging
 
@@ -8,12 +9,12 @@ from backend.app.core.resume_status import ResumeStatus
 from backend.app.exceptions.resume_exceptions import (
     InvalidResumeFileException,
 )
+from backend.app.repositories.resume_experience_repository import (
+    ResumeExperienceRepository,
+)
 from backend.app.repositories.resume_repository_sa import (
     create_resume,
     update_resume,
-)
-from backend.app.repositories.resume_profile_repository import (
-    ResumeProfileRepository,
 )
 from backend.app.repositories.resume_skill_repository import (
     ResumeSkillRepository,
@@ -53,16 +54,15 @@ def upload_resume(
     Upload and process a resume.
 
     Workflow
-
+    --------
     1. Validate file
-    2. Store PDF
-    3. Create DB record
+    2. Store file
+    3. Create resume record
     4. Parse resume
-    5. Extract profile
-    6. Save profile
-    7. Extract skills
-    8. Save skills
-    9. Update parsing metadata
+    5. Extract structured information
+    6. Persist skills
+    7. Persist experiences
+    8. Update parsing metadata
     """
 
     validate_resume_file(upload_file)
@@ -116,16 +116,17 @@ def upload_resume(
         resume.parser_version = PARSER_VERSION
         resume.parsed_at = datetime.utcnow()
 
-        profile = extract_profile(
+        # =====================================================
+        # Structured Resume Information
+        # =====================================================
+
+        resume_information = extract_profile(
             normalized_text,
         )
 
-        ResumeProfileRepository(
-            db,
-        ).create(
-            resume_id=resume.id,
-            profile=profile,
-        )
+        # =====================================================
+        # Skills
+        # =====================================================
 
         skills = build_skills(
             normalized_text,
@@ -137,6 +138,35 @@ def upload_resume(
             resume_id=resume.id,
             skills=skills,
         )
+
+        # =====================================================
+        # Experiences
+        # =====================================================
+
+        ResumeExperienceRepository(
+            db,
+        ).save_many(
+            resume_id=resume.id,
+            experiences=[
+                asdict(exp)
+                for exp in resume_information.experiences
+            ],
+        )
+
+        # =====================================================
+        # Profile
+        # =====================================================
+        #
+        # Intentionally skipped.
+        #
+        # ResumeInformation currently does not expose
+        # structured profile fields (full_name, email,
+        # phone, linkedin, github, etc.).
+        #
+        # Profile persistence will be enabled when the
+        # Profile Extractor is implemented.
+        #
+        # =====================================================
 
         resume = update_resume(
             db=db,
