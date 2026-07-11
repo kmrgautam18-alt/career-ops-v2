@@ -4,7 +4,6 @@ from backend.app.services.experience_extractor.experience_models import (
     ExperienceRecord,
 )
 
-
 CONFIDENCE_WEIGHTS = {
     "company": 0.20,
     "designation": 0.20,

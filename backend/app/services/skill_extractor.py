@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 import re
-
+from pathlib import Path
 
 RESOURCE_DIR = (
     Path(__file__).parent.parent
@@ -77,7 +76,6 @@ class SkillExtractor:
 
             with open(
                 file,
-                "r",
                 encoding="utf-8",
             ) as f:
 

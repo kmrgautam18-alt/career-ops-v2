@@ -3,24 +3,25 @@ from sqlalchemy.orm import Session
 from backend.app.repositories.job_repository_sa import (
     get_job_by_id,
 )
-from backend.app.repositories.resume_repository_sa import (
-    get_resume_by_id,
-)
-from backend.app.repositories.resume_profile_repository import (
-    ResumeProfileRepository,
-)
-from backend.app.repositories.resume_skill_repository import (
-    ResumeSkillRepository,
+from backend.app.repositories.resume_education_repository import (
+    ResumeEducationRepository,
 )
 from backend.app.repositories.resume_experience_repository import (
     ResumeExperienceRepository,
 )
-
+from backend.app.repositories.resume_profile_repository import (
+    ResumeProfileRepository,
+)
+from backend.app.repositories.resume_repository_sa import (
+    get_resume_by_id,
+)
+from backend.app.repositories.resume_skill_repository import (
+    ResumeSkillRepository,
+)
 from backend.app.schemas.job_match_schema import (
     JobMatchResponse,
     MatchComponentResponse,
 )
-
 from backend.app.services.job_information_extractor import (
     extract_job_information,
 )
@@ -62,6 +63,7 @@ def match_job(
     profile_repo = ResumeProfileRepository(db)
     skill_repo = ResumeSkillRepository(db)
     experience_repo = ResumeExperienceRepository(db)
+    education_repo = ResumeEducationRepository(db)
 
     profile = profile_repo.find_by_resume(
         resume.id,
@@ -72,6 +74,10 @@ def match_job(
     )
 
     experiences = experience_repo.find_by_resume(
+        resume.id,
+    )
+
+    educations = education_repo.find_by_resume(
         resume.id,
     )
 
@@ -101,12 +107,19 @@ def match_job(
             profile.location or ""
         )
 
+    candidate_degree = ""
+
+    if educations:
+        candidate_degree = (
+            educations[0].degree or ""
+        )
+
     result = JobMatchingEngine.match(
         resume_skills=resume_skills,
         job_skills=job_information.skills,
         candidate_years=candidate_years,
         required_years=job_information.required_years,
-        candidate_degree="",
+        candidate_degree=candidate_degree,
         required_degree=job_information.required_degree,
         candidate_certifications=[],
         required_certifications=job_information.certifications,

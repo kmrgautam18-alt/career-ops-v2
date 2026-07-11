@@ -3,14 +3,8 @@ from datetime import date
 from backend.app.services.education_extractor.degree_detector import (
     detect_degrees,
 )
-from backend.app.services.education_extractor.specialization_detector import (
-    detect_specializations,
-)
 from backend.app.services.education_extractor.education_builder import (
     build_education,
-)
-from backend.app.services.education_extractor.extractor import (
-    extract_education,
 )
 from backend.app.services.education_extractor.education_models import (
     EducationRecord,
@@ -18,7 +12,12 @@ from backend.app.services.education_extractor.education_models import (
 from backend.app.services.education_extractor.education_validator import (
     validate_education,
 )
-
+from backend.app.services.education_extractor.extractor import (
+    extract_education,
+)
+from backend.app.services.education_extractor.specialization_detector import (
+    detect_specializations,
+)
 
 # ==========================================================
 # Degree Detector

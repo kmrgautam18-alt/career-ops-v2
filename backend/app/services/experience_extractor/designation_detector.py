@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 import re
-
+from pathlib import Path
 
 RESOURCE_FILE = (
     Path(__file__).parent.parent.parent
@@ -41,7 +40,6 @@ class DesignationDetector:
 
         with open(
             RESOURCE_FILE,
-            "r",
             encoding="utf-8",
         ) as file:
 

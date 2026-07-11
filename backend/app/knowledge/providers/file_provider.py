@@ -6,7 +6,6 @@ from backend.app.knowledge.providers.base_provider import (
     BaseKnowledgeProvider,
 )
 
-
 RESOURCE_ROOT = (
     Path(__file__).parent.parent.parent
     / "resources"

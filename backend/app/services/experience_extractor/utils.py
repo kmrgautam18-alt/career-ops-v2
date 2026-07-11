@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 
-
 PRESENT_KEYWORDS = {
     "present",
     "current",

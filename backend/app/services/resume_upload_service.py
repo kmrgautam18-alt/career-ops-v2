@@ -1,6 +1,5 @@
-from dataclasses import asdict
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
@@ -147,10 +146,7 @@ def upload_resume(
             db,
         ).save_many(
             resume_id=resume.id,
-            experiences=[
-                asdict(exp)
-                for exp in resume_information.experiences
-            ],
+            experiences=resume_information.experiences,
         )
 
         # =====================================================
@@ -173,17 +169,23 @@ def upload_resume(
             resume=resume,
         )
 
-        logger.info(
-            "Resume %s processed successfully",
-            resume.id,
-        )
-
     except Exception:
 
         logger.exception(
             "Resume processing failed for resume_id=%s",
             resume.id,
         )
+
+    db.commit()
+    db.refresh(resume)
+
+    return ApiResponse(
+        success=True,
+        message="Resume uploaded successfully.",
+        data=ResumeResponse.model_validate(
+            resume,
+        ),
+    )
 
     return ApiResponse(
         success=True,

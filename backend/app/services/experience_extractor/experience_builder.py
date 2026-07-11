@@ -34,7 +34,6 @@ from backend.app.services.experience_extractor.location_detector import (
     detect_locations,
 )
 
-
 DATE_RANGE_PATTERN = re.compile(
     r"(?P<start>.+?)\s*[-–]\s*(?P<end>.+)",
     re.IGNORECASE,

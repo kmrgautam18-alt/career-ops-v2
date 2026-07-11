@@ -8,13 +8,12 @@ from backend.app.services.experience_extractor.company_detector import (
 from backend.app.services.experience_extractor.designation_detector import (
     detect_designations,
 )
-from backend.app.services.experience_extractor.location_detector import (
-    detect_locations,
-)
 from backend.app.services.experience_extractor.employment_type_detector import (
     detect_employment_type,
 )
-
+from backend.app.services.experience_extractor.location_detector import (
+    detect_locations,
+)
 
 DATE_PATTERN = re.compile(
     r".+\s*[-–]\s*.+",

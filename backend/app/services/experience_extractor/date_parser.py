@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 from datetime import date
 
-
 MONTH_MAP = {
     "jan": 1,
     "january": 1,

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import logging
 
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 
 from backend.app.models.resume_skill import ResumeSkill
 from backend.app.repositories.base_repository import BaseRepository

@@ -4,7 +4,6 @@ from backend.app.database.db import engine
 # ==========================================================
 # Import ORM models so SQLAlchemy registers them.
 # ==========================================================
-
 from backend.app.models.application import Application  # noqa: F401
 from backend.app.models.job import Job  # noqa: F401
 from backend.app.models.resume import Resume  # noqa: F401

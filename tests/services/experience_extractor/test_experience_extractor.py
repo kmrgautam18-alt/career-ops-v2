@@ -24,7 +24,6 @@ from backend.app.services.experience_extractor.location_detector import (
     detect_locations,
 )
 
-
 # ============================================================
 # Company Detector
 # ============================================================

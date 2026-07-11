@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
+from backend.app.repositories.resume_repository_sa import (
+    get_resume_by_id_and_user,
+)
 from backend.app.schemas.job_match_schema import JobMatchResponse
 from backend.app.schemas.job_schema import JobCreate
 from backend.app.schemas.query_schema import (
@@ -157,18 +160,30 @@ def delete_job_endpoint(
 
 
 @router.post(
-    "/{job_id}/match",
+    "/{job_id}/match/{resume_id}",
     response_model=JobMatchResponse,
 )
 def match_job_endpoint(
     job_id: int,
-    resume_id: int = Query(..., gt=0),
+    resume_id: int,
     current_user=Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
     """
-    Match a resume against a job.
+    Match the authenticated user's resume against a job.
     """
+
+    resume = get_resume_by_id_and_user(
+        db=db,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+
+    if resume is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Resume not found.",
+        )
 
     try:
         return match_job(
@@ -181,4 +196,10 @@ def match_job_endpoint(
         raise HTTPException(
             status_code=404,
             detail=str(exc),
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to generate job match.",
         )

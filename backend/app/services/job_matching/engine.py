@@ -1,15 +1,18 @@
-from backend.app.services.job_matching.matchers.skill_matcher import SkillMatcher
-from backend.app.services.job_matching.matchers.experience_matcher import ExperienceMatcher
-from backend.app.services.job_matching.matchers.education_matcher import EducationMatcher
-from backend.app.services.job_matching.matchers.certification_matcher import CertificationMatcher
-from backend.app.services.job_matching.matchers.location_matcher import LocationMatcher
+from backend.app.services.job_matching.matchers.certification_matcher import (
+    CertificationMatcher,
+)
+from backend.app.services.job_matching.matchers.education_matcher import (
+    EducationMatcher,
+)
+from backend.app.services.job_matching.matchers.experience_matcher import (
+    ExperienceMatcher,
+)
 from backend.app.services.job_matching.matchers.keyword_matcher import KeywordMatcher
-
-from backend.app.services.job_matching.score_calculator import ScoreCalculator
-from backend.app.services.job_matching.recommendation_engine import RecommendationEngine
-from backend.app.services.job_matching.explainability import ExplainabilityEngine
-
+from backend.app.services.job_matching.matchers.location_matcher import LocationMatcher
+from backend.app.services.job_matching.matchers.skill_matcher import SkillMatcher
 from backend.app.services.job_matching.models import MatchResult
+from backend.app.services.job_matching.recommendation_engine import RecommendationEngine
+from backend.app.services.job_matching.score_calculator import ScoreCalculator
 
 
 class JobMatchingEngine:

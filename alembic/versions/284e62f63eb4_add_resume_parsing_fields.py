@@ -6,14 +6,15 @@ Create Date: 2026-07-07
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
+
+import sqlalchemy as sa
 
 from alembic import op
-import sqlalchemy as sa
 
 # revision identifiers
 revision: str = "284e62f63eb4"
-down_revision: Union[str, Sequence[str], None] = "fb3db3a182e7"
+down_revision: str | Sequence[str] | None = "fb3db3a182e7"
 branch_labels = None
 depends_on = None
 
