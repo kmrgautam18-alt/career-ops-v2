@@ -46,6 +46,20 @@ class Settings:
     )
 
     # ======================================
+    # Baserow (No-Code Database)
+    # ======================================
+
+    BASEROW_URL: str = os.getenv(
+        "BASEROW_URL",
+        "https://api.baserow.io",
+    )
+
+    BASEROW_TOKEN: str = os.getenv(
+        "BASEROW_TOKEN",
+        "",
+    )
+
+    # ======================================
     # JWT Security
     # ======================================
 
