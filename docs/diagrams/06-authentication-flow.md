@@ -2,16 +2,15 @@
 
 ## Overview
 
-The Authentication module is responsible for securely authenticating users in Career-Ops v2.
+The Authentication module handles user registration, login, token management, and session refresh in Career-Ops v2.
 
-It uses modern authentication standards including:
-
-* Argon2 Password Hashing
-* JWT Access Token
-* JWT Refresh Token
-* Stateless Authentication
-* Layered Architecture
-* Custom Exception Handling
+**Implemented features:**
+- Argon2 Password Hashing
+- JWT Access Token (30 min expiry)
+- JWT Refresh Token (7 day expiry)
+- Stateless Authentication
+- Layered Architecture (Router → Service → Repository → DB)
+- Custom Exception Handling
 
 ---
 
@@ -21,49 +20,76 @@ It uses modern authentication standards including:
 flowchart LR
 
 subgraph Client["👤 Client"]
-    A["Web / Mobile Client"]
+    A["React Frontend / API Client"]
 end
 
 subgraph API["🌐 API Layer"]
-    B["FastAPI Router<br/>POST /api/v1/auth/login"]
+    B["POST /api/v1/auth/login"]
+    C["POST /api/v1/auth/refresh"]
 end
 
 subgraph Service["⚙️ Service Layer"]
-    C["Auth Service<br/>login_user()"]
+    D["login_user()"]
+    E["refresh_access_token()"]
 end
 
 subgraph Repository["🗄️ Repository Layer"]
-    D["User Repository<br/>get_user_by_email()"]
+    F["get_user_by_email()"]
 end
 
 subgraph Database["💾 Database"]
-    E[("SQLite")]
+    G[("SQLite / PostgreSQL")]
 end
 
 subgraph Security["🔐 Security Layer"]
-    F["Argon2 Password Verification"]
-    G["JWT Generator"]
+    H["Argon2 Password Verify"]
+    I["JWT Access Token (30m)"]
+    J["JWT Refresh Token (7d)"]
 end
 
 subgraph Response["📦 Response"]
-    H["200 OK<br/>Access Token<br/>Refresh Token"]
-    I["401 Unauthorized"]
-    J["403 Forbidden"]
+    K["200 OK\n{access_token, refresh_token}"]
+    L["401 Unauthorized"]
+    M["403 Forbidden"]
 end
 
 A -->|"POST /login"| B
-B --> C
-C --> D
-D --> E
+B --> D
+D --> F
+F --> G
+G -->|"User Found"| H
+G -.->|"User Not Found"| L
+H -->|"Password Valid"| I
+H -.->|"Invalid Password"| L
+I --> J
+J -->|"User Active"| K
+J -.->|"Inactive User"| M
+```
 
-E -->|"User Found"| F
-E -.->|"User Not Found"| I
+---
 
-F -->|"Password Valid"| G
-F -.->|"Invalid Password"| I
+# Registration Flow
 
-G -->|"User Active"| H
-G -.->|"Inactive User"| J
+```mermaid
+flowchart LR
+
+    Client["👤 Client"]
+    API["POST /api/v1/users/register"]
+    Service["register_user()"]
+    Repo["create_user()"]
+    Security["Argon2 Hash Password"]
+    DB[("Database")]
+    Response["201 Created\nUser Profile"]
+
+    Client --> API
+    API --> Service
+    Service -->|"Check duplicate email/username"| Repo
+    Repo -->|"Check exists"| DB
+    DB -->|"No duplicate"| Service
+    Service --> Security
+    Security --> Repo
+    Repo --> DB
+    DB --> Response
 ```
 
 ---
@@ -74,24 +100,19 @@ G -.->|"Inactive User"| J
 sequenceDiagram
 
 actor Client
-
 participant Router as FastAPI Router
 participant Service as Auth Service
 participant Repo as User Repository
-participant DB as SQLite
+participant DB as SQLite/PostgreSQL
 participant Security as Argon2
 participant JWT as JWT Utility
 
 Client->>Router: POST /api/v1/auth/login
 
-Router->>Service: login_user(email,password)
-
+Router->>Service: login_user(email, password)
 Service->>Repo: get_user_by_email()
-
 Repo->>DB: SELECT user
-
 DB-->>Repo: User Record
-
 Repo-->>Service: User
 
 Service->>Security: Verify Password
@@ -101,18 +122,12 @@ alt Invalid Password
     Service-->>Router: InvalidCredentialsException
     Router-->>Client: HTTP 401
 else Password Valid
-
     Security-->>Service: Success
-
-    Service->>JWT: create_access_token()
-
-    Service->>JWT: create_refresh_token()
-
+    Service->>JWT: create_access_token(user_id, email, role)
+    Service->>JWT: create_refresh_token(user_id)
     JWT-->>Service: JWT Tokens
-
     Service-->>Router: ApiResponse
-
-    Router-->>Client: HTTP 200
+    Router-->>Client: HTTP 200 (access_token, refresh_token)
 end
 ```
 
@@ -120,58 +135,53 @@ end
 
 # Architecture Layers
 
-| Layer            | Responsibility                         |
-| ---------------- | -------------------------------------- |
-| Client           | Sends authentication request           |
-| API Layer        | Accepts HTTP request                   |
-| Service Layer    | Authentication business logic          |
-| Repository Layer | User retrieval                         |
-| Database         | Persistent user storage                |
-| Security Layer   | Password verification & JWT generation |
-| Response Layer   | Standard API response                  |
+| Layer | Responsibility |
+|-------|---------------|
+| Client | Sends credentials, stores tokens in localStorage |
+| API Layer | Routes: `/auth/login`, `/auth/refresh`, `/auth/logout`, `/users/register` |
+| Service Layer | `login_user()`, `refresh_access_token()`, business logic |
+| Repository Layer | `get_user_by_email()`, `create_user()` |
+| Database | Persistent user storage (SQLite dev / PostgreSQL prod) |
+| Security Layer | Argon2 password hashing, JWT generation/verification |
+| Response Layer | Standardized `ApiResponse` envelope |
 
 ---
 
-# Security Components
+# Token Specifications
 
-| Component         | Purpose                         |
-| ----------------- | ------------------------------- |
-| Argon2            | Password Hashing & Verification |
-| JWT               | Stateless Authentication        |
-| Access Token      | API Authentication              |
-| Refresh Token     | Token Renewal                   |
-| Custom Exceptions | Secure error handling           |
+| Token | Lifetime | Payload | Storage |
+|-------|----------|---------|---------|
+| Access Token | 30 minutes | `sub` (user_id), `email`, `role`, `type`, `iat`, `exp`, `jti` | localStorage / Bearer header |
+| Refresh Token | 7 days | `sub` (user_id), `type`, `iat`, `exp`, `jti` | localStorage (sent to /refresh) |
 
 ---
 
 # HTTP Response Matrix
 
-| Scenario            | HTTP Status |
-| ------------------- | ----------: |
-| Login Successful    |         200 |
-| Invalid Credentials |         401 |
-| Unauthorized Token  |         401 |
-| Inactive User       |         403 |
-| User Not Found      |         404 |
-| Duplicate Email     |         409 |
-| Duplicate Username  |         409 |
+| Scenario | HTTP Status | Exception |
+|----------|-------------|-----------|
+| Login Successful | 200 | — |
+| Invalid Credentials | 401 | `InvalidCredentialsException` |
+| Expired Token | 401 | `UnauthorizedException` |
+| Inactive User | 403 | `InactiveUserException` |
+| User Not Found | 404 | `UserNotFoundException` |
+| Duplicate Email | 409 | `DuplicateEmailException` |
+| Duplicate Username | 409 | `DuplicateUsernameException` |
 
 ---
 
-# Authentication Module Status
+# Auth Module Status
 
-| Feature                  | Status |
-| ------------------------ | :----: |
-| User Registration        |    ✅   |
-| Login                    |    ✅   |
-| Argon2 Password Hashing  |    ✅   |
-| JWT Access Token         |    ✅   |
-| JWT Refresh Token        |    ✅   |
-| Exception Handling       |    ✅   |
-| Stateless Authentication |    ✅   |
-| Layered Architecture     |    ✅   |
-
----
-
-**Version:** Authentication Module v1.0
-**Sprint:** Sprint 8.2 — Authentication Module
+| Feature | Status |
+|---------|:------:|
+| User Registration | ✅ |
+| Login | ✅ |
+| Argon2 Password Hashing | ✅ |
+| JWT Access Token (30m) | ✅ |
+| JWT Refresh Token (7d) | ✅ |
+| Token Refresh | ✅ |
+| Logout | ✅ |
+| Exception Handling | ✅ |
+| Stateless Authentication | ✅ |
+| Layered Architecture | ✅ |
+| RBAC (USER / ADMIN roles) | ✅ |
