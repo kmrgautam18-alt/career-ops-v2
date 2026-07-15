@@ -1,6 +1,6 @@
 # Backend Request Flow
 
-Version: 1.0
+Version: 2.0
 
 Status: Active
 
@@ -17,136 +17,119 @@ This diagram illustrates the lifecycle of an HTTP request inside the Career-Ops 
 ```mermaid
 flowchart TD
 
-Client["🌐 API Client"]
+    Client["🌐 React Frontend / API Client"]
+    Nginx["🌐 Nginx Reverse Proxy
+(Serves static files + proxies /api/*)"]
+    CORSMiddleware["🛡 CORS Middleware"]
+    Router["📡 FastAPI Router"]
+    Validation["✅ Pydantic Validation"]
+    AuthMiddleware["🔐 Auth Middleware
+(JWT Verification)"]
+    Service["⚙ Service Layer"]
+    Repository["📦 Repository Layer"]
+    ORM["🗂 SQLAlchemy ORM"]
+    Database[(🗄 SQLite / PostgreSQL)]
+    Response["📤 API Response
+{success, message, data, pagination}"]
 
-Router["📡 FastAPI Router"]
-
-Validation["✅ Pydantic Validation"]
-
-Middleware["🛡 Middleware"]
-
-Service["⚙ Service Layer"]
-
-Repository["📦 Repository Layer"]
-
-ORM["🗂 SQLAlchemy ORM"]
-
-Database["🗄 PostgreSQL"]
-
-Response["📤 API Response"]
-
-Client --> Router
-
-Router --> Validation
-
-Validation --> Middleware
-
-Middleware --> Service
-
-Service --> Repository
-
-Repository --> ORM
-
-ORM --> Database
-
-Database --> ORM
-
-ORM --> Repository
-
-Repository --> Service
-
-Service --> Response
-
-Response --> Client
+    Client --> Nginx
+    Nginx -->|"/api/*"| CORSMiddleware
+    CORSMiddleware --> Router
+    Router --> Validation
+    Validation --> AuthMiddleware
+    AuthMiddleware --> Service
+    Service --> Repository
+    Repository --> ORM
+    ORM --> Database
+    Database --> ORM
+    ORM --> Repository
+    Repository --> Service
+    Service --> Response
+    Response --> Client
 ```
 
 ---
 
 # Request Lifecycle
 
-1. Client sends an HTTP request.
+1. **Client** sends HTTP request to Nginx (port 80/5173)
+2. **Nginx** proxies `/api/*` requests to FastAPI (port 8000)
+3. **CORS Middleware** validates the origin against `CORS_ORIGINS`
+4. **FastAPI Router** matches the endpoint
+5. **Pydantic** validates request body and query parameters
+6. **Auth Middleware** extracts and verifies JWT token (unless public)
+7. **Service Layer** executes business logic (may call AI, Baserow)
+8. **Repository** performs database operations
+9. **SQLAlchemy ORM** executes queries against database
+10. **Response** is serialized via Pydantic schemas into `ApiResponse` envelope
 
-2. FastAPI Router receives the request.
+---
 
-3. Pydantic validates the request body.
+# Middleware Pipeline
 
-4. Middleware executes.
+```mermaid
+flowchart LR
+    Request["HTTP Request"]
+    CORS["CORS\nOrigin Check"]
+    Router["Router\nEndpoint Match"]
+    Auth["Auth\nJWT Verify"]
+    Service["Service\nBusiness Logic"]
+    Response["API Response"]
 
-5. Business logic runs inside the Service Layer.
+    Request --> CORS
+    CORS --> Router
+    Router --> Auth
+    Auth --> Service
+    Service --> Response
+```
 
-6. Repository executes database queries.
+---
 
-7. SQLAlchemy communicates with PostgreSQL.
+# Data Flow for Authenticated Requests
 
-8. Results are returned back to the Service Layer.
-
-9. Response schemas serialize the output.
-
-10. Standard API response is returned.
+```
+Request
+  ↓
+Nginx → /api/v1/jobs (with Authorization: Bearer <token>)
+  ↓
+CORS Middleware → validates origin
+  ↓
+FastAPI Router → matches GET /api/v1/jobs
+  ↓
+Auth Middleware → decodes JWT → gets current_user
+  ↓
+Service Layer → list_jobs(current_user, filters, pagination)
+  ↓
+Repository → query database with filters
+  ↓
+SQLAlchemy → SELECT ... FROM jobs WHERE user_id = ?
+  ↓
+Response → { success, data: [...], pagination: {...} }
+```
 
 ---
 
 # Responsibilities
 
-## Router
-
-- Endpoint Mapping
-- Dependency Injection
-
----
-
-## Validation
-
-- Request Validation
-- Type Checking
-- Data Sanitization
-
----
-
-## Middleware
-
-- Logging
-- Authentication
-- Rate Limiting
-- Error Handling
-
----
-
-## Service
-
-- Business Rules
-- AI Integration
-- Workflow Execution
-
----
-
-## Repository
-
-- CRUD
-- Search
-- Filtering
-- Pagination
-
----
-
-## ORM
-
-- Object Mapping
-- Transactions
-- Relationships
-
----
-
-## Database
-
-- Persistent Storage
+| Layer | Responsibility |
+|-------|---------------|
+| Nginx | Reverse proxy, static files, caching |
+| CORS | Origin validation, credential support |
+| Router | Endpoint mapping, dependency injection |
+| Validation | Request validation, type checking |
+| Auth | JWT verification, user extraction |
+| Service | Business rules, AI/Baserow integration |
+| Repository | CRUD, search, filtering, pagination |
+| ORM | Object mapping, transactions, relationships |
+| Database | Persistent storage |
 
 ---
 
 # Design Principles
 
-- Validation before business logic.
-- Business logic before database access.
-- Repository abstracts persistence.
-- API responses remain standardized.
-- Every request follows the same lifecycle.
+- Validation before business logic
+- Business logic before database access
+- Repository abstracts persistence
+- API responses remain standardized (`ApiResponse`)
+- Every request follows the same lifecycle
+- Nginx is the single entry point in production

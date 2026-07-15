@@ -1,6 +1,6 @@
 # System Context Diagram
 
-Version: 1.0
+Version: 2.0
 
 Status: Active
 
@@ -17,45 +17,34 @@ This diagram shows the highest-level view of Career-Ops v2 and its interaction w
 ```mermaid
 flowchart TD
 
-    User["👤 Candidate / Recruiter"]
-
-    Browser["🌐 Web Browser"]
-
-    CareerOps["🚀 Career-Ops v2"]
-
-    AI["🤖 AI Providers
-(OpenAI / Gemini / Claude)"]
-
-    JobSites["💼 Job Portals
-(LinkedIn / Indeed / Company Careers)"]
-
-    GitHub["🐙 GitHub"]
-
-    Email["📧 Email"]
-
-    Telegram["📱 Telegram"]
-
-    PostgreSQL["🗄 PostgreSQL"]
-
-    n8n["⚡ n8n Automation"]
+    User["👤 Candidate"]
+    Browser["🌐 Browser"]
+    Frontend["⚛️ React + Vite Frontend"]
+    Backend["🚀 FastAPI Backend"]
+    Database[(🗄 SQLite / PostgreSQL)]
+    AI["🤖 AI Engine
+ATS Scoring
+Interview Questions
+Resume Optimization"]
+    Baserow["📊 Baserow
+No-Code Database"]
+    ClaudeCode["🧠 Claude Code
+AI Coding Assistant"]
+    Docker["🐳 Docker Compose
+PostgreSQL + Nginx"]
+    EC2["☁️ AWS EC2"]
 
     User --> Browser
-
-    Browser --> CareerOps
-
-    CareerOps --> AI
-
-    CareerOps --> PostgreSQL
-
-    CareerOps --> n8n
-
-    CareerOps --> GitHub
-
-    CareerOps --> JobSites
-
-    n8n --> Email
-
-    n8n --> Telegram
+    Browser --> Frontend
+    Frontend -->|"/api/*"| Backend
+    Backend --> Database
+    Backend --> AI
+    Backend --> Baserow
+    Docker --> Backend
+    Docker --> Database
+    EC2 --> Docker
+    ClaudeCode --> Backend
+    ClaudeCode --> Frontend
 ```
 
 ---
@@ -64,64 +53,61 @@ flowchart TD
 
 ## Candidate
 
-- Searches jobs
-- Uploads resumes
-- Tracks applications
-- Receives interview preparation
-
----
-
-## Recruiter
-
-- Reviews candidate profiles
-- Searches applicants
-- Views analytics
+- Manages job opportunities
+- Uploads and manages resumes
+- Tracks applications and interviews
+- Uses AI tools for career optimization
 
 ---
 
 ## External Systems
 
-### AI Providers
+### AI Engine (Built-in)
 
 Responsible for:
 
+- ATS Score Calculation
+- Interview Question Generation
 - Resume Optimization
-- ATS Analysis
 - Job Matching
-- Interview Coaching
 
----
-
-### Job Portals
+### Baserow (No-Code Database)
 
 Responsible for:
 
-- Job Discovery
-- Job Import
-- Future Auto Apply
+- Collaborative data management
+- External spreadsheet-like database
+- Optional data sync and admin views
 
----
-
-### GitHub
+### Claude Code (AI Assistant)
 
 Responsible for:
 
-- Source Code
-- CI/CD
-- Version Control
+- AI-powered code editing and debugging
+- Project context via CLAUDE.md
+- Git workflow assistance
 
 ---
 
-### n8n
+# Deployment
 
-Responsible for:
+## Docker Compose
 
-- Workflow Automation
-- Notifications
-- Scheduled Jobs
+The full stack is containerized:
+
+- **PostgreSQL 16** — Production database
+- **FastAPI Backend** — Python REST API
+- **Nginx** — Serves frontend build + reverse proxies API
+
+## AWS EC2
+
+Automated deployment via:
+
+- `scripts/ec2-bootstrap.sh` — One-time instance setup
+- `scripts/deploy-ec2.sh` — Continuous deployment from local machine
 
 ---
 
 # Goal
 
-Career-Ops v2 acts as the central platform connecting users, AI providers, automation services, databases, and external job portals into one integrated career management ecosystem.
+Career-Ops v2 acts as the central platform connecting users, AI services, databases, and external tools into one integrated career management ecosystem.

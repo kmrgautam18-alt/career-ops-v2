@@ -1,6 +1,6 @@
 # Database ER Diagram
 
-Version: 1.0
+Version: 2.0
 
 Status: Active
 
@@ -8,9 +8,9 @@ Status: Active
 
 # Purpose
 
-This document describes the logical database model for Career-Ops v2.
+This document describes the actual database model for Career-Ops v2 as implemented.
 
-The current implementation contains only a subset of these tables. Additional entities will be introduced as future phases are completed.
+The database contains **8 tables** covering users, jobs, applications, and resume data.
 
 ---
 
@@ -19,135 +19,168 @@ The current implementation contains only a subset of these tables. Additional en
 ```mermaid
 erDiagram
 
-    USERS ||--o{ RESUMES : owns
+    USERS ||--o{ JOBS : owns
     USERS ||--o{ APPLICATIONS : submits
-    USERS ||--o{ INTERVIEWS : attends
+    USERS ||--o{ RESUMES : uploads
 
     JOBS ||--o{ APPLICATIONS : receives
 
-    COMPANIES ||--o{ JOBS : posts
-
-    JOBS }o--o{ SKILLS : requires
-
-    USERS }o--o{ SKILLS : has
-
-    APPLICATIONS ||--o{ NOTIFICATIONS : generates
+    RESUMES ||--o{ RESUME_PROFILES : has
+    RESUMES ||--o{ RESUME_EXPERIENCES : has
+    RESUMES ||--o{ RESUME_SKILLS : has
+    RESUMES ||--o{ RESUME_EDUCATIONS : has
 
     USERS {
-        int id
-        string name
-        string email
-        string password_hash
+        int id PK
+        string email UK
+        string username UK
+        string full_name
+        string hashed_password
         string role
-    }
-
-    COMPANIES {
-        int id
-        string name
-        string website
+        boolean is_active
+        boolean is_verified
+        datetime created_at
+        datetime updated_at
     }
 
     JOBS {
-        int id
+        int id PK
+        int user_id FK
         string title
         string company
-        string status
+        string location
+        string description
         string url
-    }
-
-    RESUMES {
-        int id
-        int user_id
-        string filename
-        string ats_score
+        string status
+        datetime created_at
+        datetime updated_at
     }
 
     APPLICATIONS {
-        int id
-        int user_id
-        int job_id
+        int id PK
+        int user_id FK
+        int job_id FK
         string status
-        datetime applied_at
+        text notes
+        datetime created_at
+        datetime updated_at
     }
 
-    INTERVIEWS {
-        int id
-        int user_id
-        datetime interview_date
-        string round
+    RESUMES {
+        int id PK
+        int user_id FK
+        string file_name
+        string file_type
+        int file_size
+        string file_path
+        string status
+        datetime created_at
+        datetime updated_at
     }
 
-    SKILLS {
-        int id
+    RESUME_PROFILES {
+        int id PK
+        int resume_id FK
         string name
+        string email
+        string phone
+        string location
+        text summary
+        float confidence
+        datetime created_at
     }
 
-    NOTIFICATIONS {
-        int id
-        int application_id
-        string type
+    RESUME_EXPERIENCES {
+        int id PK
+        int resume_id FK
+        string company
+        string designation
+        string location
+        date start_date
+        date end_date
+        boolean is_current
+        string employment_type
+        text description
+        float confidence
+        datetime created_at
+    }
+
+    RESUME_SKILLS {
+        int id PK
+        int resume_id FK
+        string skill_name
+        string category
+        float confidence
+        datetime created_at
+    }
+
+    RESUME_EDUCATIONS {
+        int id PK
+        int resume_id FK
+        string degree
+        string specialization
+        string institution
+        string location
+        string university
+        date start_date
+        date end_date
+        float grade
+        float percentage
+        float cgpa
+        boolean currently_studying
+        float confidence
         datetime created_at
     }
 ```
 
 ---
 
-# Core Entities
+# Table Relationships
 
-## Users
+```
+users
+ ├──< jobs          (one user has many jobs)
+ ├──< applications  (one user has many applications)
+ └──< resumes       (one user has many resumes)
 
-Stores candidate accounts.
+jobs
+ └──< applications  (one job can have many applications)
 
----
-
-## Companies
-
-Stores employer information.
-
----
-
-## Jobs
-
-Stores available job postings.
-
----
-
-## Applications
-
-Tracks every submitted application.
+resumes
+ ├──< resume_profiles      (one resume has one profile)
+ ├──< resume_experiences   (one resume has many experiences)
+ ├──< resume_skills        (one resume has many skills)
+ └──< resume_educations    (one resume has many educations)
+```
 
 ---
 
-## Resumes
+# Key Design Decisions
 
-Stores uploaded resumes and future ATS scores.
-
----
-
-## Skills
-
-Used for AI-based skill matching.
-
----
-
-## Interviews
-
-Stores interview schedule and progress.
+| Decision | Implementation |
+|----------|---------------|
+| Primary keys | Auto-increment integers (UUID planned for future) |
+| Foreign keys | Cascading deletes (CASCADE on resume child tables) |
+| Timestamps | All tables have `created_at`, most have `updated_at` |
+| Soft deletes | Not yet implemented (planned) |
+| Indexed columns | `email`, `username`, `user_id`, `resume_id`, `job_id` |
+| Search columns | `title`, `company`, `status`, `degree` are indexed |
 
 ---
 
-## Notifications
+# Migration Management
 
-Generated by automation workflows.
+- Managed via **Alembic** with versioned migration scripts
+- Current schema version: 7 migrations applied
+- Supports both SQLite (dev) and PostgreSQL (prod)
+- Migrations located in `alembic/versions/`
 
 ---
 
-# Database Design Principles
+# Design Principles
 
-- Normalized schema
-- UUID support in future
-- Soft delete support (future)
-- Audit logging (future)
-- Foreign key constraints
-- Indexed search columns
-- AI-ready schema
+- Normalized schema with foreign key constraints
+- All user data is scoped by `user_id`
+- Resume data is decomposed into structured entities (profile, experience, skill, education)
+- AI-ready schema — confidence scores stored alongside extracted data
+- Future: UUID primary keys, soft deletes, audit logging

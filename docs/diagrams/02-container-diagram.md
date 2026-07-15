@@ -1,6 +1,6 @@
 # Container Diagram
 
-Version: 1.0
+Version: 2.0
 
 Status: Active
 
@@ -17,69 +17,60 @@ This diagram describes the major deployable containers that make up the Career-O
 ```mermaid
 flowchart TD
 
-    User["👤 Candidate / Recruiter"]
-
+    User["👤 Candidate"]
     Browser["🌐 Browser"]
-
-    Frontend["⚛️ React / Next.js Frontend"]
-
+    Nginx["🌐 Nginx
+(Serves Frontend + API Proxy)"]
+    Frontend["⚛️ React + Vite Frontend"]
     Backend["🚀 FastAPI Backend"]
-
-    Database["🗄 PostgreSQL"]
-
-    AI["🤖 AI Service
-(OpenAI / Gemini / Claude)"]
-
-    Automation["⚡ n8n"]
-
-    Email["📧 Email"]
-
-    Telegram["📱 Telegram"]
-
-    JobSources["💼 Job Sources
-LinkedIn
-Workday
-Greenhouse
-Lever"]
+    Database[(🗄 PostgreSQL)]
+    AI["🤖 AI Engine
+ATS · Interview · Optimizer"]
+    Baserow["📊 Baserow
+No-Code Database"]
+    EC2["☁️ AWS EC2 Instance"]
 
     User --> Browser
-
-    Browser --> Frontend
-
-    Frontend --> Backend
-
+    Browser --> Nginx
+    Nginx -->|"/" static files| Frontend
+    Nginx -->|"/api/*" proxy| Backend
     Backend --> Database
-
     Backend --> AI
-
-    Backend --> Automation
-
-    Backend --> JobSources
-
-    Automation --> Email
-
-    Automation --> Telegram
+    Backend --> Baserow
+    EC2 --> Nginx
 ```
 
 ---
 
 # Containers
 
-## React / Next.js
+## Nginx
 
 Responsibilities
 
-- Authentication UI
-- Dashboard
-- Resume Upload
-- Job Search
-- Analytics
+- Serve built frontend static files
+- Reverse-proxy `/api/*` to the backend
+- Gzip compression, asset caching
+- SPA fallback routing
+
+---
+
+## React + Vite Frontend
+
+Responsibilities
+
+- Authentication UI (Login, Register)
+- Dashboard with career metrics
+- Job management CRUD
+- Application tracking
+- Resume upload and management
+- AI tools (ATS scoring, interview questions)
 
 Technology
 
-- React
-- Next.js
-- TailwindCSS
+- React 19, TypeScript 6, Vite 8
+- Tailwind CSS 4, Framer Motion
+- React Router, Recharts, Axios
 
 ---
 
@@ -87,17 +78,18 @@ Technology
 
 Responsibilities
 
-- REST APIs
-- Authentication
-- Business Logic
-- AI Integration
-- Automation APIs
+- REST API (134+ endpoints, 10 modules)
+- JWT Authentication (access + refresh tokens)
+- Business logic for all features
+- AI service integration
+- Baserow API integration
 
 Technology
 
-- FastAPI
-- SQLAlchemy
-- Pydantic
+- Python 3.12, FastAPI
+- SQLAlchemy 2.0, Pydantic 2
+- Argon2 password hashing
+- python-jose (JWT)
 
 ---
 
@@ -105,102 +97,64 @@ Technology
 
 Responsibilities
 
-- User Data
-- Jobs
-- Applications
-- Resumes
-- Audit Logs
+- User accounts and profiles
+- Job opportunities
+- Applications with status tracking
+- Resumes and parsed data
+- Education, experience, skills, profiles
 
 ---
 
-## AI Service
+## AI Engine (Built-in)
 
-Responsibilities
+Modules
 
-- Resume Analysis
-- ATS Scoring
-- Resume Optimization
-- Job Matching
-- Interview Coach
-
-Supported Providers
-
-- OpenAI
-- Gemini
-- Claude
-- Local Models (Future)
+- **ATS Scoring** — Analyze resume against job description
+- **Interview Questions** — Generate role-specific practice questions
+- **Resume Optimization** — Suggestions to improve resume
+- **Job Matching** — Match resume to job requirements
 
 ---
 
-## n8n
+## Baserow
 
 Responsibilities
 
-- Job Alerts
-- Scheduled Workflows
-- Email Automation
-- Telegram Notifications
-- Future Auto Apply
+- External no-code database for collaborative data
+- Optional admin/spreadsheet interface for career data
+- API-driven CRUD operations
 
 ---
 
-## Job Sources
+## AWS EC2
 
-Responsibilities
+Deployment target running:
 
-- Job Discovery
-- Job Import
-- Company Career Pages
-- ATS Platforms
-
-Examples
-
-- LinkedIn
-- Workday
-- Greenhouse
-- Lever
+- Docker Compose with PostgreSQL 16
+- FastAPI backend (uvicorn)
+- Nginx serving frontend
 
 ---
 
 # Communication Flow
 
-Candidate
-
-↓
-
+```
 Browser
-
-↓
-
-Frontend
-
-↓
-
-Backend
-
-↓
-
-Database
-
-↓
-
-AI
-
-↓
-
-Automation
-
-↓
-
-Notifications
+   ↓
+Nginx (port 80)
+   ├── / → Frontend static files
+   └── /api/* → FastAPI Backend (port 8000)
+                  ├── PostgreSQL
+                  ├── AI Engine
+                  └── Baserow API
+```
 
 ---
 
 # Design Principles
 
-- Frontend never talks directly to Database.
-- Frontend never talks directly to AI Providers.
-- Backend owns all business logic.
-- Database is only accessed through Repository Layer.
-- Automation runs independently through n8n.
-- AI providers can be replaced without affecting the frontend.
+- Nginx is the single entry point (port 80)
+- Backend never exposed directly to the internet
+- Frontend never talks directly to database
+- Backend owns all business logic
+- All API responses use standard `ApiResponse` envelope

@@ -1,6 +1,6 @@
 # Component Diagram
 
-Version: 1.0
+Version: 2.0
 
 Status: Active
 
@@ -17,173 +17,149 @@ This diagram describes the internal components of the Career-Ops v2 backend and 
 ```mermaid
 flowchart TD
 
-    Client["🌐 Frontend / API Client"]
+    Client["🌐 React Frontend / API Client"]
 
-    Router["📡 FastAPI Routers"]
+    Router["📡 FastAPI Routers
+Auth · Users · Jobs
+Applications · Resumes
+Dashboard · AI · Admin
+Baserow"]
 
-    Middleware["🛡 Middleware"]
+    CORSMiddleware["🛡 CORS Middleware
+configurable origins"]
 
-    Service["⚙ Service Layer"]
+    Service["⚙ Service Layer
+Auth · User · Job
+Application · Resume
+Dashboard · AI
+Baserow"]
 
-    Repository["📦 Repository Layer"]
+    Repository["📦 Repository Layer
+User · Job · Application
+Resume · Dashboard"]
 
-    Models["🗂 SQLAlchemy Models"]
+    Models["🗂 SQLAlchemy Models
+User · Job · Application
+Resume · ResumeProfile
+ResumeExperience · ResumeSkill
+ResumeEducation"]
 
-    Schemas["📑 Pydantic Schemas"]
+    Schemas["📑 Pydantic Schemas
+Request Validation
+Response Serialization"]
 
-    Database["🗄 PostgreSQL"]
+    Database[(🗄 SQLite / PostgreSQL)]
 
-    AI["🤖 AI Service"]
+    AI["🤖 AI Services
+ATS Engine · Interview
+Resume Optimizer · Job Matching"]
 
-    Automation["⚡ n8n"]
+    Baserow["📊 Baserow API
+External DB"]
 
     Client --> Router
-
-    Router --> Middleware
-
-    Middleware --> Service
-
+    Router --> CORSMiddleware
+    CORSMiddleware --> Service
     Service --> Repository
-
     Service --> Schemas
-
-    Repository --> Models
-
-    Models --> Database
-
     Service --> AI
-
-    Service --> Automation
+    Service --> Baserow
+    Repository --> Models
+    Models --> Database
 ```
 
 ---
 
 # Components
 
-## FastAPI Routers
+## FastAPI Routers (10 modules)
 
-Responsibilities
-
-- HTTP Endpoints
-- Request Validation
-- Response Handling
-- API Versioning
+| Router | Endpoints |
+|--------|-----------|
+| Auth | `/auth/login`, `/auth/refresh`, `/auth/logout` |
+| Users | `/users/register`, `/users/me`, `/users/{id}` |
+| Jobs | `/jobs` CRUD, `/jobs/{id}/match/{resume_id}` |
+| Applications | `/applications` CRUD |
+| Resumes | `/resumes` CRUD, upload, download, preview |
+| Dashboard | `/dashboard/` stats, recent, status-summary |
+| Admin | `/admin/health` |
+| AI | `/ai/ats-score`, `/ai/interview/questions`, `/ai/resume-optimize` |
+| Baserow | `/baserow/tables`, rows CRUD, health |
 
 ---
 
-## Middleware
+## CORS Middleware
 
-Responsibilities
-
-- Logging
-- Authentication
-- Authorization
-- Rate Limiting
-- Request ID
-- Exception Handling
+- Configurable via `CORS_ORIGINS` env var
+- Allows comma-separated origins (dev: localhost:5173, prod: yourdomain.com)
+- Supports credentials (cookies, auth headers)
 
 ---
 
 ## Service Layer
 
-Responsibilities
+Modules
 
-- Business Logic
-- Validation
-- AI Integration
-- Automation Triggers
+- **AuthService** — Login, token creation, password verification
+- **UserService** — Registration, profile management
+- **JobService** — Job CRUD, search, filtering, pagination
+- **ApplicationService** — Application tracking, status management
+- **ResumeService** — Upload, validation, file storage, metadata
+- **DashboardService** — Aggregated stats, recent activity
+- **AIService** — ATS scoring, interview generation, optimization
+- **BaserowService** — External no-code database client
 
 ---
 
 ## Repository Layer
 
-Responsibilities
-
-- Database Operations
-- Query Construction
-- Pagination
-- Search
-- Filtering
+- Implements the Repository pattern for database abstraction
+- Each entity has a dedicated repository
+- Handles CRUD, search, filtering, pagination
+- Isolates SQLAlchemy from business logic
 
 ---
 
-## SQLAlchemy Models
+## SQLAlchemy Models (8 tables)
 
-Responsibilities
-
-- Database Mapping
-- Relationships
-- Constraints
-
----
-
-## Pydantic Schemas
-
-Responsibilities
-
-- Request Validation
-- Response Serialization
-- Type Safety
+| Table | Purpose |
+|-------|---------|
+| `users` | Accounts, auth, roles |
+| `jobs` | Job opportunities |
+| `applications` | Application tracking |
+| `resumes` | Resume metadata and file storage |
+| `resume_profiles` | Parsed profile data |
+| `resume_experiences` | Work history from resumes |
+| `resume_skills` | Extracted skills |
+| `resume_educations` | Education history |
 
 ---
 
-## AI Service
+## AI Services
 
-Responsibilities
-
-- Resume Analysis
-- ATS Score
-- Job Matching
-- Interview Coach
-
----
-
-## n8n
-
-Responsibilities
-
-- Email
-- Telegram
-- Scheduled Jobs
-- Workflow Automation
+| Service | Description |
+|---------|-------------|
+| ATSEngine | Analyze resume vs job description |
+| InterviewGenerator | Create role-specific practice questions |
+| ResumeOptimizer | Suggest improvements to resume content |
+| JobMatcher | Score resume against job requirements |
 
 ---
 
-# Component Flow
+## Baserow Service
 
-Client
-
-↓
-
-Router
-
-↓
-
-Middleware
-
-↓
-
-Service
-
-↓
-
-Repository
-
-↓
-
-Models
-
-↓
-
-Database
+- REST API client for Baserow
+- Methods: list_tables, list_rows, get/create/update/delete row
+- Configurable via `BASEROW_URL` and `BASEROW_TOKEN`
 
 ---
 
 # Design Rules
 
-- Routers never access the database directly.
-- Services own all business logic.
-- Repositories never contain business logic.
-- Models only define persistence.
-- Schemas only define API contracts.
-- Middleware remains reusable and independent.
+- Routers never access the database directly
+- Services own all business logic
+- Repositories never contain business logic
+- Models only define persistence
+- Schemas only define API contracts
+- Middleware remains reusable and independent
+- AI providers can be swapped without affecting other layers
