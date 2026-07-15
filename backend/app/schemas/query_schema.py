@@ -1,13 +1,13 @@
-from enum import StrEnum
+from enum import Enum
 
 
-class SortField(StrEnum):
+class SortField(str, Enum):
     id = "id"
     company = "company"
     job_title = "title"
     status = "status"
 
 
-class SortOrder(StrEnum):
+class SortOrder(str, Enum):
     asc = "asc"
     desc = "desc"

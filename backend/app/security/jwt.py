@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -16,7 +16,7 @@ def create_access_token(
     Generate JWT access token.
     """
 
-    expire = datetime.now(UTC) + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
     )
 
@@ -25,7 +25,7 @@ def create_access_token(
         "email": email,
         "role": role,
         "type": "access",
-        "iat": datetime.now(UTC),
+        "iat": datetime.now(timezone.utc),
         "exp": expire,
         "jti": str(uuid4()),
     }
@@ -46,14 +46,14 @@ def create_refresh_token(
     Generate JWT refresh token.
     """
 
-    expire = datetime.now(UTC) + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS,
     )
 
     payload = {
         "sub": str(user_id),
         "type": "refresh",
-        "iat": datetime.now(UTC),
+        "iat": datetime.now(timezone.utc),
         "exp": expire,
         "jti": str(uuid4()),
     }
