@@ -79,6 +79,10 @@ venv/
 # Upload Storage
 storage/resumes/
 
+# Claude Code (local config — do not commit secrets)
+.claude/*.local.md
+.claude/*.local.json
+
 # Frontend
 node_modules/
 frontend/dist/
