@@ -1,9 +1,11 @@
 from typing import cast
 
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ExceptionHandler
 
 from backend.app.api.router import api_router
+from backend.app.core.config import settings
 from backend.app.exceptions.custom_exceptions import (
     ApplicationNotFoundException,
     DuplicateEmailException,
@@ -39,6 +41,18 @@ from backend.app.exceptions.resume_exceptions import (
 app = FastAPI(
     title="Career-Ops v2",
     version="0.1.0",
+)
+
+# ======================================
+# CORS Middleware (Production)
+# ======================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.add_exception_handler(

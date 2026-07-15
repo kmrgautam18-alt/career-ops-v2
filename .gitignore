@@ -79,6 +79,10 @@ venv/
 # Upload Storage
 storage/resumes/
 
+# Frontend
+node_modules/
+frontend/dist/
+
 # Test Files
 test-data/
 

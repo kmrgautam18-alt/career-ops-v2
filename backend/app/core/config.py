@@ -28,6 +28,23 @@ class Settings:
         "sqlite:///data/careerops.db",
     )
 
+    # PostgreSQL connection pool settings
+    DB_POOL_SIZE: int = int(os.getenv("DB_POOL_SIZE", "10"))
+    DB_MAX_OVERFLOW: int = int(os.getenv("DB_MAX_OVERFLOW", "20"))
+
+    # ======================================
+    # CORS
+    # ======================================
+
+    CORS_ORIGINS: list[str] = os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://localhost:3000",
+    ).split(",")
+
+    CORS_ALLOW_CREDENTIALS: bool = (
+        os.getenv("CORS_ALLOW_CREDENTIALS", "true").lower() == "true"
+    )
+
     # ======================================
     # JWT Security
     # ======================================
