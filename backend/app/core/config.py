@@ -131,5 +131,43 @@ class Settings:
         os.getenv("AUTO_APPLY_INTERVIEW_FOLLOWUP_DAYS", "3")
     )
 
+    # ======================================
+    # Redis Cache
+    # ======================================
+
+    REDIS_ENABLED: bool = os.getenv("REDIS_ENABLED", "true").lower() == "true"
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "redis")
+    REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
+    REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD", "")
+    REDIS_DB: int = int(os.getenv("REDIS_DB", "0"))
+
+    # ======================================
+    # Celery (Background Tasks)
+    # ======================================
+
+    CELERY_ENABLED: bool = os.getenv("CELERY_ENABLED", "false").lower() == "true"
+    CELERY_BROKER_URL: str = os.getenv(
+        "CELERY_BROKER_URL",
+        "redis://redis:6379/1",
+    )
+    CELERY_RESULT_BACKEND: str = os.getenv(
+        "CELERY_RESULT_BACKEND",
+        "redis://redis:6379/2",
+    )
+
+    # ======================================
+    # OAuth (Social Login)
+    # ======================================
+
+    OAUTH_ENABLED: bool = os.getenv("OAUTH_ENABLED", "true").lower() == "true"
+
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+
+    # GitHub OAuth
+    GITHUB_CLIENT_ID: str = os.getenv("GITHUB_CLIENT_ID", "")
+    GITHUB_CLIENT_SECRET: str = os.getenv("GITHUB_CLIENT_SECRET", "")
+
 
 settings = Settings()

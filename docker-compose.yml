@@ -25,6 +25,71 @@ services:
       timeout: 5s
       retries: 5
 
+  # ======================================
+  # Caching Layer (Redis)
+  # ======================================
+
+  redis:
+    image: redis:7-alpine
+    container_name: careerops-redis
+    restart: unless-stopped
+    command: redis-server --save 300 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ======================================
+  # Background Workers (Celery)
+  # ======================================
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: careerops-celery-worker
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-careerops}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-careerops}
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      APP_ENV: production
+    command: celery -A backend.app.services.tasks.celery_app worker --loglevel=info --concurrency=4
+    volumes:
+      - resume_storage:/app/storage
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: careerops-celery-beat
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-careerops}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-careerops}
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      APP_ENV: production
+    command: celery -A backend.app.services.tasks.celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
   backend:
     build:
       context: .
@@ -34,10 +99,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-careerops}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-careerops}
+      REDIS_HOST: redis
+      CELERY_ENABLED: "true"
       APP_ENV: production
       DEBUG: "false"
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
@@ -203,6 +272,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
   resume_storage:
   prometheus_data:
   grafana_data:

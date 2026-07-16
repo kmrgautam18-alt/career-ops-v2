@@ -11,8 +11,30 @@ from backend.app.main import app
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
-    """Ensure all tables exist before tests run."""
+    """Ensure all tables exist before tests run and seed test user."""
     init_database()
+
+    # Seed the test user
+    from backend.app.models.user import User
+    from backend.app.security.password import hash_password
+
+    session = SessionLocal()
+    try:
+        user = session.query(User).filter(User.email == "careerops@test.com").first()
+        if not user:
+            user = User(
+                email="careerops@test.com",
+                username="careerops",
+                full_name="Career Ops",
+                hashed_password=hash_password("CareerOps@123"),
+                is_active=True,
+                is_verified=True,
+            )
+            session.add(user)
+            session.commit()
+    finally:
+        session.close()
+
     yield
 
 

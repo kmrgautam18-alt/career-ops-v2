@@ -70,6 +70,26 @@ class User(Base):
         server_default="false",
     )
 
+    # OAuth fields
+    google_id: Mapped[str | None] = mapped_column(
+        String(255),
+        unique=False,
+        nullable=True,
+        index=True,
+    )
+
+    github_id: Mapped[str | None] = mapped_column(
+        String(255),
+        unique=False,
+        nullable=True,
+        index=True,
+    )
+
+    avatar_url: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
