@@ -357,6 +357,7 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 |----------|-------|:----------:|
 | 🖥️ **RHEL 10.2 / Fedora** | [📄 Full Guide](docs/deployment/rhel-vm-deployment.md) | 🟢 Beginner |
 | ☁️ **AWS EC2 (Ubuntu)** | [📄 Full Guide](docs/deployment/aws-ec2-deployment.md) | 🟢 Beginner |
+| 🪟 **Windows 10 / 11 (WSL2)** | [📄 Full Guide](docs/deployment/windows10-deployment-guide.md) | 🟢 Beginner |
 
 ### Quick Deploy (Docker Compose)
 
@@ -637,11 +638,12 @@ curl http://localhost:8000/live
 
 ### Platform-Specific Deployments
 
-| Platform | Guide |
-|----------|-------|
-| 🖥️ **RHEL 10.2 / Fedora** | [`docs/deployment/rhel-vm-deployment.md`](docs/deployment/rhel-vm-deployment.md) |
-| ☁️ **AWS EC2** | [`docs/deployment/aws-ec2-deployment.md`](docs/deployment/aws-ec2-deployment.md) |
-| 🌐 **Public Internet (Go-Live)** | [`docs/deployment/rhel-go-live-guide.md`](docs/deployment/rhel-go-live-guide.md) |
+| Platform | Guide | Cost | Difficulty |
+|----------|-------|:----:|:----------:|
+| 🖥️ **RHEL 10.2 / Fedora** | [`docs/deployment/rhel-vm-deployment.md`](docs/deployment/rhel-vm-deployment.md) | $0 | 🟢 Beginner |
+| ☁️ **AWS EC2 (Ubuntu)** | [`docs/deployment/aws-ec2-deployment.md`](docs/deployment/aws-ec2-deployment.md) | $0 | 🟢 Beginner |
+| 🪟 **Windows 10 / 11 (WSL2)** | [`docs/deployment/windows10-deployment-guide.md`](docs/deployment/windows10-deployment-guide.md) | $0 | 🟢 Beginner |
+| 🌐 **Public Internet (Go-Live)** | [`docs/deployment/rhel-go-live-guide.md`](docs/deployment/rhel-go-live-guide.md) | $0 | 🟢 Beginner |
 
 ---
 
