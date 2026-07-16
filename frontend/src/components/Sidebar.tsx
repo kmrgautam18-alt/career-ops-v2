@@ -7,6 +7,7 @@ import {
   FileText,
   Send,
   Sparkles,
+  Zap,
   LogOut,
   X,
   Sun,
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/jobs', icon: Briefcase, label: 'Jobs' },
   { to: '/applications', icon: Send, label: 'Applications' },
   { to: '/resumes', icon: FileText, label: 'Resumes' },
+  { to: '/auto-apply', icon: Zap, label: 'Auto-Apply' },
   { to: '/ai', icon: Sparkles, label: 'AI Tools' },
 ];
 

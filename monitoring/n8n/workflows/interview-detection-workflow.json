@@ -1,0 +1,129 @@
+{
+  "name": "Interview Detection & Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "careerops-interview-detection",
+        "options": {}
+      },
+      "id": "webhook-listener",
+      "name": "Webhook Listener",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event }}",
+              "operation": "equal",
+              "value2": "interview.scheduled"
+            }
+          ]
+        }
+      },
+      "id": "filter-interview",
+      "name": "Is Interview Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "string": [
+            {
+              "name": "message",
+              "value": "🎯 *Interview Scheduled!*\n\n*Company:* {{ $json.company }}\n*Position:* {{ $json.job_title }}\n*Date:* {{ $json.interview_date }}\n*Type:* {{ $json.interview_type }}\n*User:* {{ $json.user_email }}\n\nPlease check your Career-Ops dashboard for details."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-slack-message",
+      "name": "Set Slack Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "channel": "CAREER_OPS_CHANNEL_ID",
+        "text": "={{ $json.message }}",
+        "username": "Career-Ops Interview Bot",
+        "sendAsUser": false,
+        "attachments": {}
+      },
+      "id": "slack-notification",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "string": [
+            {
+              "name": "emailBody",
+              "value": "Hi {{ $json.user_email.split('@')[0] }},\n\nGreat news! You have an interview scheduled!\n\nCompany: {{ $json.company }}\nPosition: {{ $json.job_title }}\nDate: {{ $json.interview_date }}\nType: {{ $json.interview_type }}\n\nPreparation Tips:\n1. Research the company thoroughly\n2. Review the job description\n3. Prepare questions to ask\n4. Test your equipment (for video interviews)\n5. Arrive 10 minutes early\n\nGood luck! 🎉\n\n— Career-Ops Team"
+            }
+          ]
+        }
+      },
+      "id": "set-email-content",
+      "name": "Set Email Content",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 450]
+    },
+    {
+      "parameters": {
+        "fromEmail": "careerops@example.com",
+        "toEmail": "={{ $json.user_email }}",
+        "subject": "={{ 'Interview Scheduled: ' + $json.company + ' - ' + $json.job_title }}",
+        "text": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [850, 450]
+    }
+  ],
+  "connections": {
+    "Webhook Listener": {
+      "main": [
+        [{ "node": "Is Interview Event?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Interview Event?": {
+      "main": [
+        [
+          { "node": "Set Slack Message", "type": "main", "index": 0 },
+          { "node": "Set Email Content", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Set Slack Message": {
+      "main": [
+        [{ "node": "Slack Notification", "type": "main", "index": 0 }]
+      ]
+    },
+    "Set Email Content": {
+      "main": [
+        [{ "node": "Send Email Notification", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["careerops", "interview", "notification"],
+  "pinData": {}
+}

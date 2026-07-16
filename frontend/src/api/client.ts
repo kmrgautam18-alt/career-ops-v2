@@ -151,6 +151,31 @@ async function streamSse(
   return controller;
 }
 
+// Auto-Apply (Job Application Engine)
+export const autoApplyApi = {
+  dashboard: () => apiClient.get('/auto-apply/dashboard'),
+  list: () => apiClient.get('/auto-apply'),
+  get: (id: number) => apiClient.get(`/auto-apply/${id}`),
+  create: (data: Record<string, unknown>) => apiClient.post('/auto-apply', data),
+  update: (id: number, data: Record<string, unknown>) => apiClient.patch(`/auto-apply/${id}`, data),
+  delete: (id: number) => apiClient.delete(`/auto-apply/${id}`),
+  scrape: (data: { source: string; query: string; location?: string; max_results?: number }) => apiClient.post('/auto-apply/scrape', data),
+  optimize: (id: number) => apiClient.post(`/auto-apply/${id}/optimize`),
+  sendEmail: (id: number, hrEmail?: string) => {
+    const params = hrEmail ? `?hr_email=${encodeURIComponent(hrEmail)}` : '';
+    return apiClient.post(`/auto-apply/${id}/send${params}`);
+  },
+  followup: (id: number) => apiClient.post(`/auto-apply/${id}/followup`),
+  interview: (id: number, interviewDate: string, interviewType: string) =>
+    apiClient.post(`/auto-apply/${id}/interview?interview_date=${encodeURIComponent(interviewDate)}&interview_type=${interviewType}`),
+  fullPipeline: (source: string, query: string, location?: string, maxResults?: number) => {
+    let url = `/auto-apply/full-pipeline?source=${encodeURIComponent(source)}&query=${encodeURIComponent(query)}`;
+    if (location) url += `&location=${encodeURIComponent(location)}`;
+    if (maxResults) url += `&max_results=${maxResults}`;
+    return apiClient.post(url);
+  },
+};
+
 // AI
 export const aiApi = {
   atsScore: (data: { resume_text: string; job_description: string }) => apiClient.post('/ai/ats-score', data),

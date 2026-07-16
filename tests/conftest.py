@@ -2,6 +2,10 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+# Import ALL models to ensure SQLAlchemy registers all relationships
+# without needing to create tables at test startup
+from backend.app.models.auto_application import AutoApplication  # noqa: F401
+from backend.app.models.resume import Resume  # noqa: F401
 from backend.app.database.session import SessionLocal
 from backend.app.main import app
 

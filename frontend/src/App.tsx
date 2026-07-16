@@ -11,6 +11,7 @@ import { Jobs } from './pages/Jobs';
 import { Applications } from './pages/Applications';
 import { Resumes } from './pages/Resumes';
 import { AIPage } from './pages/AIPage';
+import { AutoApply } from './pages/AutoApply';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/resumes" element={<Resumes />} />
+            <Route path="/auto-apply" element={<AutoApply />} />
             <Route path="/ai" element={<AIPage />} />
           </Route>
         </Routes>

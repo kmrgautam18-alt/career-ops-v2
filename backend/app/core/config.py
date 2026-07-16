@@ -109,5 +109,27 @@ class Settings:
 
     N8N_ENABLED: bool = os.getenv("N8N_ENABLED", "false").lower() == "true"
 
+    # ======================================
+    # SMTP / Email
+    # ======================================
+
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "careerops@example.com")
+    SMTP_FROM_NAME: str = os.getenv("SMTP_FROM_NAME", "Career-Ops Auto-Apply")
+    SMTP_TLS: bool = os.getenv("SMTP_TLS", "true").lower() == "true"
+    SMTP_ENABLED: bool = os.getenv("SMTP_ENABLED", "false").lower() == "true"
+
+    # ======================================
+    # Auto-Apply Engine
+    # ======================================
+
+    AUTO_APPLY_DAILY_LIMIT: int = int(os.getenv("AUTO_APPLY_DAILY_LIMIT", "20"))
+    AUTO_APPLY_INTERVIEW_FOLLOWUP_DAYS: int = int(
+        os.getenv("AUTO_APPLY_INTERVIEW_FOLLOWUP_DAYS", "3")
+    )
+
 
 settings = Settings()

@@ -1,0 +1,189 @@
+{
+  "name": "Follow-up Automation Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "minutesInterval": 1440
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Daily Schedule (8 AM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.CAREER_OPS_API_URL || 'http://careerops-backend:8000' }}/api/v1/auto-apply/dashboard",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.CAREER_OPS_API_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-dashboard",
+      "name": "Fetch Auto-Apply Dashboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.data.pending_followups }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "has-followups",
+      "name": "Has Pending Follow-ups?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.CAREER_OPS_API_URL || 'http://careerops-backend:8000' }}/api/v1/auto-apply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.CAREER_OPS_API_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-applications",
+      "name": "Fetch Applications Needing Follow-up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "mode": "list",
+        "fieldName": "followups"
+      },
+      "id": "filter-followups",
+      "name": "Filter Pending Follow-ups",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 200],
+      "parameters": {
+        "language": "python",
+        "code": "import json\n\nitems = workflowContext.getItems()\nfollowups = []\n\nfor item in items:\n    app = item.json\n    status = app.get('status', '')\n    next_followup = app.get('next_followup_at')\n    \n    if status in ('rejected', 'accepted', 'interview_scheduled'):\n        continue\n    \n    if next_followup:\n        from datetime import datetime\n        try:\n            dt = datetime.fromisoformat(next_followup)\n            if datetime.now() >= dt:\n                followups.append(app)\n        except:\n            pass\n    else:\n        followups.append(app)\n\nreturn [{\"json\": app} for app in followups[:5]]\n"
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "string": [
+            {
+              "name": "message",
+              "value": "⏰ *Follow-up Reminder*\n\n*Company:* {{ $json.company }}\n*Position:* {{ $json.job_title }}\n*Days Since:* {{ $json.followup_count }} follow-up(s) sent\n\nVisit the Auto-Apply dashboard to send follow-up."
+            }
+          ]
+        }
+      },
+      "id": "set-summary-message",
+      "name": "Set Summary Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [1250, 100]
+    },
+    {
+      "parameters": {
+        "channel": "CAREER_OPS_CHANNEL_ID",
+        "text": "={{ $json.message }}",
+        "username": "Career-Ops Follow-up Bot",
+        "sendAsUser": false
+      },
+      "id": "slack-summary",
+      "name": "Slack Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1450, 100]
+    },
+    {
+      "parameters": {
+        "fromEmail": "careerops@example.com",
+        "subject": "={{ 'Career-Ops Daily Report: ' + $json.pending_followups + ' follow-ups pending' }}",
+        "text": "={{ 'Career-Ops Daily Summary\\n\\nTotal Sourced: ' + $json.total_sourced + '\\nAI Optimized: ' + $json.total_ai_optimized + '\\nEmailed: ' + $json.total_emailed + '\\nInterviews: ' + $json.total_interviews + '\\nPending Follow-ups: ' + $json.pending_followups + '\\n\\nLogin to the dashboard to take action:\\n' + ($env.CAREER_OPS_URL || 'http://localhost:5173') + '/auto-apply' }}",
+        "options": {}
+      },
+      "id": "daily-digest-email",
+      "name": "Daily Digest Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [1250, 350]
+    }
+  ],
+  "connections": {
+    "Daily Schedule (8 AM)": {
+      "main": [
+        [{ "node": "Fetch Auto-Apply Dashboard", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Auto-Apply Dashboard": {
+      "main": [
+        [
+          { "node": "Has Pending Follow-ups?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Has Pending Follow-ups?": {
+      "main": [
+        [
+          { "node": "Fetch Applications Needing Follow-up", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Daily Digest Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Applications Needing Follow-up": {
+      "main": [
+        [{ "node": "Filter Pending Follow-ups", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter Pending Follow-ups": {
+      "main": [
+        [{ "node": "Set Summary Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Set Summary Message": {
+      "main": [
+        [{ "node": "Slack Summary", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["careerops", "followup", "automation"],
+  "pinData": {}
+}
