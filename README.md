@@ -16,7 +16,7 @@
 
   <br/>
 
-  <!-- Badges Row 1 -->
+  <!-- Badges Row 1 — Core Stack -->
   <p>
     <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12"/>
     <img src="https://img.shields.io/badge/FastAPI-0.138-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>
@@ -24,7 +24,7 @@
     <img src="https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript 6"/>
   </p>
 
-  <!-- Badges Row 2 -->
+  <!-- Badges Row 2 — Quality & Database -->
   <p>
     <img src="https://img.shields.io/badge/Tests-98%25_Passing-10B981?style=for-the-badge" alt="98% Tests Passing"/>
     <img src="https://img.shields.io/badge/API-134_Endpoints-6366F1?style=for-the-badge" alt="134 API Endpoints"/>
@@ -32,7 +32,15 @@
     <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Ready"/>
   </p>
 
-  <!-- Badges Row 3 -->
+  <!-- Badges Row 3 — Monitoring & AI -->
+  <p>
+    <img src="https://img.shields.io/badge/Monitoring-Prometheus%2FGrafana-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus/Grafana"/>
+    <img src="https://img.shields.io/badge/Logging-Loki-FF6F00?style=for-the-badge&logo=grafana&logoColor=white" alt="Loki"/>
+    <img src="https://img.shields.io/badge/Alerts-Alertmanager-FF4500?style=for-the-badge&logo=slack&logoColor=white" alt="Alertmanager"/>
+    <img src="https://img.shields.io/badge/AI-Google%20Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini"/>
+  </p>
+
+  <!-- Badges Row 4 — License & Status -->
   <p>
     <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="MIT License"/>
     <img src="https://img.shields.io/badge/Status-Active_Success-10B981?style=for-the-badge" alt="Active"/>
@@ -47,8 +55,8 @@
     <a href="#-quick-start">Quick Start</a> •
     <a href="#-api-reference">API</a> •
     <a href="#-deployment">Deployment</a> •
-    <a href="#-architecture">Architecture</a> •
-    <a href="#-contributing">Contributing</a>
+    <a href="#-monitoring--alerting">Monitoring</a> •
+    <a href="#-architecture">Architecture</a>
   </div>
 
   <br/>
@@ -59,16 +67,40 @@
 
 ## 📋 Overview
 
-**Career-Ops v2** is a unified, AI-powered platform that transforms how professionals manage their career journey. Instead of juggling multiple disconnected tools for resumes, job tracking, applications, and interview prep, Career-Ops brings everything together in one intelligent ecosystem.
+**Career-Ops v2** is a unified, AI-powered platform that transforms how professionals manage their career journey. Instead of juggling multiple disconnected tools for resumes, job tracking, applications, and interview prep, Career-Ops brings everything together in one intelligent ecosystem — with enterprise-grade monitoring, alerting, and logging built in.
 
 ```mermaid
-graph LR
-    A[🎯 Job Management] --> D[⚡ Career-Ops Platform]
-    B[📄 Resume Intelligence] --> D
-    C[📋 Application Tracking] --> D
-    E[🤖 AI Career Assistant] --> D
-    F[📊 Career Analytics] --> D
-    D --> G[🚀 Better Career Outcomes]
+graph TB
+    subgraph "👤 Users"
+        A[🌐 Browser]
+    end
+    subgraph "☁️ Docker Compose Stack"
+        B[🌐 Nginx :80]
+        C[🚀 FastAPI Backend :8000]
+        D[(🗄 PostgreSQL)]
+        E[🤖 AI Engine]
+        F[📊 Baserow]
+    end
+    subgraph "📈 Monitoring"
+        G[📊 Prometheus :9090]
+        H[📈 Grafana :3001]
+        I[🔔 Alertmanager :9093]
+    end
+    subgraph "📝 Logging"
+        J[📝 Loki :3100]
+        K[🔍 Promtail]
+    end
+    A --> B
+    B -->|static| C
+    B -->|/api/*| C
+    C --> D
+    C --> E
+    C --> F
+    C -.->|/metrics| G
+    G --> H
+    G --> I
+    J --> H
+    K --> J
 ```
 
 ---
@@ -94,7 +126,7 @@ graph LR
     <tr>
       <td align="center">
         <h3>🤖 AI Career Assistant</h3>
-        <p>ATS scoring, interview questions, resume optimization — all powered by built-in AI engines</p>
+        <p>ATS scoring, interview questions, resume optimization, job matching — all powered by Google Gemini AI with <strong>streaming SSE responses</strong></p>
       </td>
       <td align="center">
         <h3>📊 Career Analytics</h3>
@@ -103,6 +135,34 @@ graph LR
       <td align="center">
         <h3>🔐 Secure & Scalable</h3>
         <p>JWT auth with RBAC, PostgreSQL, Docker Compose deployment, ready for EC2/RHEL</p>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <h3>📊 Prometheus Metrics</h3>
+        <p>15+ metric types tracking HTTP requests, DB queries, AI performance, and business KPIs</p>
+      </td>
+      <td align="center">
+        <h3>📈 Grafana Dashboards</h3>
+        <p>12-panel pre-built dashboard with auto-provisioned Prometheus + Loki datasources</p>
+      </td>
+      <td align="center">
+        <h3>🔔 Smart Alerting</h3>
+        <p>14 alerting rules routed to Slack, PagerDuty, and/or Email via Alertmanager</p>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <h3>📝 Loki Log Aggregation</h3>
+        <p>Centralized Docker container logs with Promtail, queryable in Grafana Explore</p>
+      </td>
+      <td align="center">
+        <h3>🌗 Dark/Light Theme</h3>
+        <p>Toggleable dark luxury / metallic light theme with smooth Framer Motion transitions</p>
+      </td>
+      <td align="center">
+        <h3>🎬 Page Transitions</h3>
+        <p>Direction-aware slide animations, loading skeletons, progress bars, and avatar trail</p>
       </td>
     </tr>
   </table>
@@ -122,63 +182,95 @@ graph LR
 | 📋 **Applications** | `/api/v1/applications/*` | Application tracking with status lifecycle |
 | 📄 **Resumes** | `/api/v1/resumes/*` | Upload, download, preview, parse, extract intelligence |
 | 📊 **Dashboard** | `/api/v1/dashboard/*` | Aggregated stats, recent activity, status summaries |
-| 🤖 **AI Engine** | `/api/v1/ai/*` | ATS scoring, interview questions, resume optimization |
+| 🤖 **AI Engine** | `/api/v1/ai/*` | ATS scoring, interview questions, resume optimization, job matching |
 | 🛡️ **Admin** | `/api/v1/admin/*` | Admin health checks, system monitoring |
 | 📊 **Baserow** | `/api/v1/baserow/*` | No-code database CRUD integration |
 | 🎯 **Job Matching** | `/api/v1/jobs/{id}/match/*` | AI-powered resume-to-job matching |
+| 📈 **Metrics** | `GET /metrics` | Prometheus metrics (HTTP, DB, AI, business) |
 
 ### Frontend (React 19 + Vite 8 + TypeScript 6)
 
 | Page | Route | Features |
 |------|-------|----------|
-| 🏠 **Landing** | `/` | Hero, features grid, stats, CTA with Framer Motion |
+| 🏠 **Landing** | `/` | Hero, features grid, stats, CTA with Framer Motion animations |
 | 🔐 **Login** | `/login` | JWT login with auto-refresh, password toggle |
 | 📝 **Register** | `/register` | Full registration with validation |
-| 📊 **Dashboard** | `/dashboard` | Stat cards, recent jobs, recent applications |
-| 💼 **Jobs** | `/jobs` | Search, create modal, status badges, delete |
-| 📋 **Applications** | `/applications` | CRUD with status tracking (6 states) |
-| 📄 **Resumes** | `/resumes` | Drag-to-upload, file list, download, delete |
-| 🤖 **AI Tools** | `/ai` | ATS Calculator + Interview Question Generator |
+| 📊 **Dashboard** | `/dashboard` | Gradient stat cards, recent jobs, recent applications |
+| 💼 **Jobs** | `/jobs` | Search, create modal, status badges, delete with animations |
+| 📋 **Applications** | `/applications` | CRUD with 6 status states, tracking |
+| 📄 **Resumes** | `/resumes` | Drag-to-upload, progress bars, file list, download, delete |
+| 🤖 **AI Tools** | `/ai` | ATS Calculator, Interview Questions, Resume Optimizer, Job Match — all with **Stream/Batch toggle** |
+
+### Monitoring (Prometheus + Grafana + Alertmanager)
+
+| Component | Port | Metrics Collected |
+|-----------|------|------------------|
+| 📊 **Prometheus** | `:9090` | Scrapes `/metrics` from all services every 15s |
+| 📈 **Grafana** | `:3001` | 12-panel dashboard + Loki log explorer (auto-provisioned) |
+| 🔔 **Alertmanager** | `:9093` | 14 rules → Slack, PagerDuty, Email routing |
+| 📊 **Postgres Exporter** | `:9187` | PostgreSQL performance & health metrics |
+| 🌐 **Nginx Exporter** | `:9113` | Request count, connections, status metrics |
+
+### Logging (Loki + Promtail)
+
+| Component | Purpose |
+|-----------|---------|
+| 📝 **Loki** | Centralized log storage with 7-day retention |
+| 🔍 **Promtail** | Scrapes Docker container logs + backend app logs |
 
 ---
 
 ## 🏗️ Architecture
 
 ```mermaid
-flowchart TD
+flowchart LR
     Client["🌐 Browser"] --> Nginx["🌐 Nginx (port 80)"]
     Nginx -->|"/" static| Frontend["⚛️ React + Vite SPA"]
-    Nginx -->|"/api/*"| Backend["🚀 FastAPI Backend (port 8000)"]
+    Nginx -->|"/api/*"| Backend["🚀 FastAPI (port 8000)"]
     Backend --> DB[(🗄 PostgreSQL)]
     Backend --> AI["🤖 AI Engine"]
     Backend --> Baserow["📊 Baserow"]
-    DB --> Storage["💾 Docker Volume"]
+
+    subgraph Monitoring["📈 Monitoring Stack"]
+        Prometheus["📊 Prometheus"] --> Grafana["📈 Grafana"]
+        Prometheus --> AM["🔔 Alertmanager"]
+        Backend -.->|/metrics| Prometheus
+        DBExporter["🗃️ PG Exporter"] --> Prometheus
+        NginxExporter["🌐 Nginx Exporter"] --> Prometheus
+    end
+
+    subgraph Logging["📝 Logging Stack"]
+        Promtail["🔍 Promtail"] --> Loki["📝 Loki"]
+        Loki --> Grafana
+    end
 ```
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                    Frontend (React 19)                    │
-│  Landing · Login · Register · Dashboard · Jobs           │
-│  Applications · Resumes · AI Tools                       │
-└──────────────────────┬───────────────────────────────────┘
-                       │ Axios (JWT Bearer Token)
-                       ▼
-┌──────────────────────────────────────────────────────────┐
-│              Nginx Reverse Proxy (port 80)                │
-│         Serves static files + proxies /api/*              │
-└──────────────────────┬───────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    Frontend (React 19 + TypeScript 6)          │
+│  Landing · Login · Register · Dashboard · Jobs · Applications │
+│  Resumes · AI Tools (Streaming SSE)                          │
+└────────────────────────┬─────────────────────────────────────┘
+                         │ Axios (JWT Bearer Token)
+                         ▼
+┌──────────────────────────────────────────────────────────────┐
+│                Nginx Reverse Proxy (port 80)                  │
+│           Serves static files + proxies /api/*                │
+│           stub_status at /nginx-status for metrics            │
+└──────────────────────┬───────────────────────────────────────┘
                        │
                        ▼
-┌──────────────────────────────────────────────────────────┐
-│                FastAPI Backend (Python 3.12)               │
-│  ┌─────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐   │
-│  │ Routers │→│ Services │→│  Repos   │→│  Models    │   │
-│  │  10 mods│ │  8 svcs  │ │  9 repos │ │  8 tables  │   │
-│  └─────────┘ └──────────┘ └──────────┘ └────────────┘   │
-│              │             │            │                  │
-│              ▼             ▼            ▼                  │
-│         🤖 AI Engine  📊 Baserow   🗄 SQLAlchemy         │
-└──────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                  FastAPI Backend (Python 3.12)                 │
+│  ┌─────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐       │
+│  │ Routers │→│ Services │→│  Repos   │→│  Models    │       │
+│  │  10 mods│ │  8 svcs  │ │  9 repos │ │  8 tables  │       │
+│  └─────────┘ └──────────┘ └──────────┘ └────────────┘       │
+│              │             │            │                      │
+│              ▼             ▼            ▼                      │
+│         🤖 AI Engine  📊 Baserow   🗄 SQLAlchemy              │
+│         (Gemini AI)    (No-code DB)  + Alembic migrations     │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -212,17 +304,11 @@ bun dev
 
 Open **http://localhost:5173** for the app and **http://localhost:8000/docs** for the API docs.
 
-### One-Command Preview
-
-```bash
-bash scripts/preview.sh
-```
-
 ---
 
 ## 📖 API Reference
 
-Full interactive Swagger documentation is available at **`/docs`** when the server is running.
+Full interactive Swagger documentation is available at **`/docs`** or **`/api/docs`** when the server is running.
 
 ### Authentication
 
@@ -249,7 +335,15 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 | `POST` | `/api/v1/jobs` | Create job |
 | `GET` | `/api/v1/applications` | List applications |
 | `GET` | `/api/v1/dashboard/` | Career overview stats |
-| `POST` | `/api/v1/ai/ats-score` | Calculate ATS compatibility |
+| `POST` | `/api/v1/ai/ats-score` | ATS compatibility (batch) |
+| `POST` | `/api/v1/ai/ats-score/stream` | ATS compatibility (streaming SSE) |
+| `POST` | `/api/v1/ai/interview/questions` | Generate interview questions (batch) |
+| `POST` | `/api/v1/ai/interview/questions/stream` | Generate interview questions (streaming SSE) |
+| `POST` | `/api/v1/ai/resume-optimize` | Optimize resume (batch) |
+| `POST` | `/api/v1/ai/resume-optimize/stream` | Optimize resume (streaming SSE) |
+| `POST` | `/api/v1/ai/job-match` | Match resume to job (batch) |
+| `POST` | `/api/v1/ai/job-match/stream` | Match resume to job (streaming SSE) |
+| `GET` | `/metrics` | Prometheus metrics |
 
 > Full documentation with all 134 endpoints available at `/docs`.
 
@@ -257,33 +351,80 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 
 ## 🐳 Deployment
 
-### Docker Compose (Production)
+### 📖 Step-by-Step Deployment Guides
+
+| Platform | Guide | Difficulty |
+|----------|-------|:----------:|
+| 🖥️ **RHEL 10.2 / Fedora** | [📄 Full Guide](docs/deployment/rhel-vm-deployment.md) | 🟢 Beginner |
+| ☁️ **AWS EC2 (Ubuntu)** | [📄 Full Guide](docs/deployment/aws-ec2-deployment.md) | 🟢 Beginner |
+
+### Quick Deploy (Docker Compose)
 
 ```bash
-# 1. Configure environment
+# 1. Configure environment (edit .env with your secrets)
 cp .env.example .env
-# Edit .env with your production values
+nano .env
 
-# 2. Start the stack
+# 2. Build and start the full stack (10 services)
 docker compose up -d --build
 
-# 3. Run migrations
+# 3. Run database migrations
 docker compose exec backend alembic upgrade head
 ```
 
-### RHEL 10.2 / Fedora
+### Deployed Services
 
-```bash
-sudo bash scripts/deploy-rhel.sh
-```
+| Service | Port | Purpose |
+|---------|------|---------|
+| 🌐 Frontend (Nginx) | `:80` | React SPA + API proxy |
+| 🚀 Backend (FastAPI) | `:8000` | API + AI engine |
+| 📊 Prometheus | `:9090` | Metrics collection |
+| 📈 Grafana | `:3001` | Dashboards (admin / password) |
+| 🔔 Alertmanager | `:9093` | Alert routing |
+| 📝 Loki | `:3100` | Log aggregation |
+| 🗄️ PostgreSQL | `:5432` | Database |
+| 🗃️ Postgres Exporter | `:9187` | DB metrics |
+| 🌐 Nginx Exporter | `:9113` | Web metrics |
 
-### AWS EC2
+---
 
-```bash
-EC2_HOST="ec2-xx-xx-xx-xx.compute-1.amazonaws.com" \
-EC2_SSH_KEY="~/.ssh/key.pem" \
-bash scripts/deploy-ec2.sh
-```
+## 📊 Monitoring & Alerting
+
+### Pre-built Grafana Dashboard
+
+When you deploy the full stack, Grafana auto-provisions:
+
+- **Datasource:** Prometheus (`prometheus:9090`)
+- **Datasource:** Loki (`loki:3100`)
+- **Dashboard:** Career-Ops v2 — Production Overview (12 panels)
+
+### Dashboard Panels
+
+| Panel | Type | Metrics |
+|-------|------|---------|
+| API Request Rate | Stat + Area | `rate(careerops_http_requests_total[5m])` |
+| Active Requests | Stat + Area | `careerops_http_active_requests` |
+| App Uptime | Stat | `careerops_up` |
+| Response Duration | Time Series | p95 + p50 latency |
+| HTTP Status Codes | Bar Gauge | 2xx / 4xx / 5xx rate |
+| AI Request Volume | Time Series | Rate per AI feature |
+| AI Request Duration | Time Series | Average per AI feature |
+| Business Metrics | 4 Stats | Users / Jobs / Apps / Resumes |
+| Applications by Status | Pie Chart | Pipeline distribution |
+| DB Query Duration | Time Series | p95 per operation |
+
+### Alerting Rules (14 rules)
+
+| Alert | Severity | Threshold | Notification |
+|-------|:--------:|-----------|:-----------:|
+| Backend Down | 🔴 Critical | `up == 0` for 1m | Slack + PagerDuty |
+| High Error Rate | 🔴 Critical | > 5% 5xx rate for 3m | Slack + PagerDuty |
+| High Latency | 🟡 Warning | p95 > 2s for 5m | Slack |
+| Postgres Down | 🔴 Critical | `up == 0` for 1m | Slack + PagerDuty |
+| Slow DB Queries | 🟡 Warning | p95 > 0.5s for 5m | Slack |
+| Disk Space Low | 🔴 Critical | < 10% free for 5m | Slack + PagerDuty |
+| High AI Latency | 🟡 Warning | Avg > 30s for 5m | Slack |
+| No New Users | ℹ️ Info | Zero signups for 48h | Silenced |
 
 ---
 
@@ -308,9 +449,14 @@ cd frontend && bun run build
 |-------------|-------------|:------:|
 | 🗄️ **Baserow** | No-code database / Airtable alternative — CRUD via REST API | ✅ |
 | 🧠 **Claude Code** | AI coding assistant with full project context via `CLAUDE.md` | ✅ |
-| ☁️ **AWS EC2** | Automated deployment with bootstrap + deploy scripts | ✅ |
-| 🐳 **Docker** | Multi-service Compose: PostgreSQL + Backend + Nginx | ✅ |
-| 🖥️ **RHEL** | Automated deployment script for Red Hat Enterprise Linux | ✅ |
+| ☁️ **AWS EC2** | [Automated deployment guide](docs/deployment/aws-ec2-deployment.md) | ✅ |
+| 🖥️ **RHEL 10.2** | [Automated deployment guide](docs/deployment/rhel-vm-deployment.md) | ✅ |
+| 🐳 **Docker** | Multi-service Compose: 10 services total | ✅ |
+| 🧠 **Google Gemini** | AI-powered ATS, interviews, resume optimization, job matching | ✅ |
+| 📊 **Prometheus** | Metrics collection for HTTP, DB, AI, business | ✅ |
+| 📈 **Grafana** | Pre-built 12-panel dashboard + Loki log explorer | ✅ |
+| 🔔 **Alertmanager** | Alert routing to Slack, PagerDuty, Email (configurable) | ✅ |
+| 📝 **Loki + Promtail** | Centralized Docker log aggregation with Grafana integration | ✅ |
 
 ---
 
@@ -320,47 +466,71 @@ cd frontend && bun run build
 .
 ├── backend/
 │   └── app/
-│       ├── api/v1/           # 10 route modules
+│       ├── api/v1/           # 10 route modules (auth, users, jobs, apps, resumes, AI, admin, etc.)
 │       ├── core/             # Config, settings
 │       ├── database/         # Engine, session, migrations
 │       ├── models/           # 8 SQLAlchemy models
 │       ├── schemas/          # Pydantic schemas
-│       ├── services/         # Business logic + AI + Baserow
+│       ├── services/         # Business logic + AI (ATS, interviews, optimizer, job match)
 │       ├── repositories/     # Data access layer
 │       ├── security/         # JWT + password hashing
 │       ├── knowledge/        # Resume/skill extraction
 │       ├── resources/        # Knowledge base files
-│       └── main.py           # App entry point
+│       └── main.py           # App entry point + /metrics endpoint
 ├── frontend/
 │   └── src/
-│       ├── api/              # Axios client (JWT interceptors)
-│       ├── components/       # Layout, Sidebar, ProtectedRoute
-│       ├── context/          # AuthContext
-│       └── pages/            # 8 pages
-├── docs/                     # 40+ docs (architecture, diagrams, blueprints)
-├── scripts/                  # EC2, RHEL, preview, dev scripts
-├── tests/                    # 98 passing tests
-├── .claude/                  # Claude Code config
-├── docker-compose.yml        # Full production stack
-├── Dockerfile                # Multi-stage backend build
-└── README.md                 # This file
+│       ├── api/              # Axios client (JWT interceptors + streaming SSE support)
+│       ├── components/       # Layout, Sidebar (luxury dark theme + theme toggle)
+│       ├── context/          # AuthContext + ThemeContext
+│       └── pages/            # 8 pages (Framer Motion transitions, skeletons, direction indicators)
+├── monitoring/               # Full observability stack
+│   ├── prometheus.yml         # Prometheus scrape config (5 jobs)
+│   ├── prometheus-rules.yml   # 14 alerting rules (5 rule groups)
+│   ├── alertmanager/          # Alertmanager config (Slack, PagerDuty, Email, Null receivers)
+│   ├── grafana/
+│   │   ├── datasources/       # Auto-provisioned Prometheus + Loki datasources
+│   │   └── dashboards/        # Pre-built CareerOps overview dashboard (12 panels)
+│   └── loki/
+│       ├── loki-config.yml    # Loki single-binary config
+│       └── promtail-config.yml # Docker log scraping config
+├── docs/
+│   ├── api/                   # API documentation
+│   ├── architecture/          # Architecture & design docs
+│   ├── blueprint/             # Product blueprints
+│   ├── database/              # Schema documentation
+│   ├── deployment/            # Deployment guides (RHEL, AWS EC2)
+│   ├── diagrams/              # System diagrams (17 files)
+│   └── requirements/          # Requirements docs
+├── scripts/                   # EC2 deploy, RHEL deploy, preview scripts
+├── tests/                     # 98 passing tests
+├── docker-compose.yml         # 10 services: PostgreSQL, Backend, Frontend, Prometheus, Grafana,
+│                              #   Alertmanager, Loki, Promtail, Postgres Exporter, Nginx Exporter
+├── Dockerfile                 # Multi-stage backend build (Python 3.12-slim)
+├── frontend/
+│   ├── Dockerfile             # Multi-stage frontend build (Bun → Nginx)
+│   └── nginx.conf             # SPA config + API proxy + stub_status + security headers
+├── .env.example               # Production env template with all variables
+└── README.md                  # This file
 ```
 
 ---
 
 ## 📊 Project Status
 
-| Area | Status |
-|------|:------:|
-| Backend API | ✅ 134 endpoints, 10 modules |
-| Frontend UI | ✅ 8 pages, dark theme, responsive |
-| Authentication | ✅ JWT + Argon2 + RBAC |
-| AI Features | ✅ ATS scoring, interview questions, optimization |
-| Database | ✅ SQLite (dev) / PostgreSQL (prod) |
-| Tests | ✅ 98/98 passing |
-| Docker | ✅ Multi-service compose |
-| CI/CD | ✅ Scripts ready (EC2, RHEL) |
-| Documentation | ✅ 40+ files, 17 diagrams |
+| Area | Status | Details |
+|------|:------:|---------|
+| Backend API | ✅ | 134 endpoints, 10 modules, layered architecture |
+| Frontend UI | ✅ | 8 pages, dark luxury theme, responsive, Framer Motion |
+| Authentication | ✅ | JWT + Argon2 + RBAC + refresh tokens |
+| AI Features | ✅ | ATS scoring, interview questions, resume optimization, job matching — all with streaming SSE |
+| Database | ✅ | SQLAlchemy + Alembic, SQLite (dev) / PostgreSQL (prod) |
+| Tests | ✅ | 98/98 passing |
+| Docker | ✅ | Multi-service compose (10 containers) |
+| Monitoring | ✅ | Prometheus + Grafana (12-panel dashboard, auto-provisioned) |
+| Alerting | ✅ | Alertmanager with 14 rules, Slack, PagerDuty, Email |
+| Logging | ✅ | Loki + Promtail with Docker log scraping |
+| Deployment | ✅ | RHEL 10.2 guide + AWS EC2 guide |
+| Documentation | ✅ | 40+ files, 17 diagrams, 2 deployment guides |
 
 ---
 
@@ -396,7 +566,7 @@ This project is **MIT Licensed** — see the [LICENSE](LICENSE) file for details
 
 <div align="center">
   <p>
-    <strong>Built with ❤️ using FastAPI + React + PostgreSQL</strong>
+    <strong>Built with ❤️ using FastAPI + React + PostgreSQL + Prometheus + Grafana</strong>
     <br/>
     <em>Career-Ops v2 — Your Career, Supercharged by AI</em>
   </p>
