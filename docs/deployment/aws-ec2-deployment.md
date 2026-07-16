@@ -48,6 +48,39 @@ Internet ──▶ EC2 Instance (t3.medium)
 
 ---
 
+## ⚡ Quick Deploy (Interactive — 2 Minutes)
+
+> Skip the manual steps! The **interactive deploy script** automates everything from Docker to DuckDNS, Cloudflare, admin accounts, and monitoring — all with smart defaults. Press Enter to accept any prompt.
+
+```bash
+# On the EC2 instance:
+bash scripts/deploy-rhel-interactive.sh
+
+# Or download directly from GitHub (no clone needed):
+curl -fsSL https://raw.githubusercontent.com/kmrgautam18-alt/career-ops-v2/main/scripts/deploy-rhel-interactive.sh | bash
+```
+
+### What the Script Does vs. Manual Steps
+
+| Phase | Interactive Script | Manual Equivalent |
+|-------|:------------------|:------------------|
+| 🔧 System Setup | Installs Docker, git, curl, jq, cron | Steps 3 |
+| 📦 Clone & .env | Clones repo, generates random secrets | Steps 4-5 |
+| 🐳 Docker Stack | Builds & starts all 16 services | Step 6 |
+| 👤 Admin User | Runs migrations, creates admin | Steps 7-8 |
+| 🔄 Automation | Daily backups + LinkedIn + n8n | — |
+| ✅ Verification | Health-checks all services | Steps 8-9 |
+| 🎉 Summary | Saves all credentials to file | — |
+
+```bash
+# Preview everything without making changes:
+bash scripts/deploy-rhel-interactive.sh --dry-run
+```
+
+> **💡 Tip:** The script works on any RHEL-based system (RHEL, Fedora, CentOS, Rocky Linux). For Ubuntu-based EC2, use the manual guide below — a Ubuntu-compatible interactive script is coming soon!
+
+---
+
 ## 🪜 Step 1 — Launch an EC2 Instance
 
 1. Go to the **[AWS EC2 Console](https://console.aws.amazon.com/ec2/)**

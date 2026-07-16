@@ -617,7 +617,32 @@ Self-Update Script             ── Weekly dependency + security + docker tag 
 
 ## 🚀 Quick Deploy
 
-### Docker Compose (Production)
+### 🎯 Interactive Deploy (RHEL/Fedora/WSL2 — 2 Minutes)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kmrgautam18-alt/career-ops-v2/main/scripts/deploy-rhel-interactive.sh | bash
+```
+
+Press **Enter** to accept defaults for any prompt. The script handles everything:
+- Installs Docker + system dependencies
+- Clones the repo + generates `.env` with random secrets
+- Sets up DuckDNS (`yourdomain.duckdns.org`)
+- Configures Cloudflare Tunnel for free HTTPS
+- Builds & starts all 16 Docker services
+- Runs migrations + creates admin user
+- Sets up daily backups + LinkedIn automation
+- Verifies all services are healthy
+
+```bash
+# Preview without making any changes:
+bash scripts/deploy-rhel-interactive.sh --dry-run
+```
+
+> **💡 Works on:** RHEL 9/10, Fedora 40+, CentOS, Rocky Linux, and **WSL2 on Windows**.
+
+---
+
+### 🐳 Docker Compose (Production — Any Platform)
 
 ```bash
 # 1. Clone and configure
@@ -636,7 +661,9 @@ curl http://localhost:8000/ready
 curl http://localhost:8000/live
 ```
 
-### Platform-Specific Deployments
+---
+
+### 📖 Platform-Specific Deployment Guides
 
 | Platform | Guide | Cost | Difficulty |
 |----------|-------|:----:|:----------:|

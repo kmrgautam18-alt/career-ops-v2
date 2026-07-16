@@ -18,9 +18,42 @@
 | 📧 **Email** | Gmail App Password | Free Google account |
 | 📱 **Notifications** | Telegram Bot | `@BotFather` on Telegram — free |
 | 🔄 **Automation** | n8n (self-hosted in Docker) | Included in Career-Ops stack |
-| 📊 **Monitoring** | Prometheus + Grafana (self-hosted) | Included in Career-Ops stack |
+| 📊 **Monitoring** | Prometheus + Grafana (self-hosted) | Included in Career-Ops stack| **Total: $0.00 for everything**
 
-**Total: $0.00 for everything**
+---
+
+## ⚡ Quick Deploy with WSL (Interactive — 2 Minutes)
+
+If you're comfortable with the command line, the **interactive deploy script** automates the Linux-side setup (Docker, DuckDNS, Cloudflare, admin accounts, monitoring) after WSL2 is installed.
+
+```bash
+# Inside your WSL2 Ubuntu terminal:
+bash scripts/deploy-rhel-interactive.sh
+
+# Or download directly from GitHub (no clone needed):
+curl -fsSL https://raw.githubusercontent.com/kmrgautam18-alt/career-ops-v2/main/scripts/deploy-rhel-interactive.sh | bash
+```
+
+> **⚠️ Important:** You still need to complete **Steps 1-2** of this guide first (enable WSL2 + install Docker Desktop with WSL2 integration). After that, run the interactive script inside WSL2 to finish setup.
+
+### What the Script Does vs. Manual Steps
+
+| Phase | Interactive Script | Manual Equivalent |
+|-------|:------------------|:------------------|
+| 🔧 System Setup | Installs Docker, git, curl, jq | Steps 1-2 (WSL2 + Docker) |
+| 📦 Clone & .env | Clones repo, generates random secrets | Steps 3-5 |
+| 🐳 Docker Stack | Builds & starts all services | Steps 6 |
+| 🌐 DuckDNS | Sets up domain with auto-update | Steps 7 |
+| ☁️ Cloudflare | Creates free HTTPS tunnel | Steps 8 |
+| ✅ Verification | Health-checks everything | Steps 9 |
+| 🤖 n8n Automation | Imports all 6 workflows | Steps 10 |
+
+```bash
+# Preview everything without making changes:
+bash scripts/deploy-rhel-interactive.sh --dry-run
+```
+
+> **💡 Tip:** Run with `--dry-run` first to see the full plan inside WSL2. Then re-run without it to go live.
 
 ---
 
