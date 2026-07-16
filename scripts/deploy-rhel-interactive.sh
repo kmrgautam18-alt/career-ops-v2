@@ -335,15 +335,34 @@ gather_config() {
     echo -e "  Domain:     ${CYAN}${DUCKDNS_SKIP:-false}${NC}" | tee /dev/fd/3
     [ "$DUCKDNS_SKIP" = false ] && echo -e "  Domain:     ${CYAN}https://${DUCKDNS_DOMAIN}.duckdns.org${NC}" | tee /dev/fd/3
     echo -e "  Admin:      ${CYAN}${ADMIN_EMAIL}${NC}" | tee /dev/fd/3
-    echo -e "  AI:         ${CYAN}$([ -n \"$GEMINI_KEY\" ] && echo 'Gemini (free tier)' || echo 'Disabled')${NC}" | tee /dev/fd/3
-    echo -e "  HTTPS:      ${CYAN}$([ -n \"$CF_TOKEN\" ] && echo 'Cloudflare Tunnel' || echo 'None (HTTP only)')${NC}" | tee /dev/fd/3
-    echo -e "  Telegram:   ${CYAN}$([ -n \"$TELEGRAM_BOT_TOKEN\" ] && echo 'Configured' || echo 'None')${NC}" | tee /dev/fd/3
+    if [ -n "${GEMINI_KEY:-}" ]; then
+        echo -e "  AI:         ${CYAN}Gemini (free tier)${NC}" | tee /dev/fd/3
+    else
+        echo -e "  AI:         ${CYAN}Disabled${NC}" | tee /dev/fd/3
+    fi
+    if [ -n "${CF_TOKEN:-}" ]; then
+        echo -e "  HTTPS:      ${CYAN}Cloudflare Tunnel${NC}" | tee /dev/fd/3
+    else
+        echo -e "  HTTPS:      ${CYAN}None (HTTP only)${NC}" | tee /dev/fd/3
+    fi
+    if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+        echo -e "  Telegram:   ${CYAN}Configured${NC}" | tee /dev/fd/3
+    else
+        echo -e "  Telegram:   ${CYAN}None${NC}" | tee /dev/fd/3
+    fi
     if [ -n "$SMTP_EMAIL" ]; then
         echo -e "  Email:      ${CYAN}${SMTP_EMAIL}${NC}" | tee /dev/fd/3
     else
         echo -e "  Email:      ${CYAN}None${NC}" | tee /dev/fd/3
     fi
-    echo -e "  OAuth:      ${CYAN}$([ -n \"$GOOGLE_CLIENT_ID\" ] && echo 'Google + ')$([ -n \"$GITHUB_CLIENT_ID\" ] && echo 'GitHub')$([ -z \"$GOOGLE_CLIENT_ID\" ] && [ -z \"$GITHUB_CLIENT_ID\" ] && echo 'None')${NC}" | tee /dev/fd/3
+    # OAuth — build display string safely
+    local oauth_parts=""
+    if [ -n "${GOOGLE_CLIENT_ID:-}" ]; then oauth_parts="Google"; fi
+    if [ -n "${GITHUB_CLIENT_ID:-}" ]; then
+        if [ -n "$oauth_parts" ]; then oauth_parts+=" + GitHub"; else oauth_parts="GitHub"; fi
+    fi
+    if [ -z "$oauth_parts" ]; then oauth_parts="None"; fi
+    echo -e "  OAuth:      ${CYAN}${oauth_parts}${NC}" | tee /dev/fd/3
     echo -e "${GREEN}─────────────────────────────────────────${NC}" | tee /dev/fd/3
     echo "" | tee /dev/fd/3
     
@@ -550,10 +569,16 @@ ENVEOF
     
 . /tmp/.env.test 2>/dev/null || true
     
-    # Display .env (redacted secrets)
+    # Display .env (redact only actual secret values, not field names containing 'TOKEN')
     while IFS= read -r line; do
-        if echo "$line" | grep -qE "(PASSWORD|SECRET|KEY|TOKEN)"; then
-            echo -e "  ${DIM}${line%%=*}=********${NC}" | tee /dev/fd/3
+        # Only mask lines that have a non-empty value and match secret patterns
+        local var_name="${line%%=*}"
+        local var_val="${line#*=}"
+        if [ -n "$var_val" ] && echo "$var_name" | grep -qE "(PASSWORD|SECRET|PRIVATE_KEY|API_KEY)"; then
+            echo -e "  ${DIM}${var_name}=********${NC}" | tee /dev/fd/3
+        elif [ -n "$var_val" ] && echo "$line" | grep -qE "=.*[A-Za-z0-9]{8,}" && echo "$var_name" | grep -qE "(TOKEN|KEY)$"; then
+            # Only mask TOKEN/KEY vars that actually have content (not empty)
+            echo -e "  ${DIM}${var_name}=********${NC}" | tee /dev/fd/3
         else
             echo -e "  ${DIM}$line${NC}" | tee /dev/fd/3
         fi
@@ -613,7 +638,9 @@ DUCKDNS
     fi
     
     log "Installing cron (every 5 minutes)..."
-    (sudo crontab -l 2>/dev/null; echo "*/5 * * * * sudo /opt/duckdns/duck.sh >/dev/null 2>&1") | sudo crontab -
+    # First cron job: no crontab exists yet = crontab -l exits 1
+    # We MUST catch this or set -e kills the script
+    (sudo crontab -l 2>/dev/null || true; echo "*/5 * * * * sudo /opt/duckdns/duck.sh >/dev/null 2>&1") | sudo crontab -
     log "Cron installed"
 }
 
