@@ -1,0 +1,227 @@
+{
+  "name": "📊 Career-Ops — Daily Digest",
+  "nodes": [
+    {
+      "id": "schedule-daily",
+      "name": "⏰ Daily at 8 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-dashboard",
+      "name": "📊 Fetch Dashboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 200],
+      "parameters": {
+        "method": "GET",
+        "url": "http://backend:8000/api/v1/dashboard/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "careerops-api",
+          "name": "Career-Ops API Token"
+        }
+      }
+    },
+    {
+      "id": "http-apps",
+      "name": "📋 Fetch Applications",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 400],
+      "parameters": {
+        "method": "GET",
+        "url": "http://backend:8000/api/v1/applications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "careerops-api",
+          "name": "Career-Ops API Token"
+        }
+      }
+    },
+    {
+      "id": "merge-results",
+      "name": "🔀 Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "format-digest",
+      "name": "📝 Format Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst dashboard = input.dashboard || {};\nconst applications = input.applications || [];\n\nconst now = new Date();\nconst dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });\n\nconst appByStatus = {};\nfor (const app of applications) {\n  const s = app.status || 'unknown';\n  appByStatus[s] = (appByStatus[s] || 0) + 1;\n}\n\nconst statusSummary = Object.entries(appByStatus)\n  .map(([status, count]) => `  • ${status}: ${count}`)\n  .join('\\n');\n\nconst totalJobs = dashboard.total_jobs || 0;\nconst totalApps = dashboard.total_applications || applications.length;\nconst interviewsUpcoming = dashboard.upcoming_interviews || 0;\n\nconst message = `📊 *Career-Ops Daily Digest — ${dateStr}*\n\n━━━━━━━━━━━━━━━━━━\n\n*📈 Quick Stats*\n  • Jobs Tracked: ${totalJobs}\n  • Applications: ${totalApps}\n  • Interviews: ${interviewsUpcoming}\n\n*📋 Applications by Status*\n${statusSummary || '  (no applications yet)'}\n\n━━━━━━━━━━━━━━━━━━\n\nKeep pushing forward! 🚀`;\n\nreturn [{ json: { message, date: dateStr } }];"
+      }
+    },
+    {
+      "id": "send-slack",
+      "name": "💬 Slack Digest",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [1050, 200],
+      "parameters": {
+        "channel": "career-digest",
+        "text": "={{ $json.message }}",
+        "as_user": true
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "careerops-slack",
+          "name": "Career-Ops Slack Bot"
+        }
+      }
+    },
+    {
+      "id": "send-email",
+      "name": "📧 Email Digest",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.2,
+      "position": [1050, 400],
+      "parameters": {
+        "fromEmail": "digest@careerops.io",
+        "toEmail": "user@careerops.io",
+        "subject": "=📊 Career-Ops Daily Digest — {{ $json.date }}",
+        "text": "={{ $json.message.replace(/[*]/g, '') }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "careerops-smtp",
+          "name": "Career-Ops SMTP"
+        }
+      }
+    },
+    {
+      "id": "noop-end",
+      "name": "✅ Complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1250, 300],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "⏰ Daily at 8 AM": {
+      "main": [
+        [
+          {
+            "node": "📊 Fetch Dashboard",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📋 Fetch Applications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Fetch Dashboard": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Fetch Applications": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔀 Merge Results": {
+      "main": [
+        [
+          {
+            "node": "📝 Format Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Format Digest": {
+      "main": [
+        [
+          {
+            "node": "💬 Slack Digest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📧 Email Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💬 Slack Digest": {
+      "main": [
+        [
+          {
+            "node": "✅ Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Email Digest": {
+      "main": [
+        [
+          {
+            "node": "✅ Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["careerops", "digest", "daily"],
+  "pinData": {}
+}

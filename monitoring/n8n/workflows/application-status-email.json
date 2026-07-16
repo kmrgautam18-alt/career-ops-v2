@@ -1,0 +1,152 @@
+{
+  "name": "📋 Career-Ops — Application Status Email",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "🔗 Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "path": "careerops-application-status",
+        "responseMode": "responseNode",
+        "responseData": "allIncoming",
+        "options": {
+          "rawBody": true
+        },
+        "httpMethod": "POST"
+      },
+      "webhookId": "careerops-application-status"
+    },
+    {
+      "id": "parse-body",
+      "name": "📝 Parse Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [450, 300],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "company",
+              "value": "={{ $json.body.company || $json.company }}"
+            },
+            {
+              "name": "job_title",
+              "value": "={{ $json.body.job_title || $json.job_title }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $json.body.status || $json.status }}"
+            },
+            {
+              "name": "previous_status",
+              "value": "={{ $json.body.previous_status || $json.previous_status || $json.status }}"
+            },
+            {
+              "name": "applied_date",
+              "value": "={{ $json.body.applied_date || $json.applied_date }}"
+            },
+            {
+              "name": "user_email",
+              "value": "={{ $json.body.user_email || $json.user_email }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "status-emoji",
+      "name": "🎨 Status Formatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "parameters": {
+        "jsCode": "// Map status to emoji + label\nconst statusMap = {\n  'saved':      { emoji: '💾', label: 'Saved' },\n  'applied':    { emoji: '📤', label: 'Applied' },\n  'interviewing': { emoji: '🎯', label: 'Interviewing' },\n  'offer':      { emoji: '🎉', label: 'Offer Received' },\n  'rejected':   { emoji: '💔', label: 'Rejected' },\n  'accepted':   { emoji: '✅', label: 'Accepted' }\n};\n\nconst current = statusMap[$input.first().json.status] || { emoji: '📋', label: $input.first().json.status };\nconst previous = statusMap[$input.first().json.previous_status] || { emoji: '📋', label: $input.first().json.previous_status };\n\nreturn [{\n  json: {\n    ...$input.first().json,\n    status_emoji: current.emoji,\n    status_label: current.label,\n    previous_emoji: previous.emoji,\n    previous_label: previous.label,\n    subject: `Application Update: ${$input.first().json.job_title} at ${$input.first().json.company} is now ${current.label}`\n  }\n}];"
+      }
+    },
+    {
+      "id": "send-email",
+      "name": "📧 Send Status Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.2,
+      "position": [850, 300],
+      "parameters": {
+        "fromEmail": "careerops@careerops.io",
+        "toEmail": "={{ $json.user_email }}",
+        "subject": "={{ $json.subject }}",
+        "text": "=Hi there,\n\nYour application status has been updated!\n\nCompany: {{ $json.company }}\nPosition: {{ $json.job_title }}\n\nStatus: {{ $json.previous_emoji }} {{ $json.previous_label }} → {{ $json.status_emoji }} {{ $json.status_label }}\n\nApplied: {{ $json.applied_date }}\n\nLog in to Career-Ops for more details.\n\nBest,\nYour Career Assistant"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "careerops-smtp",
+          "name": "Career-Ops SMTP"
+        }
+      }
+    },
+    {
+      "id": "webhook-response",
+      "name": "✅ Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [1050, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true, \"message\": \"Notification sent\"}"
+      }
+    }
+  ],
+  "connections": {
+    "🔗 Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "📝 Parse Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Parse Payload": {
+      "main": [
+        [
+          {
+            "node": "🎨 Status Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 Status Formatter": {
+      "main": [
+        [
+          {
+            "node": "📧 Send Status Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Send Status Email": {
+      "main": [
+        [
+          {
+            "node": "✅ Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["careerops", "applications", "email"],
+  "pinData": {}
+}

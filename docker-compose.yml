@@ -158,6 +158,32 @@ services:
       - loki
 
   # ======================================
+  # Automation Stack (n8n)
+  # ======================================
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:1.88.0
+    container_name: careerops-n8n
+    restart: unless-stopped
+    environment:
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?must be set}
+      N8N_METRICS: "true"
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: 168
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_SKIP_WEBHOOK_DEREGISTRATION_ON_SHUTDOWN: "true"
+      DB_TYPE: sqlite
+      DB_SQLITE_DATABASE: /home/node/.n8n/database.sqlite
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./monitoring/n8n/workflows:/home/node/.n8n/workflows:ro
+    ports:
+      - "5678:5678"
+
+  # ======================================
   # Alerting Stack (Alertmanager)
   # ======================================
 
@@ -182,3 +208,4 @@ volumes:
   grafana_data:
   loki_data:
   alertmanager_data:
+  n8n_data:
