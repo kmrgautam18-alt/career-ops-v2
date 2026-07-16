@@ -8,8 +8,11 @@ import {
   Sparkles,
   LogOut,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -21,6 +24,7 @@ const navItems = [
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <>
@@ -99,6 +103,27 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
               </NavLink>
             ))}
           </nav>
+
+          {/* Theme Toggle */}
+          <div className="px-3 py-2">
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text-heading hover:bg-surface-light transition-all duration-200 w-full group"
+            >
+              <div className="relative w-5 h-5 flex items-center justify-center">
+                <Sun className={`w-4 h-4 transition-all duration-300 absolute ${
+                  theme === 'light' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-75'
+                }`} />
+                <Moon className={`w-4 h-4 transition-all duration-300 absolute ${
+                  theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-75'
+                }`} />
+              </div>
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+              <span className="ml-auto text-[10px] text-text-muted/50 uppercase tracking-wider">
+                {theme === 'dark' ? '🌙' : '☀️'}
+              </span>
+            </button>
+          </div>
 
           {/* User Section */}
           <div className="p-3 border-t border-border/40">
