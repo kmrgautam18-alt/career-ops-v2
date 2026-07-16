@@ -89,11 +89,18 @@ export function Layout() {
       />
 
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Skip to main content — visible on focus for keyboard users */}
+        <a href="#main-dashboard-content" className="skip-link" aria-label="Skip to main content">
+          Skip to main content
+        </a>
+
         {/* Top Bar */}
-        <header className="flex items-center justify-between px-4 lg:px-6 h-14 border-b border-border/40 bg-background/60 backdrop-blur-xl">
+        <header className="flex items-center justify-between px-4 lg:px-6 h-14 border-b border-border/40 bg-background/60 backdrop-blur-xl" role="banner">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-2 rounded-lg text-text-muted hover:text-text-heading hover:bg-surface-light transition-all"
+            aria-label="Open sidebar navigation"
+            aria-expanded={sidebarOpen}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -105,7 +112,7 @@ export function Layout() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 relative">
+        <main id="main-dashboard-content" className="flex-1 overflow-y-auto p-4 lg:p-6 relative" role="main" tabIndex={-1}>
           {/* Transition progress bar */}
           <TransitionProgress visible={isNavigating} />
 

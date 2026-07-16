@@ -1,12 +1,51 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="theme-color" content="#050508" />
+    <meta name="description" content="Career-Ops v2 — AI-Powered Career Operating System. Manage, optimize, and automate your entire career journey with intelligent job tracking, resume optimization, and automated applications." />
+    <meta name="keywords" content="career, jobs, resume, AI, job search, application tracking, career management" />
+    <meta name="author" content="Career-Ops" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Career-Ops v2 — AI-Powered Career Operating System" />
+    <meta property="og:description" content="Your Career, Supercharged by AI. The intelligent platform unifying job tracking, resume optimization, and career guidance." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://careerops.duckdns.org" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Career-Ops v2" />
+    <meta name="twitter:description" content="Your Career, Supercharged by AI" />
+
+    <!-- Preconnect to font origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+    </noscript>
+
+    <!-- Preload critical assets -->
+    <link rel="preload" as="image" href="/favicon.svg" />
+
+    <title>Career-Ops v2 — AI-Powered Career Operating System</title>
   </head>
   <body>
+    <!-- Skip to main content (accessibility) -->
+    <a href="#main-content" class="skip-link">
+      Skip to main content
+    </a>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
