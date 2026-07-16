@@ -98,5 +98,16 @@ class Settings:
         "google",
     )
 
+    # ======================================
+    # n8n Webhook (Workflow Automation)
+    # ======================================
+
+    N8N_WEBHOOK_BASE_URL: str = os.getenv(
+        "N8N_WEBHOOK_BASE_URL",
+        "http://n8n:5678",
+    )
+
+    N8N_ENABLED: bool = os.getenv("N8N_ENABLED", "false").lower() == "true"
+
 
 settings = Settings()
