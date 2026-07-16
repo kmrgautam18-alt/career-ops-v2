@@ -6,6 +6,7 @@ from starlette.types import ExceptionHandler
 
 from backend.app.api.router import api_router
 from backend.app.core.config import settings
+from backend.app.services.metrics import get_metrics
 from backend.app.exceptions.custom_exceptions import (
     ApplicationNotFoundException,
     DuplicateEmailException,
@@ -128,6 +129,24 @@ def root():
         "application": "Career-Ops v2",
         "status": "healthy",
     }
+
+
+# ======================================
+# Prometheus Metrics Endpoint
+# ======================================
+
+
+@app.get("/metrics")
+def metrics():
+    """
+    Expose Prometheus metrics for scraping.
+    """
+    from starlette.responses import Response
+
+    return Response(
+        content=get_metrics(),
+        media_type="text/plain; version=0.0.4; charset=utf-8",
+    )
 
 
 app.include_router(api_router)

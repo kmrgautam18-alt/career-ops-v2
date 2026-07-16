@@ -1,0 +1,58 @@
+# ==========================================
+# Career-Ops Prometheus Configuration
+# ==========================================
+
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+
+  # ── Backend (FastAPI) ─────────────────────────────────
+  - job_name: 'careerops-backend'
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+          - 'backend:8000'
+        labels:
+          service: 'backend'
+          app: 'careerops'
+
+  # ── PostgreSQL Exporter ──────────────────────────────
+  - job_name: 'careerops-postgres'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'postgres-exporter:9187'
+        labels:
+          service: 'postgres'
+          app: 'careerops'
+
+  # ── Nginx Exporter ───────────────────────────────────
+  - job_name: 'careerops-nginx'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'nginx-exporter:9113'
+        labels:
+          service: 'nginx'
+          app: 'careerops'
+
+  # ── Prometheus Self ──────────────────────────────────
+  - job_name: 'prometheus'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'localhost:9090'
+        labels:
+          service: 'prometheus'
+          app: 'careerops'
