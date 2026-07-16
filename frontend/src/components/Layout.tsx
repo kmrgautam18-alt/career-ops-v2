@@ -5,6 +5,7 @@ import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { PageSkeleton } from './PageSkeleton';
 import { DirectionIndicator } from './DirectionIndicator';
+import { TransitionProgress } from './TransitionProgress';
 import { useNavigationDirection } from '../hooks/useNavigationDirection';
 import type { Direction } from '../hooks/useNavigationDirection';
 
@@ -77,7 +78,10 @@ export function Layout() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 relative">
+          {/* Transition progress bar */}
+          <TransitionProgress visible={isNavigating} />
+
           {/* Direction indicator arrow */}
           <DirectionIndicator direction={direction} visible={isNavigating} />
 
