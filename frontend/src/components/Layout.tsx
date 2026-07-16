@@ -1,10 +1,28 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 
+const pageVariants = {
+  initial: { opacity: 0, y: 24, scale: 0.98 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.35, ease: 'easeOut' as const },
+  },
+  exit: {
+    opacity: 0,
+    y: -16,
+    scale: 0.98,
+    transition: { duration: 0.2, ease: 'easeIn' as const },
+  },
+};
+
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -28,9 +46,18 @@ export function Layout() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          <div className="animate-fade-in">
-            <Outlet />
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="relative"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>
