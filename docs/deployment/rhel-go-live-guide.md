@@ -16,7 +16,7 @@
 | 🔒 **HTTPS / SSL** | Cloudflare (auto SSL + DDoS protection) | Free TLS 1.3, automatic renewal |
 | 🗄️ **PostgreSQL** | Docker container on your VM | Included in Docker Compose |
 | 🤖 **AI Engine** | Google Gemini (free tier: 60 req/min) | No credit card required for Gemini API |
-| 🐳 **Docker** | Free, open-source | `sudo dnf install docker-ce` |
+| 🐳 **Docker / Podman** | Free, open-source | `dnf install podman` (RHEL default) or `dnf install docker-ce` |
 | 📊 **Monitoring** | Prometheus + Grafana (self-hosted) | Included in the stack |
 | 🔔 **Alerting** | Alertmanager (Slack webhook — free) | Slack's free tier is enough |
 | 🤖 **Automation** | n8n (self-hosted) | Included in Docker Compose |
@@ -63,12 +63,12 @@ curl -fsSL https://raw.githubusercontent.com/kmrgautam18-alt/career-ops-v2/main/
 
 | Phase | Interactive Script | Manual Equivalents |
 |-------|:------------------|:-------------------|
-| 🔧 System Setup | Installs Docker, git, curl, jq, cron | Phase 1 |
+| 🔧 System Setup | Auto-detects Podman (RHEL default) or Docker, installs engine + compose + git, curl, jq, cron | Phase 1 |
 | 📦 Clone & .env | Clones repo, generates random secrets | Phase 2 |
 | 🌐 DuckDNS | Sets up `yourdomain.duckdns.org` + cron | Phase 3 |
 | ☁️ Cloudflare HTTPS | Creates free TLS tunnel | Phase 4 |
 | 🔥 Firewall | Opens required ports | Phase 5 |
-| 🐳 Docker Stack | Builds & starts all 16 services | Phase 6 |
+| 🐳 Container Stack | Builds & starts all 16 containers via detected engine | Phase 6 |
 | 👤 Admin User | Runs migrations, creates admin | Phase 7 |
 | 🔄 Automation | Daily backups + LinkedIn + n8n workflows | Phase 7 |
 | ✅ Verification | Health-checks all services | Phase 7 |
@@ -89,19 +89,20 @@ bash scripts/deploy-rhel-interactive.sh --dry-run
 
 ### Phase 1: System Preparation (5 minutes)
 
-```bash
-# 1. Update the system
-sudo dnf update -y
+> **💡 The interactive script auto-detects your engine.** RHEL ships Podman by default — the script installs it automatically. Use Docker CE only if you have a specific need for it.
 
-# 2. Install Docker
+**Podman (RHEL native — recommended):**
+```bash
+sudo dnf install -y podman podman-docker podman-compose
+```
+
+**Docker CE (alternative):**
+```bash
 sudo dnf install -y dnf-plugins-core
 sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
-
-# 3. Log out and back in (or run: newgrp docker)
-echo "Log out and back in for Docker group changes to take effect"
 ```
 
 ### Phase 2: Clone & Configure (3 minutes)

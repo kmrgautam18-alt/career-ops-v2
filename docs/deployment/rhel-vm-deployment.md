@@ -23,12 +23,12 @@ curl -fsSL https://raw.githubusercontent.com/kmrgautam18-alt/career-ops-v2/main/
 | Phase | What Happens | Auto-Default? |
 |-------|-------------|:-------------:|
 | 1️⃣ Configuration | Prompts for DuckDNS, Gemini, Cloudflare, Telegram, SMTP, OAuth | ✅ All fields default |
-| 2️⃣ System Setup | Installs Docker, git, curl, jq, openssl, cronie | ✅ Fully automated |
+| 2️⃣ System Setup | Auto-detects Podman (RHEL default) or Docker, installs needed engine + compose + git, curl, jq, openssl, cronie | ✅ Fully automated |
 | 3️⃣ Clone & Clone | Clones repo, generates `.env` with random secrets | ✅ Fully automated |
 | 4️⃣ DuckDNS | Sets up free `yourname.duckdns.org` domain with cron | ⏭️ Skips if no token |
 | 5️⃣ Cloudflare | Creates free HTTPS tunnel | ⏭️ Skips if no token |
 | 6️⃣ Telegram | Configures bot notifications | ⏭️ Skips if no token |
-| 7️⃣ Docker Stack | Builds & starts all 16 services | ✅ Fully automated |
+| 7️⃣ Container Stack | Builds & starts all 16 containers via detected engine | ✅ Fully automated |
 | 8️⃣ DB & Admin | Runs migrations, creates admin user | ✅ Auto-created |
 | 9️⃣ Automation | Sets up daily backups + LinkedIn + n8n | ✅ Fully automated |
 | ✅ Verification | Health-checks backend, Prometheus, Grafana | ✅ Auto-verified |
@@ -81,28 +81,20 @@ bash scripts/deploy-rhel-interactive.sh --dry-run
 
 ---
 
-## 🪜 Step 1 — Install Docker & Docker Compose
+## 🪜 Step 1 — Install Container Engine (Podman or Docker)
 
+**Option A — Podman (RHEL native, auto-detected by script):**
 ```bash
-# 1.1 Add Docker repository
+# RHEL ships Podman by default. This is what the interactive script installs:
+sudo dnf install -y podman podman-docker podman-compose
+```
+
+**Option B — Docker CE (alternative):**
+```bash
 sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
-
-# 1.2 Install Docker packages
 sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-# 1.3 Start and enable Docker
 sudo systemctl enable --now docker
-
-# 1.4 Add your user to the docker group (avoids needing sudo)
 sudo usermod -aG docker $USER
-
-# 1.5 Apply group changes (log out and back in if this doesn't work)
-newgrp docker
-
-# 1.6 Verify installation
-docker --version
-docker compose version
-docker run hello-world
 ```
 
 ---
