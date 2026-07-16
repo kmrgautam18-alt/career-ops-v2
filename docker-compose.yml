@@ -114,7 +114,51 @@ services:
     ports:
       - "9187:9187"
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.5.0
+    container_name: careerops-nginx-exporter
+    restart: unless-stopped
+    command:
+      - '--nginx.scrape-uri=http://frontend:80/nginx-status'
+    depends_on:
+      - frontend
+    ports:
+      - "9113:9113"
+
+  # ======================================
+  # Logging Stack (Loki + Promtail)
+  # ======================================
+
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: careerops-loki
+    restart: unless-stopped
+    command:
+      - '-config.file=/etc/loki/loki-config.yml'
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+
+  promtail:
+    image: grafana/promtail:3.4.2
+    container_name: careerops-promtail
+    restart: unless-stopped
+    command:
+      - '-config.file=/etc/promtail/promtail-config.yml'
+    volumes:
+      - ./monitoring/loki/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
 volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
   postgres_data:
   resume_storage:
   prometheus_data:
