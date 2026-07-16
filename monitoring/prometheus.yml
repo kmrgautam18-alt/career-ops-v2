@@ -9,9 +9,11 @@ global:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: []
+        - targets:
+            - 'alertmanager:9093'
 
-rule_files: []
+rule_files:
+  - /etc/prometheus/rules/prometheus-rules.yml
 
 scrape_configs:
 
@@ -25,6 +27,16 @@ scrape_configs:
           - 'backend:8000'
         labels:
           service: 'backend'
+          app: 'careerops'
+
+  # ── Alertmanager Self ────────────────────────────────
+  - job_name: 'alertmanager'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'alertmanager:9093'
+        labels:
+          service: 'alertmanager'
           app: 'careerops'
 
   # ── PostgreSQL Exporter ──────────────────────────────

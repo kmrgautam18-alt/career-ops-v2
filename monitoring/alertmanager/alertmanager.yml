@@ -1,0 +1,130 @@
+# ==========================================
+# Career-Ops Alertmanager Configuration
+# Supports: Slack webhook, PagerDuty, Email
+# ==========================================
+
+global:
+  # Resolve timeout — auto-resolve alerts after they've been silent this long
+  resolve_timeout: 5m
+
+  # ── Slack (optional) ──────────────────────────────
+  # Uncomment and set your Slack webhook URL to enable Slack alerts
+  # slack_api_url: 'https://hooks.slack.com/services/YOUR/TEAM/TOKEN-HERE'
+
+  # ── PagerDuty (optional) ──────────────────────────
+  # Uncomment and set your routing key to enable PagerDuty alerts
+  # pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
+  # ── SMTP / Email (optional) ──────────────────────
+  # smtp_smarthost: 'smtp.gmail.com:587'
+  # smtp_from: 'alertmanager@careerops.io'
+  # smtp_auth_username: 'your-email@gmail.com'
+  # smtp_auth_password: 'your-app-password'
+
+# ── Route Tree ───────────────────────────────────────
+route:
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'default'
+
+  routes:
+    # Critical alerts → all channels (Slack + PagerDuty + Email)
+    - match:
+        severity: critical
+      receiver: pagerduty-critical
+      repeat_interval: 15m
+      continue: true
+
+    - match:
+        severity: critical
+      receiver: slack-critical
+      repeat_interval: 15m
+      continue: true
+
+    # Warning alerts → Slack only
+    - match:
+        severity: warning
+      receiver: slack-warning
+      repeat_interval: 2h
+
+    # Info alerts → no notification (just visible in UI)
+    - match:
+        severity: info
+      receiver: 'null'
+
+# ── Receivers ─────────────────────────────────────────
+receivers:
+
+  # ── Default ───────────────────────────────────────
+  - name: 'default'
+    slack_configs:
+      - send_resolved: true
+        title: '📡 Career-Ops Alert — {{ .GroupLabels.alertname }}'
+        text: >-
+          {{ range .Alerts }}
+            *Alert:* {{ .Annotations.summary }}
+            *Description:* {{ .Annotations.description }}
+            *Severity:* {{ .Labels.severity }}
+            *Service:* {{ .Labels.service }}
+            *Graph:* <{{ .GeneratorURL }}|View in Prometheus>
+          {{ end }}
+
+  # ── Slack — Critical ──────────────────────────────
+  - name: 'slack-critical'
+    slack_configs:
+      - send_resolved: true
+        title: '🚨 CRITICAL — {{ .GroupLabels.alertname }}'
+        text: >-
+          {{ range .Alerts }}
+            *🔥 {{ .Annotations.summary }}*
+            {{ .Annotations.description }}
+            *Service:* `{{ .Labels.service }}`
+            *Instance:* `{{ .Labels.instance }}`
+            *Value:* {{ .Annotations.value }}
+            *Time:* {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ end }}
+
+  # ── Slack — Warning ───────────────────────────────
+  - name: 'slack-warning'
+    slack_configs:
+      - send_resolved: true
+        title: '⚠️ Warning — {{ .GroupLabels.alertname }}'
+        text: >-
+          {{ range .Alerts }}
+            *📋 {{ .Annotations.summary }}*
+            {{ .Annotations.description }}
+            *Service:* `{{ .Labels.service }}`
+          {{ end }}
+
+  # ── PagerDuty — Critical ──────────────────────────
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - send_resolved: true
+        severity: critical
+        description: '{{ .GroupLabels.alertname }} — {{ .Annotations.summary }}'
+        source: '{{ .Labels.instance }}'
+        details:
+          alert: '{{ .GroupLabels.alertname }}'
+          service: '{{ .Labels.service }}'
+          severity: '{{ .Labels.severity }}'
+          summary: '{{ .Annotations.summary }}'
+          description: '{{ .Annotations.description }}'
+          runbook: '{{ .Annotations.runbook }}'
+
+  # ── Email (optional) ──────────────────────────────
+  - name: 'email-critical'
+    email_configs:
+      - send_resolved: true
+        to: 'admin@careerops.io'
+        subject: '🚨 [CRITICAL] {{ .GroupLabels.alertname }}'
+        html: >-
+          <h2>🚨 Critical Alert: {{ .GroupLabels.alertname }}</h2>
+          <p><strong>Summary:</strong> {{ .Annotations.summary }}</p>
+          <p><strong>Service:</strong> {{ .Labels.service }}</p>
+          <p><strong>Severity:</strong> {{ .Labels.severity }}</p>
+          <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+
+  # ── Null Receiver (silence info alerts) ────────────
+  - name: 'null'
