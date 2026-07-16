@@ -24,15 +24,19 @@ export default defineConfig({
     // Rollup options for manual chunk splitting
     rollupOptions: {
       output: {
-        manualChunks: {
-          // React core
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          // Animation
-          'animation-vendor': ['framer-motion'],
-          // Charts
-          'chart-vendor': ['recharts'],
-          // Icons
-          'icons-vendor': ['lucide-react'],
+        manualChunks(id: string) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react-router')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/framer-motion')) {
+            return 'animation-vendor';
+          }
+          if (id.includes('node_modules/recharts')) {
+            return 'chart-vendor';
+          }
+          if (id.includes('node_modules/lucide-react')) {
+            return 'icons-vendor';
+          }
         },
       },
     },

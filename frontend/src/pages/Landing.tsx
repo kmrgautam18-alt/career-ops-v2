@@ -4,16 +4,16 @@ import { useRef } from 'react';
 import {
   Briefcase, FileText, Send, Sparkles, BarChart3,
   ArrowRight, Shield, Zap, Brain, CheckCircle2,
-  ChevronRight, Star, Layers, Target, TrendingUp,
-  Users, Award, Code2, Globe, Bell, MessageSquare,
-  Play, Github, ExternalLink,
+  ChevronRight, Star, Layers, TrendingUp,
+  Code2, Globe, Bell, MessageSquare,
+  ExternalLink,
 } from 'lucide-react';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i = 0) => ({
     opacity: 1, y: 0,
-    transition: { duration: 0.6, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.6, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] as const },
   }),
 };
 
@@ -145,7 +145,7 @@ export function Landing() {
                   { value: '98%', label: 'Tests Passing', icon: CheckCircle2 },
                   { value: '140+', label: 'API Endpoints', icon: Layers },
                   { value: '16', label: 'Docker Services', icon: Code2 },
-                  { value: '100%', label: 'Free & Open', icon: Github },
+                  { value: '100%', label: 'Free & Open', icon: Code2 },
                 ].map((stat, i) => (
                   <motion.div key={stat.label}
                     initial={{ opacity: 0, y: 20 }}
@@ -284,7 +284,7 @@ export function Landing() {
                 </button>
                 <a href="https://github.com/kmrgautam18-alt/career-ops-v2" target="_blank" rel="noopener noreferrer"
                   className="group inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl glass-panel text-text-heading text-base font-semibold hover:bg-surface-lighter transition-all duration-300">
-                  <Github className="w-5 h-5" />
+                  <Code2 className="w-5 h-5" />
                   View on GitHub
                   <ExternalLink className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
                 </a>

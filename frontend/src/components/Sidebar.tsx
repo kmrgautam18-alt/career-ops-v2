@@ -14,6 +14,7 @@ import {
   Moon,
   Bell,
   Users,
+  Library,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -24,9 +25,10 @@ const navItems = [
   { to: '/jobs', icon: Briefcase, label: 'Jobs' },
   { to: '/applications', icon: Send, label: 'Applications' },
   { to: '/resumes', icon: FileText, label: 'Resumes' },
+  { to: '/resume-templates', icon: Library, label: 'Templates' },
   { to: '/auto-apply', icon: Zap, label: 'Auto-Apply' },
   { to: '/ai', icon: Sparkles, label: 'AI Tools' },
-  { to: '/interview-coach', icon: Sparkles, label: 'Interview Coach' },
+  { to: '/interview-coach', icon: Sparkles, label: 'Coach' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/organizations', icon: Users, label: 'Teams' },
 ];
