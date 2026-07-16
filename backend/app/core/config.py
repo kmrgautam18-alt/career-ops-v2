@@ -79,5 +79,24 @@ class Settings:
 
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
+    # ======================================
+    # LLM / AI Provider
+    # ======================================
+
+    LLM_API_KEY: str = os.getenv(
+        "LLM_API_KEY",
+        "",
+    )
+
+    LLM_MODEL: str = os.getenv(
+        "LLM_MODEL",
+        "gemini-2.0-flash",
+    )
+
+    LLM_PROVIDER: str = os.getenv(
+        "LLM_PROVIDER",
+        "google",
+    )
+
 
 settings = Settings()

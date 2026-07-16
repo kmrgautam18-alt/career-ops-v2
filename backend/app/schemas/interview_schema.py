@@ -2,8 +2,10 @@ from pydantic import BaseModel
 
 
 class InterviewRequest(BaseModel):
-    skills: list[str]
-    difficulty: str = "All"
+    job_title: str = ""
+    company: str = ""
+    skills: list[str] = []
+    difficulty: str = "medium"
 
 
 class InterviewQuestionResponse(BaseModel):

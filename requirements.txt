@@ -32,6 +32,9 @@ email-validator==2.3.0
 # HTTP
 requests==2.32.4
 
+# AI / LLM
+google-generativeai==0.8.4
+
 # Testing
 pytest==9.1.1
 pytest-cov==7.1.0

@@ -21,3 +21,5 @@ class ATSRecommendation:
 class ATSReport:
     score: ATSScoreBreakdown
     recommendations: list[ATSRecommendation] = field(default_factory=list)
+    strengths: list[str] = field(default_factory=list)
+    weaknesses: list[str] = field(default_factory=list)

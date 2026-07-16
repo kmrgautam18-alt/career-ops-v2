@@ -13,9 +13,11 @@ class ResumeOptimizerService:
     @staticmethod
     def optimize_resume(
         resume_text: str,
-        required_keywords: list[str],
+        required_keywords: list[str] | None = None,
+        job_description: str = "",
     ):
         return ResumeOptimizer.optimize(
             resume_text=resume_text,
-            required_keywords=required_keywords,
+            required_keywords=required_keywords or [],
+            job_description=job_description,
         )

@@ -3,7 +3,8 @@ from pydantic import BaseModel
 
 class ATSRequest(BaseModel):
     resume_text: str
-    required_keywords: list[str]
+    job_description: str = ""
+    required_keywords: list[str] = []
 
 
 class ATSRecommendationResponse(BaseModel):
@@ -23,11 +24,14 @@ class ATSScoreResponse(BaseModel):
 class ATSResponse(BaseModel):
     score: ATSScoreResponse
     recommendations: list[ATSRecommendationResponse]
+    strengths: list[str] = []
+    weaknesses: list[str] = []
 
 
 class ResumeOptimizerRequest(BaseModel):
     resume_text: str
-    required_keywords: list[str]
+    job_description: str = ""
+    required_keywords: list[str] = []
 
 
 class OptimizationSuggestionResponse(BaseModel):
