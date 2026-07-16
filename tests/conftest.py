@@ -2,12 +2,18 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-# Import ALL models to ensure SQLAlchemy registers all relationships
-# without needing to create tables at test startup
-from backend.app.models.auto_application import AutoApplication  # noqa: F401
-from backend.app.models.resume import Resume  # noqa: F401
+from backend.app.database.base import Base
+from backend.app.database.db import engine
+from backend.app.database.init_db import init_database
 from backend.app.database.session import SessionLocal
 from backend.app.main import app
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    """Ensure all tables exist before tests run."""
+    init_database()
+    yield
 
 
 @pytest.fixture(scope="session")

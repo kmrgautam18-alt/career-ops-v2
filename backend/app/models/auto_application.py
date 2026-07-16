@@ -88,7 +88,7 @@ class AutoApplication(Base):
 
     # Relationships
     user = relationship("User", backref="auto_applications")
-    job = relationship("Job", backref="auto_applications")
+    job = relationship("Job")
 
 
 class ResumeTemplate(Base):
