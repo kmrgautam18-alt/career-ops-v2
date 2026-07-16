@@ -246,6 +246,9 @@ gather_config() {
     echo -e "${DIM}     Go to https://duckdns.org → sign in → create a domain${NC}" | tee /dev/fd/3
     echo "" | tee /dev/fd/3
     ask DUCKDNS_DOMAIN "Enter your DuckDNS domain name" "careerops" false "e.g., 'careerops' → careerops.duckdns.org"
+    # Strip .duckdns.org if user entered the full URL
+    DUCKDNS_DOMAIN="${DUCKDNS_DOMAIN%.duckdns.org}"
+    DUCKDNS_DOMAIN="${DUCKDNS_DOMAIN%.duckdns.org}"  # strip again in case of .duckdns.org.duckdns.org
     ask DUCKDNS_TOKEN "Enter DuckDNS token" "" true "From duckdns.org → copy the token string"
     
     if [ -z "$DUCKDNS_TOKEN" ]; then
@@ -335,7 +338,11 @@ gather_config() {
     echo -e "  AI:         ${CYAN}$([ -n \"$GEMINI_KEY\" ] && echo 'Gemini (free tier)' || echo 'Disabled')${NC}" | tee /dev/fd/3
     echo -e "  HTTPS:      ${CYAN}$([ -n \"$CF_TOKEN\" ] && echo 'Cloudflare Tunnel' || echo 'None (HTTP only)')${NC}" | tee /dev/fd/3
     echo -e "  Telegram:   ${CYAN}$([ -n \"$TELEGRAM_BOT_TOKEN\" ] && echo 'Configured' || echo 'None')${NC}" | tee /dev/fd/3
-    echo -e "  Email:      ${CYAN}$([ -n \"$SMTP_EMAIL\" ] && echo \"${SMTP_EMAIL}\" || echo 'None')${NC}" | tee /dev/fd/3
+    if [ -n "$SMTP_EMAIL" ]; then
+        echo -e "  Email:      ${CYAN}${SMTP_EMAIL}${NC}" | tee /dev/fd/3
+    else
+        echo -e "  Email:      ${CYAN}None${NC}" | tee /dev/fd/3
+    fi
     echo -e "  OAuth:      ${CYAN}$([ -n \"$GOOGLE_CLIENT_ID\" ] && echo 'Google + ')$([ -n \"$GITHUB_CLIENT_ID\" ] && echo 'GitHub')$([ -z \"$GOOGLE_CLIENT_ID\" ] && [ -z \"$GITHUB_CLIENT_ID\" ] && echo 'None')${NC}" | tee /dev/fd/3
     echo -e "${GREEN}─────────────────────────────────────────${NC}" | tee /dev/fd/3
     echo "" | tee /dev/fd/3
@@ -440,10 +447,14 @@ phase_clone() {
     log "Cloning Career-Ops..."
     if [ -d "$PROJECT_DIR" ] && [ "$DRY_RUN" = false ]; then
         warn "Directory exists — pulling latest"
-        cd "$PROJECT_DIR" && git pull origin main >> "$DEPLOY_LOG" 2>&1
+        # Don't let git pull failure crash the script (set -e)
+        cd "$PROJECT_DIR" && git pull origin main >> "$DEPLOY_LOG" 2>&1 || \
+            warn "Git pull had issues — check $DEPLOY_LOG for details. Continuing with existing code."
     elif [ "$DRY_RUN" = false ]; then
-        git clone "$REPO_URL" >> "$DEPLOY_LOG" 2>&1 &
-        spinner $! "Cloning repository"
+        mkdir -p "$HOME"
+        git clone "$REPO_URL" "$PROJECT_DIR" >> "$DEPLOY_LOG" 2>&1 || \
+            { warn "Git clone failed — check $DEPLOY_LOG"; return; }
+        log "Repository cloned from GitHub"
     fi
     
     [ "$DRY_RUN" = false ] && cd "$PROJECT_DIR"
