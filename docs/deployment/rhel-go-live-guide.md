@@ -47,7 +47,45 @@
 
 ---
 
-## 🚀 Step-by-Step Deployment (Zero Cost)
+## ⚡ Quick Deploy (Interactive — 2 Minutes)
+
+> Skip the manual steps! The **interactive deploy script** automates everything from Docker to DuckDNS, Cloudflare, admin accounts, and monitoring — all with smart defaults. Press Enter to accept any prompt.
+
+```bash
+# One command on your RHEL VM:
+bash scripts/deploy-rhel-interactive.sh
+
+# Or download directly from GitHub (no clone needed):
+curl -fsSL https://raw.githubusercontent.com/kmrgautam18-alt/career-ops-v2/main/scripts/deploy-rhel-interactive.sh | bash
+```
+
+### What the Script Does vs. Manual Steps
+
+| Phase | Interactive Script | Manual Equivalents |
+|-------|:------------------|:-------------------|
+| 🔧 System Setup | Installs Docker, git, curl, jq, cron | Phase 1 |
+| 📦 Clone & .env | Clones repo, generates random secrets | Phase 2 |
+| 🌐 DuckDNS | Sets up `yourdomain.duckdns.org` + cron | Phase 3 |
+| ☁️ Cloudflare HTTPS | Creates free TLS tunnel | Phase 4 |
+| 🔥 Firewall | Opens required ports | Phase 5 |
+| 🐳 Docker Stack | Builds & starts all 16 services | Phase 6 |
+| 👤 Admin User | Runs migrations, creates admin | Phase 7 |
+| 🔄 Automation | Daily backups + LinkedIn + n8n workflows | Phase 7 |
+| ✅ Verification | Health-checks all services | Phase 7 |
+| 🎉 Summary | Saves all credentials to file | — |
+
+```bash
+# Preview everything without making changes:
+bash scripts/deploy-rhel-interactive.sh --dry-run
+```
+
+> **💡 Tip:** Run with `--dry-run` first to see the full plan. Then re-run without it to go live.
+
+---
+
+## 🚀 Manual Step-by-Step Deployment (Zero Cost)
+
+> Use this guide if you prefer full control, or want to understand every step the interactive script automates.
 
 ### Phase 1: System Preparation (5 minutes)
 
