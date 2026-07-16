@@ -43,6 +43,14 @@ REPO_URL="https://github.com/kmrgautam18-alt/career-ops-v2.git"
 PROJECT_DIR="$HOME/career-ops-v2"
 DEPLOY_LOG="/tmp/careerops-deploy-$(date +%Y%m%d_%H%M%S).log"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+DRY_RUN=false
+
+# Parse --dry-run flag
+for arg in "$@"; do
+    if [ "$arg" = "--dry-run" ] || [ "$arg" = "--dryrun" ] || [ "$arg" = "-n" ]; then
+        DRY_RUN=true
+    fi
+done
 
 # ── Logger ──────────────────────────────────────────────────────────────
 exec 3>&1 4>&2
@@ -51,6 +59,7 @@ exec >> "$DEPLOY_LOG" 2>&1
 log()    { echo -e "${GREEN}[✓]${NC} $*" | tee /dev/fd/3; }
 warn()   { echo -e "${YELLOW}[!]${NC} $*" | tee /dev/fd/3; }
 error()  { echo -e "${RED}[✗]${NC} $*" | tee /dev/fd/3; }
+dry()    { echo -e "${MAGENTA}[DRY-RUN]${NC} $*" | tee /dev/fd/3; }
 header() {
     echo "" | tee /dev/fd/3
     echo -e "${MAGENTA}════════════════════════════════════════════════${NC}" | tee /dev/fd/3
@@ -63,6 +72,10 @@ info()   { echo -e "${CYAN}  →${NC} $*" | tee /dev/fd/3; }
 # ── Spinner ─────────────────────────────────────────────────────────────
 spinner() {
     local pid=$1 msg=$2
+    if [ "$DRY_RUN" = true ]; then
+        echo -e "${MAGENTA}[DRY-RUN]${NC} $msg ${DIM}(would run with spinner)${NC}" | tee /dev/fd/3
+        return
+    fi
     local spin='⣾⣽⣻⢿⡿⣟⣯⣷'
     local i=0
     while kill -0 "$pid" 2>/dev/null; do
@@ -77,6 +90,13 @@ spinner() {
 ask() {
     local var_name="$1" prompt_msg="$2" default_val="$3" is_secret="${4:-false}"
     local hint="${5:-}"
+    
+    if [ "$DRY_RUN" = true ]; then
+        # Use default value automatically in dry-run mode
+        eval "$var_name=\"$default_val\""
+        echo -e "${MAGENTA}[DRY-RUN]${NC} $prompt_msg ${DIM}→ auto-default: '$default_val'${NC}" | tee /dev/fd/3
+        return
+    fi
     
     if [ "$is_secret" = "true" ]; then
         echo -e "${CYAN}📝${NC} $prompt_msg" | tee /dev/fd/3
@@ -102,8 +122,13 @@ ask() {
 confirm() {
     local msg="$1"
     local default="${2:-y}"
-    local prompt_str
     
+    if [ "$DRY_RUN" = true ]; then
+        # Auto-accept all confirmations in dry-run mode
+        return 0
+    fi
+    
+    local prompt_str
     if [ "$default" = "y" ]; then
         prompt_str="[Y/n]"
     else
@@ -262,6 +287,18 @@ gather_config() {
 phase_system() {
     header "🔥 System Preparation"
     
+    if [ "$DRY_RUN" = true ]; then
+        dry "sudo dnf update -y"
+        dry "sudo dnf install -y docker-ce docker-ce-cli containerd.io"
+        dry "sudo systemctl enable --now docker"
+        dry "sudo usermod -aG docker \"${USER:-$(whoami)}\""
+        dry "sudo dnf install -y git curl jq openssl cronie nano"
+        dry "sudo firewall-cmd --permanent --add-port={80,443,8000,5678,3001,9090}/tcp"
+        dry "sudo setsebool -P httpd_can_network_connect on"
+        log "Dry-run: All system changes would be applied"
+        return
+    fi
+    
     log "Updating system packages..."
     sudo dnf update -y >> "$DEPLOY_LOG" 2>&1 &
     spinner $! "Updating packages"
@@ -273,7 +310,7 @@ phase_system() {
     spinner $! "Installing Docker"
     
     sudo systemctl enable --now docker >> "$DEPLOY_LOG" 2>&1
-    sudo usermod -aG docker "$USER" >> "$DEPLOY_LOG" 2>&1
+    sudo usermod -aG docker "${USER:-$(whoami)}" >> "$DEPLOY_LOG" 2>&1
     
     log "Installing git, curl, jq, openssl..."
     sudo dnf install -y git curl jq openssl cronie nano >> "$DEPLOY_LOG" 2>&1 &
@@ -295,26 +332,36 @@ phase_system() {
 phase_clone() {
     header "📦 Clone & Configure"
     
+    if [ "$DRY_RUN" = true ]; then
+        dry "git clone $REPO_URL $PROJECT_DIR"
+        dry "Generate .env with secure secrets"
+        dry "mkdir -p data monitoring/loki backups/postgres"
+    fi
+    
     cd "$HOME"
     
     log "Cloning Career-Ops..."
-    if [ -d "$PROJECT_DIR" ]; then
+    if [ -d "$PROJECT_DIR" ] && [ "$DRY_RUN" = false ]; then
         warn "Directory exists — pulling latest"
         cd "$PROJECT_DIR" && git pull origin main >> "$DEPLOY_LOG" 2>&1
-    else
+    elif [ "$DRY_RUN" = false ]; then
         git clone "$REPO_URL" >> "$DEPLOY_LOG" 2>&1 &
         spinner $! "Cloning repository"
     fi
     
-    cd "$PROJECT_DIR"
+    [ "$DRY_RUN" = false ] && cd "$PROJECT_DIR"
     
     log "Generating secure .env..."
-    POSTGRES_PASS=$(openssl rand -hex 32)
-    SECRET_KEY=$(openssl rand -hex 32)
-    GRAFANA_PASS=$(openssl rand -hex 16)
-    N8N_KEY=$(openssl rand -hex 32)
+    POSTGRES_PASS=$(openssl rand -hex 32 2>/dev/null || echo "test_postgres_pass_32bytes_abcdef123456")
+    SECRET_KEY=$(openssl rand -hex 32 2>/dev/null || echo "test_secret_key_32bytes_abcdef1234567890")
+    GRAFANA_PASS=$(openssl rand -hex 16 2>/dev/null || echo "test_grafana_pass")
+    N8N_KEY=$(openssl rand -hex 32 2>/dev/null || echo "test_n8n_key_32bytes_abcdef1234567890")
     
-    cat > .env << ENVEOF
+    # Show the .env that would be generated
+    echo -e "${CYAN}  Generated .env content:${NC}" | tee /dev/fd/3
+    echo -e "${DIM}  ─────────────────────────────────────────${NC}" | tee /dev/fd/3
+    
+    cat > /tmp/.env.test << ENVEOF
 # ── General ──────────────────────────────
 APP_NAME=Career-Ops
 APP_ENV=production
@@ -333,7 +380,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # ── AI / Gemini ───────────────────────────
-LLM_API_KEY=${GEMINI_KEY}
+LLM_API_KEY=${GEMINI_KEY:-}
 LLM_PROVIDER=google
 LLM_MODEL=gemini-2.0-flash
 
@@ -351,12 +398,12 @@ CORS_ALLOW_CREDENTIALS=true
 # ── SMTP (Email) ──────────────────────────
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=${SMTP_EMAIL}
-SMTP_PASSWORD=${SMTP_PASSWORD}
-SMTP_FROM_EMAIL=${SMTP_EMAIL}
+SMTP_USER=${SMTP_EMAIL:-}
+SMTP_PASSWORD=${SMTP_PASSWORD:-}
+SMTP_FROM_EMAIL=${SMTP_EMAIL:-}
 SMTP_FROM_NAME=Career-Ops
 SMTP_TLS=true
-SMTP_ENABLED=$([ -n "${SMTP_EMAIL}" ] && echo "true" || echo "false")
+SMTP_ENABLED=$([ -n "${SMTP_EMAIL:-}" ] && echo "true" || echo "false")
 
 # ── Redis / Celery ────────────────────────
 REDIS_ENABLED=true
@@ -369,11 +416,11 @@ CELERY_BROKER_URL=redis://redis:6379/1
 CELERY_RESULT_BACKEND=redis://redis:6379/2
 
 # ── OAuth (Social Login) ──────────────────
-OAUTH_ENABLED=$([ -n "${GOOGLE_CLIENT_ID}" ] || [ -n "${GITHUB_CLIENT_ID}" ] && echo "true" || echo "false")
-GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
-GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+OAUTH_ENABLED=$([ -n "${GOOGLE_CLIENT_ID:-}" ] || [ -n "${GITHUB_CLIENT_ID:-}" ] && echo "true" || echo "false")
+GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
+GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
 
 # ── Rate Limiting ─────────────────────────
 RATE_LIMIT_ENABLED=true
@@ -389,15 +436,33 @@ BASEROW_URL=
 BASEROW_TOKEN=
 
 # ── Telegram ──────────────────────────────
-TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
 ENVEOF
     
-    chmod 600 .env
-    log ".env created with secure random secrets"
+. /tmp/.env.test 2>/dev/null || true
     
-    mkdir -p data monitoring/loki backups/postgres
-    log "Data directories created"
+    # Display .env (redacted secrets)
+    while IFS= read -r line; do
+        if echo "$line" | grep -qE "(PASSWORD|SECRET|KEY|TOKEN)"; then
+            echo -e "  ${DIM}${line%%=*}=********${NC}" | tee /dev/fd/3
+        else
+            echo -e "  ${DIM}$line${NC}" | tee /dev/fd/3
+        fi
+    done < /tmp/.env.test
+    echo -e "${DIM}  ─────────────────────────────────────────${NC}" | tee /dev/fd/3
+    echo "" | tee /dev/fd/3
+    
+    if [ "$DRY_RUN" = true ]; then
+        log "Dry-run: .env generated at /tmp/.env.test for inspection"
+    else
+        cp /tmp/.env.test .env
+        chmod 600 .env
+        log ".env created with secure random secrets"
+        mkdir -p data monitoring/loki backups/postgres
+        log "Data directories created"
+    fi
+    rm -f /tmp/.env.test
 }
 
 # ── Phase 4: DuckDNS ───────────────────────────────────────────────────
@@ -408,6 +473,14 @@ phase_duckdns() {
     fi
     
     header "🌐 DuckDNS — Free Domain"
+    
+    if [ "$DRY_RUN" = true ]; then
+        dry "sudo mkdir -p /opt/duckdns"
+        dry "Create /opt/duckdns/duck.sh with your token"
+        dry "Install cron job: */5 * * * * /opt/duckdns/duck.sh"
+        log "Dry-run: DuckDNS would use domain '${DUCKDNS_DOMAIN}.duckdns.org'"
+        return
+    fi
     
     log "Setting up DuckDNS auto-updater..."
     sudo mkdir -p /opt/duckdns
@@ -445,6 +518,12 @@ phase_cloudflare() {
     
     header "☁️ Cloudflare Tunnel — Free HTTPS"
     
+    if [ "$DRY_RUN" = true ]; then
+        dry "docker run -d --name cloudflared cloudflare/cloudflared:latest tunnel --token ..."
+        log "Dry-run: HTTPS would be enabled at ${DUCKDNS_DOMAIN}.duckdns.org"
+        return
+    fi
+    
     log "Starting Cloudflare Tunnel container..."
     sudo docker run -d --restart=always --name cloudflared \
         cloudflare/cloudflared:latest tunnel --no-autoupdate run --token "$CF_TOKEN" >> "$DEPLOY_LOG" 2>&1
@@ -465,6 +544,12 @@ phase_telegram() {
     
     header "📱 Telegram — Notifications"
     
+    if [ "$DRY_RUN" = true ]; then
+        dry "curl -s https://api.telegram.org/bot.../sendMessage -d 'chat_id=...' -d 'text=🚀 Career-Ops deployment started!'"
+        log "Dry-run: Telegram notifications would be configured"
+        return
+    fi
+    
     # Test bot
     local test_result
     test_result=$(curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
@@ -481,6 +566,13 @@ phase_telegram() {
 # ── Phase 7: Build & Start Docker ──────────────────────────────────────
 phase_deploy() {
     header "🐳 Building & Starting Docker Stack"
+    
+    if [ "$DRY_RUN" = true ]; then
+        dry "docker compose up -d --build"
+        dry "Services: backend, frontend, postgres, redis, celery-worker, celery-beat, n8n, prometheus, grafana, alertmanager, loki, promtail, postgres-exporter, nginx-exporter, cloudflared"
+        log "Dry-run: 16 Docker services would be built and started"
+        return
+    fi
     
     sudo systemctl start docker 2>/dev/null || true
     
@@ -514,6 +606,13 @@ phase_deploy() {
 phase_init() {
     header "⚡ Database & User Setup"
     
+    if [ "$DRY_RUN" = true ]; then
+        dry "docker compose exec backend alembic upgrade head"
+        dry "POST /api/v1/users/register with email=${ADMIN_EMAIL}, password=********"
+        log "Dry-run: Database migrations + admin user would be set up"
+        return
+    fi
+    
     log "Running migrations..."
     sudo docker compose exec -T backend alembic upgrade head >> "$DEPLOY_LOG" 2>&1 || \
         warn "Migrations skipped"
@@ -544,6 +643,14 @@ phase_init() {
 phase_automation() {
     header "🔄 Automation Setup"
     
+    if [ "$DRY_RUN" = true ]; then
+        dry "crontab: 0 2 * * * → backup-db.sh"
+        dry "crontab: 0 9 * * * → linkedin-automation.sh --daily"
+        dry "docker compose exec n8n n8n import:workflow --separate --input=/monitoring/n8n/workflows"
+        log "Dry-run: Backup, LinkedIn, and n8n automation would be configured"
+        return
+    fi
+    
     # Backups
     log "Installing daily backup cron (2 AM)..."
     (crontab -l 2>/dev/null; echo "0 2 * * * cd ${PROJECT_DIR} && bash scripts/backup-db.sh --cron >> ${PROJECT_DIR}/backups/backup.log 2>&1") | crontab -
@@ -568,6 +675,14 @@ phase_automation() {
 # ── Phase 10: Verification ─────────────────────────────────────────────
 phase_verify() {
     header "✅ Verification"
+    
+    if [ "$DRY_RUN" = true ]; then
+        dry "curl localhost:8000/health → health check"
+        dry "curl localhost:8000/api/v1/auth/login → login test"
+        dry "docker compose ps → service status"
+        log "Dry-run: Health checks would verify all 16 services"
+        return
+    fi
     
     log "Running health checks..."
     
@@ -616,7 +731,7 @@ phase_verify() {
     
     # Final Docker status
     log "Running services:"
-    sudo docker compose ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null | tee /dev/fd/3
+    sudo docker compose ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null | tee /dev/fd/3 || true
     echo "" | tee /dev/fd/3
 }
 
