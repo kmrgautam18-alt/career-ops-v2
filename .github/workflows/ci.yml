@@ -58,6 +58,7 @@ jobs:
 
       - name: Run tests (SQLite)
         run: |
+          mkdir -p data
           DATABASE_URL='sqlite:///./data/test_ci.db' \
           SECRET_KEY='ci-secret-key-test' \
           python3 -m pytest tests/ -q --tb=short --timeout=60

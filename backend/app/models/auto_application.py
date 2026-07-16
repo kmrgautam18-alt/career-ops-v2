@@ -104,6 +104,19 @@ class ResumeTemplate(Base):
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False, default="Default")
+    category: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="general", server_default="general"
+    )
+    style: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="modern", server_default="modern"
+    )
+    content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_public: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false"
+    )
+    download_count: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0"
+    )
     template_json: Mapped[str] = mapped_column(
         Text, nullable=False
     )  # JSON structure

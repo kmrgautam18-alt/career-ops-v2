@@ -81,7 +81,7 @@ def export_user_data_csv(db: Session, user: User) -> dict[str, str]:
         writer = csv.writer(output)
         writer.writerow(["id", "job_title", "company", "status", "applied_date", "notes", "created_at"])
         for a in applications:
-            writer.writerow([a.id, a.job_title, a.company, a.status, a.applied_date, a.notes, a.created_at])
+            writer.writerow([a.id, a.job_title, a.company, a.status, a.applied_date or "", a.notes or "", a.created_at or ""])
         result["applications"] = output.getvalue()
 
     # Resumes CSV
@@ -97,9 +97,9 @@ def export_user_data_csv(db: Session, user: User) -> dict[str, str]:
     if auto_applications:
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["id", "job_title", "company", "source", "status", "hr_email", "ats_score_before", "ats_score_after", "created_at"])
+        writer.writerow(["id", "job_title", "company", "source", "status", "company_email", "ats_score", "created_at"])
         for aa in auto_applications:
-            writer.writerow([aa.id, aa.job_title, aa.company, aa.source, aa.status, aa.hr_email, aa.ats_score_before, aa.ats_score_after, aa.created_at])
+            writer.writerow([aa.id, aa.job_title, aa.company, aa.source, aa.status, aa.company_email or "", aa.ats_score or 0, aa.created_at or ""])
         result["auto_applications"] = output.getvalue()
 
     return result
