@@ -5,7 +5,51 @@
 
 ---
 
-## 📋 Prerequisites
+## 🚀 Quick Deploy (Interactive — 2 Minutes)
+
+The **interactive deploy script** automates everything: Docker, DNS, HTTPS, AI keys, admin accounts, automation, and monitoring — all with smart defaults.
+
+```bash
+# One command — just run it and follow the prompts
+# (Press Enter to accept defaults for any prompt)
+bash scripts/deploy-rhel-interactive.sh
+
+# Or download directly from GitHub (no clone needed):
+curl -fsSL https://raw.githubusercontent.com/kmrgautam18-alt/career-ops-v2/main/scripts/deploy-rhel-interactive.sh | bash
+```
+
+### What the Interactive Script Does
+
+| Phase | What Happens | Auto-Default? |
+|-------|-------------|:-------------:|
+| 1️⃣ Configuration | Prompts for DuckDNS, Gemini, Cloudflare, Telegram, SMTP, OAuth | ✅ All fields default |
+| 2️⃣ System Setup | Installs Docker, git, curl, jq, openssl, cronie | ✅ Fully automated |
+| 3️⃣ Clone & Clone | Clones repo, generates `.env` with random secrets | ✅ Fully automated |
+| 4️⃣ DuckDNS | Sets up free `yourname.duckdns.org` domain with cron | ⏭️ Skips if no token |
+| 5️⃣ Cloudflare | Creates free HTTPS tunnel | ⏭️ Skips if no token |
+| 6️⃣ Telegram | Configures bot notifications | ⏭️ Skips if no token |
+| 7️⃣ Docker Stack | Builds & starts all 16 services | ✅ Fully automated |
+| 8️⃣ DB & Admin | Runs migrations, creates admin user | ✅ Auto-created |
+| 9️⃣ Automation | Sets up daily backups + LinkedIn + n8n | ✅ Fully automated |
+| ✅ Verification | Health-checks backend, Prometheus, Grafana | ✅ Auto-verified |
+| 🎉 Summary | Saves credentials to `~/.careerops-credentials` | ✅ Done |
+
+```bash
+# Preview what it will do without making any changes:
+bash scripts/deploy-rhel-interactive.sh --dry-run
+```
+
+> **💡 Tip:** Run with `--dry-run` first to see exactly what the script will do. Then re-run without it to deploy for real.
+
+---
+
+## 📋 Manual Deployment (Step-by-Step)
+
+> Use this guide if you prefer full control over each step, or if the interactive script doesn't fit your environment.
+
+---
+
+### Prerequisites
 
 | Requirement | Minimum | Recommended |
 |-------------|---------|-------------|
