@@ -1,31 +1,51 @@
 import { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { PageSkeleton } from './PageSkeleton';
+import { DirectionIndicator } from './DirectionIndicator';
+import { useNavigationDirection } from '../hooks/useNavigationDirection';
+import type { Direction } from '../hooks/useNavigationDirection';
 
-const pageVariants = {
-  initial: { opacity: 0, y: 24, scale: 0.98 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.35, ease: 'easeOut' as const },
-  },
-  exit: {
-    opacity: 0,
-    y: -16,
-    scale: 0.98,
-    transition: { duration: 0.2, ease: 'easeIn' as const },
-  },
-};
+function slideVariants(direction: Direction, isEntering: boolean): Variants {
+  const offset = 60;
+  const enterFrom = isEntering ? (direction === 'right' ? offset : -offset) : 0;
+  const exitTo = direction === 'right' ? -offset : offset;
+
+  return {
+    initial: {
+      opacity: 0,
+      x: enterFrom,
+      scale: 0.97,
+    },
+    animate: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        duration: 0.35,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      },
+    },
+    exit: {
+      opacity: 0,
+      x: exitTo,
+      scale: 0.97,
+      transition: {
+        duration: 0.2,
+        ease: 'easeIn',
+      },
+    },
+  };
+}
 
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const location = useLocation();
   const prevKey = useRef(location.key);
+  const direction = useNavigationDirection();
 
   useEffect(() => {
     if (prevKey.current !== location.key) {
@@ -58,11 +78,14 @@ export function Layout() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+          {/* Direction indicator arrow */}
+          <DirectionIndicator direction={direction} visible={isNavigating} />
+
           <AnimatePresence mode="wait">
             {isNavigating ? (
               <motion.div
                 key="skeleton"
-                variants={pageVariants}
+                variants={slideVariants(direction, true)}
                 initial="initial"
                 animate="animate"
                 exit="exit"
@@ -73,7 +96,7 @@ export function Layout() {
             ) : (
               <motion.div
                 key={location.pathname}
-                variants={pageVariants}
+                variants={slideVariants(direction, false)}
                 initial="initial"
                 animate="animate"
                 exit="exit"
