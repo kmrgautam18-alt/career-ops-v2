@@ -1,3 +1,4 @@
+import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 import {
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { AvatarTrail } from './AvatarTrail';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -22,9 +24,42 @@ const navItems = [
   { to: '/ai', icon: Sparkles, label: 'AI Tools' },
 ];
 
-export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+  trailFrom?: number;
+  trailTo?: number;
+  trailVisible?: boolean;
+}
+
+export function Sidebar({ open, onClose, trailFrom, trailTo, trailVisible }: SidebarProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const navRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const [trailPos, setTrailPos] = useState({ fromY: 0, toY: 0 });
+
+  useEffect(() => {
+    navRefs.current = navRefs.current.slice(0, navItems.length);
+  }, []);
+
+  useEffect(() => {
+    if (!trailVisible || trailFrom === undefined || trailTo === undefined) return;
+    if (!sidebarRef.current) return;
+
+    const sidebarRect = sidebarRef.current.getBoundingClientRect();
+    const fromEl = navRefs.current[trailFrom];
+    const toEl = navRefs.current[trailTo];
+
+    if (fromEl && toEl) {
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+      setTrailPos({
+        fromY: fromRect.top - sidebarRect.top,
+        toY: toRect.top - sidebarRect.top,
+      });
+    }
+  }, [trailVisible, trailFrom, trailTo]);
 
   return (
     <>
@@ -32,6 +67,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} />
       )}
       <aside
+        ref={sidebarRef}
         className={`
           fixed top-0 left-0 z-50 h-full w-64 bg-background/95 backdrop-blur-2xl
           border-r border-border/60
@@ -63,43 +99,54 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-            {navItems.map((item) => (
+          <nav className="flex-1 p-3 space-y-1 overflow-y-auto relative">
+            {/* Avatar trail - slides from current to target nav item */}
+            {trailVisible && trailFrom !== undefined && trailTo !== undefined && trailFrom !== trailTo && (
+              <AvatarTrail
+                fromY={trailPos.fromY}
+                toY={trailPos.toY}
+                visible={trailVisible}
+              />
+            )}
+
+            {navItems.map((item, i) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 onClick={onClose}
-                className={({ isActive }) =>
-                  `relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 overflow-hidden group ${
-                    isActive
-                      ? 'text-white'
-                      : 'text-text-muted hover:text-text-heading'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && (
-                      <motion.div
-                        layoutId="navActiveBg"
-                        className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border border-primary/20"
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    <div className="absolute inset-0 rounded-xl bg-surface-light opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                    <div className={`relative z-10 flex items-center gap-3 ${isActive ? 'text-text-heading' : ''}`}>
-                      <div className={`w-5 h-5 flex items-center justify-center transition-all duration-200 ${
-                        isActive ? 'text-primary' : 'text-text-muted group-hover:text-text'
-                      }`}>
-                        <item.icon className="w-4 h-4" />
+                ref={(el) => { navRefs.current[i] = el; }}
+                  className={({ isActive }) =>
+                    `relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 overflow-hidden group ${
+                      (!trailVisible && isActive)
+                        ? 'text-white'
+                        : 'text-text-muted hover:text-text-heading'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {/* Active background - hidden during trail animation */}
+                      {!trailVisible && isActive && (
+                        <motion.div
+                          layoutId="navActiveBg"
+                          className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border border-primary/20"
+                          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                      <div className="absolute inset-0 rounded-xl bg-surface-light opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                      <div className={`relative z-10 flex items-center gap-3 ${(!trailVisible && isActive) ? 'text-text-heading' : ''}`}>
+                        <div className={`w-5 h-5 flex items-center justify-center transition-all duration-200 ${
+                          (!trailVisible && isActive) ? 'text-primary' : 'text-text-muted group-hover:text-text'
+                        }`}>
+                          <item.icon className="w-4 h-4" />
+                        </div>
+                        <span>{item.label}</span>
                       </div>
-                      <span>{item.label}</span>
-                    </div>
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-primary to-accent" />
-                    )}
-                  </>
-                )}
+                      {/* Active indicator bar */}
+                      {!trailVisible && isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-primary to-accent" />
+                      )}
+                    </>                )}
               </NavLink>
             ))}
           </nav>

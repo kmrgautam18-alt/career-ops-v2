@@ -41,25 +41,52 @@ function slideVariants(direction: Direction, isEntering: boolean): Variants {
   };
 }
 
+const navPaths = ['/dashboard', '/jobs', '/applications', '/resumes', '/ai'];
+
+function pathToIndex(path: string): number {
+  const idx = navPaths.findIndex((p) => path.startsWith(p));
+  return idx >= 0 ? idx : 0;
+}
+
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [trailFrom, setTrailFrom] = useState<number | undefined>(undefined);
+  const [trailTo, setTrailTo] = useState<number | undefined>(undefined);
   const location = useLocation();
   const prevKey = useRef(location.key);
+  const prevPathRef = useRef(location.pathname);
   const direction = useNavigationDirection();
 
   useEffect(() => {
     if (prevKey.current !== location.key) {
+      const prevPath = prevPathRef.current;
+      prevPathRef.current = location.pathname;
       prevKey.current = location.key;
+
+      // Set avatar trail from→to indices
+      setTrailFrom(pathToIndex(prevPath));
+      setTrailTo(pathToIndex(location.pathname));
       setIsNavigating(true);
-      const timer = setTimeout(() => setIsNavigating(false), 600);
+
+      const timer = setTimeout(() => {
+        setIsNavigating(false);
+        setTrailFrom(undefined);
+        setTrailTo(undefined);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [location.key]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        trailFrom={trailFrom}
+        trailTo={trailTo}
+        trailVisible={isNavigating}
+      />
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
