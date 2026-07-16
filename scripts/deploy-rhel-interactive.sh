@@ -10,12 +10,13 @@
 #   bash scripts/deploy-rhel-interactive.sh
 #
 # What it does:
-#   ✓ Installs Docker + system dependencies
+#   ✓ Auto-detects Podman (RHEL default) or Docker
+#   ✓ Installs container engine + system dependencies
 #   ✓ Clones Career-Ops repository
 #   ✓ Prompts for config (press Enter to auto-default)
 #   ✓ Sets up DuckDNS free domain
 #   ✓ Configures Cloudflare Tunnel (optional)
-#   ✓ Builds & starts all 16 Docker services
+#   ✓ Builds & starts all 16 containers
 #   ✓ Creates admin user
 #   ✓ Sets up daily backups + LinkedIn automation
 #   ✓ Verifies everything is working
@@ -24,6 +25,11 @@
 #   - Fresh RHEL 9/10 VM with internet access
 #   - DuckDNS token (free: https://duckdns.org)
 #   - Gemini API key (free: https://aistudio.google.com)
+#
+# Compatibility:
+#   - Works with Podman (default on RHEL) OR Docker CE
+#   - Auto-detects available container engine
+#   - Uses podman compose / podman-compose / docker compose as available
 # =============================================================================
 
 set -euo pipefail
@@ -44,6 +50,9 @@ PROJECT_DIR="$HOME/career-ops-v2"
 DEPLOY_LOG="/tmp/careerops-deploy-$(date +%Y%m%d_%H%M%S).log"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 DRY_RUN=false
+ENGINE=""
+COMPOSE_CMD=""
+ENGINE_LABEL=""
 
 # Parse --dry-run flag
 for arg in "$@"; do
@@ -51,6 +60,59 @@ for arg in "$@"; do
         DRY_RUN=true
     fi
 done
+
+# ── Container Engine Detection ────────────────────────────────────────
+# RHEL ships Podman by default instead of Docker.
+# This function detects what's available and sets ENGINE + COMPOSE_CMD.
+detect_engine() {
+    echo "" | tee /dev/fd/3
+    echo -e "${CYAN}🔍 Detecting container engine...${NC}" | tee /dev/fd/3
+    
+    # Check for Podman (default on RHEL 8/9/10)
+    if command -v podman &>/dev/null; then
+        local pv
+        pv=$(podman --version 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || echo "unknown")
+        echo -e "  ${GREEN}✅ Podman ${pv} detected${NC}" | tee /dev/fd/3
+        ENGINE="sudo podman"
+        
+        # Check what compose subcommand is available
+        if podman compose --help &>/dev/null 2>&1; then
+            COMPOSE_CMD="sudo podman compose"
+            echo -e "  ${GREEN}✅ podman compose available${NC}" | tee /dev/fd/3
+        elif command -v podman-compose &>/dev/null; then
+            COMPOSE_CMD="sudo podman-compose"
+            echo -e "  ${GREEN}✅ podman-compose available${NC}" | tee /dev/fd/3
+        elif docker compose --help &>/dev/null 2>&1; then
+            # podman-docker compatibility layer
+            COMPOSE_CMD="sudo docker compose"
+            echo -e "  ${GREEN}✅ docker compose (via podman-docker) available${NC}" | tee /dev/fd/3
+        else
+            warn "No compose subcommand found — will install podman-compose"
+            COMPOSE_CMD="sudo podman-compose"
+        fi
+        ENGINE_LABEL="Podman ${pv}"
+        return
+    fi
+    
+    # Fallback to Docker
+    if command -v dockerd &>/dev/null || command -v docker &>/dev/null; then
+        if docker info &>/dev/null 2>&1; then
+            local dv
+            dv=$(docker --version 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || echo "unknown")
+            echo -e "  ${GREEN}✅ Docker ${dv} detected${NC}" | tee /dev/fd/3
+            ENGINE="sudo docker"
+            COMPOSE_CMD="sudo docker compose"
+            ENGINE_LABEL="Docker ${dv}"
+            return
+        fi
+    fi
+    
+    # Neither found — will install Podman
+    echo -e "  ${YELLOW}⚠ No container engine found — will install Podman${NC}" | tee /dev/fd/3
+    ENGINE="sudo podman"
+    COMPOSE_CMD="sudo podman-compose"
+    ENGINE_LABEL="Podman (to install)"
+}
 
 # ── Logger ──────────────────────────────────────────────────────────────
 exec 3>&1 4>&2
@@ -163,6 +225,7 @@ print_banner() {
     echo -e "  ${CYAN}  1. DuckDNS token${NC} ${DIM}(https://duckdns.org — free domain)${NC}" | tee /dev/fd/3
     echo -e "  ${CYAN}  2. Gemini API key${NC} ${DIM}(https://aistudio.google.com — free AI)${NC}" | tee /dev/fd/3
     echo "" | tee /dev/fd/3
+    echo -e "  ${DIM}  Container engine: ${ENGINE_LABEL}${NC}" | tee /dev/fd/3
     echo -e "  ${DIM}  Everything else will auto-default if you press Enter.${NC}" | tee /dev/fd/3
     echo "" | tee /dev/fd/3
     
@@ -289,9 +352,13 @@ phase_system() {
     
     if [ "$DRY_RUN" = true ]; then
         dry "sudo dnf update -y"
-        dry "sudo dnf install -y docker-ce docker-ce-cli containerd.io"
-        dry "sudo systemctl enable --now docker"
-        dry "sudo usermod -aG docker \"${USER:-$(whoami)}\""
+        if echo "$ENGINE" | grep -q podman; then
+            dry "sudo dnf install -y podman podman-docker podman-compose"
+        else
+            dry "sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin"
+            dry "sudo systemctl enable --now docker"
+            dry "sudo usermod -aG docker \"${USER:-$(whoami)}\""
+        fi
         dry "sudo dnf install -y git curl jq openssl cronie nano"
         dry "sudo firewall-cmd --permanent --add-port={80,443,8000,5678,3001,9090}/tcp"
         dry "sudo setsebool -P httpd_can_network_connect on"
@@ -303,28 +370,58 @@ phase_system() {
     sudo dnf update -y >> "$DEPLOY_LOG" 2>&1 &
     spinner $! "Updating packages"
     
-    log "Installing Docker..."
-    sudo dnf install -y dnf-plugins-core >> "$DEPLOY_LOG" 2>&1
-    sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo >> "$DEPLOY_LOG" 2>&1 || true
-    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin >> "$DEPLOY_LOG" 2>&1 &
-    spinner $! "Installing Docker"
+    # ── Install Container Engine ───────────────────────────────────────
+    if echo "$ENGINE" | grep -q podman; then
+        log "Installing Podman (RHEL-native container engine)..."
+        sudo dnf install -y podman podman-docker podman-compose >> "$DEPLOY_LOG" 2>&1 &
+        spinner $! "Installing Podman + compose"
+        
+        # Re-detect compose command after install
+        if podman compose --help &>/dev/null 2>&1; then
+            COMPOSE_CMD="sudo podman compose"
+            log "Using: podman compose"
+        elif command -v podman-compose &>/dev/null; then
+            COMPOSE_CMD="sudo podman-compose"
+            log "Using: podman-compose"
+        fi
+        
+        ENGINE_LABEL="Podman $(podman --version 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || echo 'installed')"
+        log "Podman ready — daemonless, no systemd service needed"
+        log "NOTE: Skipping docker group (not needed for Podman)"
+    else
+        log "Installing Docker CE..."
+        sudo dnf install -y dnf-plugins-core >> "$DEPLOY_LOG" 2>&1
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo >> "$DEPLOY_LOG" 2>&1 || true
+        sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin >> "$DEPLOY_LOG" 2>&1 &
+        spinner $! "Installing Docker CE"
+        
+        sudo systemctl enable --now docker >> "$DEPLOY_LOG" 2>&1
+        sudo usermod -aG docker "${USER:-$(whoami)}" >> "$DEPLOY_LOG" 2>&1
+        log "Docker installed and enabled"
+    fi
     
-    sudo systemctl enable --now docker >> "$DEPLOY_LOG" 2>&1
-    sudo usermod -aG docker "${USER:-$(whoami)}" >> "$DEPLOY_LOG" 2>&1
-    
+    # ── Common tools ────────────────────────────────────────────────────
     log "Installing git, curl, jq, openssl..."
     sudo dnf install -y git curl jq openssl cronie nano >> "$DEPLOY_LOG" 2>&1 &
     spinner $! "Installing tools"
+    
+    # Verify engine works
+    log "Verifying container engine..."
+    $ENGINE ps > /dev/null 2>&1 && log "✅ Container engine responding" || warn "Engine check had issues (may need re-login for root permissions)"
     
     # Firewall
     log "Opening firewall ports..."
     sudo firewall-cmd --permanent --add-port={80,443,8000,5678,3001,9090}/tcp 2>/dev/null || true
     sudo firewall-cmd --reload 2>/dev/null || true
     
-    # SELinux
+    # SELinux — critical for Podman bind mounts on RHEL
     if command -v getenforce &>/dev/null && [ "$(getenforce)" = "Enforcing" ]; then
         warn "SELinux is Enforcing — setting required booleans"
         sudo setsebool -P httpd_can_network_connect on 2>/dev/null || true
+        if echo "$ENGINE" | grep -q podman; then
+            log "SELinux Enforcing — Podman handles :z volume labels automatically"
+            log "If bind-mounts fail, append :z to volumes in docker-compose.yml"
+        fi
     fi
 }
 
@@ -519,13 +616,14 @@ phase_cloudflare() {
     header "☁️ Cloudflare Tunnel — Free HTTPS"
     
     if [ "$DRY_RUN" = true ]; then
-        dry "docker run -d --name cloudflared cloudflare/cloudflared:latest tunnel --token ..."
+        dry "$ENGINE run -d --name cloudflared cloudflare/cloudflared:latest tunnel --token ..."
         log "Dry-run: HTTPS would be enabled at ${DUCKDNS_DOMAIN}.duckdns.org"
         return
     fi
     
     log "Starting Cloudflare Tunnel container..."
-    sudo docker run -d --restart=always --name cloudflared \
+    $ENGINE rm -f cloudflared 2>/dev/null || true
+    $ENGINE run -d --restart=always --name cloudflared \
         cloudflare/cloudflared:latest tunnel --no-autoupdate run --token "$CF_TOKEN" >> "$DEPLOY_LOG" 2>&1
     
     log "✅ Cloudflare Tunnel started"
@@ -563,23 +661,26 @@ phase_telegram() {
     fi
 }
 
-# ── Phase 7: Build & Start Docker ──────────────────────────────────────
+# ── Phase 7: Build & Start Containers ──────────────────────────────────
 phase_deploy() {
-    header "🐳 Building & Starting Docker Stack"
+    header "🐳 Building & Starting ${ENGINE_LABEL} Stack"
     
     if [ "$DRY_RUN" = true ]; then
-        dry "docker compose up -d --build"
+        dry "$COMPOSE_CMD up -d --build"
         dry "Services: backend, frontend, postgres, redis, celery-worker, celery-beat, n8n, prometheus, grafana, alertmanager, loki, promtail, postgres-exporter, nginx-exporter, cloudflared"
-        log "Dry-run: 16 Docker services would be built and started"
+        log "Dry-run: 16 containers would be built and started"
         return
     fi
     
-    sudo systemctl start docker 2>/dev/null || true
+    # Podman is daemonless — no systemctl start needed
+    if echo "$ENGINE" | grep -q docker; then
+        sudo systemctl start docker 2>/dev/null || true
+    fi
     
-    log "Building 16 Docker services (first time: 3-5 minutes)..."
+    log "Building 16 containers (first time: 3-5 minutes)..."
     
     cd "$PROJECT_DIR"
-    sudo docker compose up -d --build >> "$DEPLOY_LOG" 2>&1 &
+    $COMPOSE_CMD up -d --build >> "$DEPLOY_LOG" 2>&1 &
     local build_pid=$!
     
     # Progress indicator
@@ -593,12 +694,12 @@ phase_deploy() {
     done
     wait "$build_pid"
     
-    echo -e "\r${GREEN}✅${NC} All services built and started!" | tee /dev/fd/3
+    echo -e "\r${GREEN}✅${NC} All containers built and started!" | tee /dev/fd/3
     
     log "Waiting for services to be healthy..."
     sleep 10
     
-    sudo docker compose ps --format "table {{.Name}}\t{{.Status}}" | tee /dev/fd/3
+    $COMPOSE_CMD ps --format "table {{.Name}}\t{{.Status}}" | tee /dev/fd/3
     echo "" | tee /dev/fd/3
 }
 
@@ -607,14 +708,14 @@ phase_init() {
     header "⚡ Database & User Setup"
     
     if [ "$DRY_RUN" = true ]; then
-        dry "docker compose exec backend alembic upgrade head"
+        dry "$COMPOSE_CMD exec backend alembic upgrade head"
         dry "POST /api/v1/users/register with email=${ADMIN_EMAIL}, password=********"
         log "Dry-run: Database migrations + admin user would be set up"
         return
     fi
     
     log "Running migrations..."
-    sudo docker compose exec -T backend alembic upgrade head >> "$DEPLOY_LOG" 2>&1 || \
+    $COMPOSE_CMD exec -T backend alembic upgrade head >> "$DEPLOY_LOG" 2>&1 || \
         warn "Migrations skipped"
     
     log "Creating admin user..."
@@ -646,7 +747,7 @@ phase_automation() {
     if [ "$DRY_RUN" = true ]; then
         dry "crontab: 0 2 * * * → backup-db.sh"
         dry "crontab: 0 9 * * * → linkedin-automation.sh --daily"
-        dry "docker compose exec n8n n8n import:workflow --separate --input=/monitoring/n8n/workflows"
+        dry "$COMPOSE_CMD exec n8n n8n import:workflow --separate --input=/monitoring/n8n/workflows"
         log "Dry-run: Backup, LinkedIn, and n8n automation would be configured"
         return
     fi
@@ -665,7 +766,7 @@ phase_automation() {
     
     # n8n workflows import
     log "Importing n8n workflows..."
-    if sudo docker compose exec -T n8n n8n import:workflow --separate --input=/monitoring/n8n/workflows >> "$DEPLOY_LOG" 2>&1; then
+    if $COMPOSE_CMD exec -T n8n n8n import:workflow --separate --input=/monitoring/n8n/workflows >> "$DEPLOY_LOG" 2>&1; then
         log "✅ n8n workflows imported"
     else
         warn "n8n import skipped — import manually from monitoring/n8n/workflows/"
@@ -726,12 +827,12 @@ phase_verify() {
             fi
         fi
     else
-        warn "Login failed — check: docker compose logs backend"
+        warn "Login failed — check: $COMPOSE_CMD logs backend"
     fi
     
-    # Final Docker status
+    # Final container status
     log "Running services:"
-    sudo docker compose ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null | tee /dev/fd/3 || true
+    $COMPOSE_CMD ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null | tee /dev/fd/3 || true
     echo "" | tee /dev/fd/3
 }
 
@@ -809,6 +910,7 @@ CREDEOF
 
 # ── Main ───────────────────────────────────────────────────────────────
 main() {
+    detect_engine
     print_banner
     gather_config
     phase_system
