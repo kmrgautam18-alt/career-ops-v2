@@ -564,11 +564,94 @@ This project is **MIT Licensed** — see the [LICENSE](LICENSE) file for details
 
 ---
 
+## 🔭 5-Year Strategic Vision
+
+Career-Ops v2 is designed to evolve automatically over the next 5 years through a self-adapting architecture.
+
+### 📋 Roadmap Phases
+
+| Phase | Timeline | Focus | Key Features |
+|-------|:--------:|-------|-------------|
+| **1. Foundation Hardening** | Q3 2026 | Production Readiness | Redis caching, rate limiting, CI/CD, backup automation, health checks |
+| **2. Real-Time Intelligence** | Q4 2026 | Async & Live | Celery workers, WebSocket notifications, push alerts, user preferences |
+| **3. AI Evolution** | Q1 2027 | Vendor-Agnostic AI | Multi-model support (OpenAI, Claude, Gemini via plugin), fine-tuning pipeline |
+| **4. Enterprise Scale** | Q2-Q3 2027 | Compliance & Scale | SSO/OAuth, audit logging, multi-tenant, PWA, GDPR export |
+| **5. Global Reach** | Q4 2027-Q2 2028 | International | i18n (10 languages), region-specific job boards, React Native mobile app |
+| **6. Ecosystem** | 2028+ | Platform | Plugin system, public API, template marketplace, AI career coach, market analytics |
+
+> 📖 **Full 5-year plan:** [`FUTURE-ROADMAP.md`](FUTURE-ROADMAP.md)
+
+### 🧠 Self-Adapting Architecture
+
+```
+AI Model Abstraction Layer    ── Hot-swap Gemini ↔ OpenAI ↔ Claude
+Plugin Discovery System        ── Auto-register community scrapers
+Market Trend Detector          ── Automatically update ATS weights based on job data
+Feature Flag System            ── Gradual rollout with percentage-based targeting
+Self-Update Script             ── Weekly dependency + security + docker tag audit
+```
+
+### 🛡️ Newly Added Infrastructure
+
+| Feature | Status | Description |
+|---------|:------:|-------------|
+| 🔄 **CI/CD Pipeline** | ✅ | GitHub Actions: test → lint → build → deploy (`.github/workflows/ci.yml`) |
+| 🚦 **Rate Limiting** | ✅ | Token bucket per-user/per-IP (60/min default, 10/min AI) |
+| ❤️ **Health Checks** | ✅ | `/health`, `/ready`, `/live` — K8s & load balancer ready |
+| 💾 **DB Backup Script** | ✅ | Automated `pg_dump` with rotation, restore, and integrity checks |
+| 🔄 **Self-Update Script** | ✅ | Weekly dependency + security + docker image audit |
+| 🗺️ **5-Year Roadmap** | ✅ | 6-phase evolution plan from foundation to ecosystem (`FUTURE-ROADMAP.md`) |
+
+### Why Career-Ops Will Stay Relevant for 5+ Years
+
+1. **AI-Agnostic Architecture**: Switch AI providers without code changes — no vendor lock-in
+2. **CI/CD Pipeline**: Every commit is tested, built, and ready to deploy
+3. **Rate Limiting**: Production-ready protection against abuse from day one
+4. **Health Checks**: Ready for Kubernetes orchestration at any time
+5. **Self-Update Script**: Automated weekly checks for vulnerabilities and updates
+6. **Comprehensive Roadmap**: Clear evolution path covering enterprise, mobile, and global features
+7. **Open Source**: Community-driven improvements and plugin ecosystem
+
+---
+
+## 🚀 Quick Deploy
+
+### Docker Compose (Production)
+
+```bash
+# 1. Clone and configure
+cp .env.example .env
+# Edit .env with your secrets (DB password, JWT secret, LLM API key)
+
+# 2. Build and start all 13 services
+docker compose up -d --build
+
+# 3. Run migrations
+docker compose exec backend alembic upgrade head
+
+# 4. Verify health
+curl http://localhost:8000/health
+curl http://localhost:8000/ready
+curl http://localhost:8000/live
+```
+
+### Platform-Specific Deployments
+
+| Platform | Guide |
+|----------|-------|
+| 🖥️ **RHEL 10.2 / Fedora** | [`docs/deployment/rhel-vm-deployment.md`](docs/deployment/rhel-vm-deployment.md) |
+| ☁️ **AWS EC2** | [`docs/deployment/aws-ec2-deployment.md`](docs/deployment/aws-ec2-deployment.md) |
+| 🌐 **Public Internet (Go-Live)** | [`docs/deployment/rhel-go-live-guide.md`](docs/deployment/rhel-go-live-guide.md) |
+
+---
+
 <div align="center">
   <p>
     <strong>Built with ❤️ using FastAPI + React + PostgreSQL + Prometheus + Grafana</strong>
     <br/>
     <em>Career-Ops v2 — Your Career, Supercharged by AI</em>
+    <br/>
+    <em>Designed for Today, Built for the Next 5 Years</em>
   </p>
   <p>
     <a href="https://github.com/kmrgautam18-alt/career-ops-v2">

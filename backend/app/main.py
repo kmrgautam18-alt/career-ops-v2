@@ -6,7 +6,9 @@ from starlette.types import ExceptionHandler
 
 from backend.app.api.router import api_router
 from backend.app.core.config import settings
+from backend.app.services.health import health_router
 from backend.app.services.metrics import get_metrics
+from backend.app.services.rate_limiter import add_rate_limiting
 from backend.app.exceptions.custom_exceptions import (
     ApplicationNotFoundException,
     DuplicateEmailException,
@@ -41,7 +43,7 @@ from backend.app.exceptions.resume_exceptions import (
 
 app = FastAPI(
     title="Career-Ops v2",
-    version="0.1.0",
+    version="0.2.0",
 )
 
 # ======================================
@@ -147,6 +149,19 @@ def metrics():
         content=get_metrics(),
         media_type="text/plain; version=0.0.4; charset=utf-8",
     )
+
+
+# ======================================
+# Rate Limiting (Production)
+# ======================================
+
+add_rate_limiting(app)
+
+# ======================================
+# Health Check Endpoints
+# ======================================
+
+app.include_router(health_router)
 
 
 app.include_router(api_router)
