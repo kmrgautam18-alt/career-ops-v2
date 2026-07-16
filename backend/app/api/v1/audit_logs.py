@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
 from backend.app.schemas.common_schema import ApiResponse
-from backend.app.security.dependencies import get_current_active_user, get_current_admin_user
+from backend.app.security.dependencies import (
+    get_current_active_user,
+)
 from backend.app.services.audit_service import get_audit_logs
 
 router = APIRouter(

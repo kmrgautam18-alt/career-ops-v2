@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import logging
 import secrets
-from datetime import datetime, timedelta
 from typing import Any
 
 from authlib.integrations.starlette_client import OAuth
@@ -244,7 +243,6 @@ def create_or_get_oauth_user(db_session, user_info: dict[str, Any]) -> User:
     random_password = secrets.token_urlsafe(32)
     username = email.split("@")[0] if email else f"user_{secrets.token_hex(4)}"
     # Ensure unique username
-    from sqlalchemy import func
     existing = db_session.query(User).filter(User.username == username).first()
     if existing:
         username = f"{username}_{secrets.token_hex(2)}"

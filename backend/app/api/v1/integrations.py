@@ -1,12 +1,12 @@
 """
 Module 20 — Integrations (LinkedIn, GitHub, Google, Gmail, Slack, Notion, etc.)
 """
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends
 
-from backend.app.schemas.integration_schema import IntegrationCreate, IntegrationResponse, OAuthUrlResponse
+from backend.app.schemas.integration_schema import OAuthUrlResponse
 from backend.app.security.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/integrations", tags=["Integrations"])
@@ -61,7 +61,7 @@ def connect_integration(
         "user_id": current_user.id,
         "provider": provider,
         "is_connected": True,
-        "connected_at": datetime.now(timezone.utc).isoformat(),
+        "connected_at": datetime.now(UTC).isoformat(),
         "last_synced": None,
         "scopes": _PROVIDERS[provider]["scopes"],
     }

@@ -4,13 +4,17 @@ Module 14 — Analytics (Charts, Trends, Success Rate, Skill Analytics)
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
 from backend.app.models import Application, Job
-from backend.app.schemas.analytics_schema import AnalyticsOverview, MonthlyStats, SkillAnalytics
+from backend.app.schemas.analytics_schema import (
+    AnalyticsOverview,
+    MonthlyStats,
+    SkillAnalytics,
+)
 from backend.app.security.dependencies import get_current_active_user
-from sqlalchemy.orm import Session
-from sqlalchemy import func, extract
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
@@ -103,7 +107,8 @@ def get_application_trend(
     current_user=Depends(get_current_active_user),
 ):
     from collections import Counter
-    from datetime import date, timedelta as td
+    from datetime import date
+    from datetime import timedelta as td
     start = date.today() - td(days=days)
     apps = db.query(Application.created_at).filter(
         Application.created_at >= start,

@@ -1,11 +1,12 @@
 """
 Module 16 — Calendar (Interview Schedule, Learning, Goals, Reminders, Sync)
 """
+# ruff: noqa: UP017
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Query
 
-from backend.app.schemas.calendar_schema import CalendarEventCreate, CalendarEventResponse, CalendarEventUpdate
+from backend.app.schemas.calendar_schema import CalendarEventCreate, CalendarEventUpdate
 from backend.app.security.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/calendar", tags=["Calendar"])
@@ -68,11 +69,16 @@ def update_event(
     events = _events_db.get(current_user.id, [])
     for e in events:
         if e["id"] == event_id:
-            if data.title is not None: e["title"] = data.title
-            if data.description is not None: e["description"] = data.description
-            if data.start_time is not None: e["start_time"] = data.start_time.isoformat() if hasattr(data.start_time, 'isoformat') else str(data.start_time)
-            if data.end_time is not None: e["end_time"] = data.end_time.isoformat() if hasattr(data.end_time, 'isoformat') else str(data.end_time)
-            if data.all_day is not None: e["all_day"] = data.all_day
+            if data.title is not None:
+                e["title"] = data.title
+            if data.description is not None:
+                e["description"] = data.description
+            if data.start_time is not None:
+                e["start_time"] = data.start_time.isoformat() if hasattr(data.start_time, 'isoformat') else str(data.start_time)
+            if data.end_time is not None:
+                e["end_time"] = data.end_time.isoformat() if hasattr(data.end_time, 'isoformat') else str(data.end_time)
+            if data.all_day is not None:
+                e["all_day"] = data.all_day
             return {"success": True, "data": e}
     return {"success": False, "message": "Event not found."}
 

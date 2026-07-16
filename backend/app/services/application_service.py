@@ -101,6 +101,7 @@ def create_new_application(
     # ── n8n webhook ─────────────────────────────────────────────
     try:
         from backend.app.repositories.user_repository import get_user_by_id
+
         from backend.app.services.webhook_service import (
             notify_application_created,
         )
@@ -171,6 +172,7 @@ def update_existing_application(
             from backend.app.repositories.user_repository import (
                 get_user_by_id,
             )
+
             from backend.app.services.webhook_service import (
                 notify_application_updated,
             )
@@ -231,6 +233,7 @@ def remove_application(
     # ── n8n webhook ─────────────────────────────────────────────
     try:
         from backend.app.repositories.user_repository import get_user_by_id
+
         from backend.app.services.webhook_service import (
             notify_application_deleted,
         )

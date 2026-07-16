@@ -6,10 +6,18 @@ from backend.app.database.db import engine
 # ==========================================================
 from backend.app.models.application import Application  # noqa: F401
 from backend.app.models.audit_log import AuditLog  # noqa: F401
-from backend.app.models.auto_application import AutoApplication, ResumeTemplate  # noqa: F401
+from backend.app.models.auto_application import (  # noqa: F401
+    AutoApplication,
+    ResumeTemplate,
+)
 from backend.app.models.job import Job  # noqa: F401
-from backend.app.models.notification_preference import NotificationPreference  # noqa: F401
-from backend.app.models.organization import Organization, OrganizationMember  # noqa: F401
+from backend.app.models.notification_preference import (
+    NotificationPreference,  # noqa: F401
+)
+from backend.app.models.organization import (  # noqa: F401
+    Organization,
+    OrganizationMember,
+)
 from backend.app.models.resume import Resume  # noqa: F401
 from backend.app.models.resume_education import ResumeEducation  # noqa: F401
 from backend.app.models.resume_experience import ResumeExperience  # noqa: F401

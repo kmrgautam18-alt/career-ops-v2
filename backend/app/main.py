@@ -1,14 +1,13 @@
+import os
 from typing import cast
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 from starlette.types import ExceptionHandler
 
 from backend.app.api.router import api_router
-from backend.app.core.config import settings
-from backend.app.services.health import health_router
-from backend.app.services.metrics import get_metrics
-from backend.app.services.rate_limiter import add_rate_limiting
+from backend.app.api.v1.websocket import router as websocket_router
 from backend.app.core.config import settings
 from backend.app.exceptions.custom_exceptions import (
     ApplicationNotFoundException,
@@ -20,6 +19,30 @@ from backend.app.exceptions.custom_exceptions import (
     UnauthorizedException,
     UserNotFoundException,
 )
+from backend.app.exceptions.handlers import (
+    application_not_found_exception_handler,
+    duplicate_email_exception_handler,
+    duplicate_username_exception_handler,
+    global_exception_handler,
+    inactive_user_exception_handler,
+    invalid_credentials_exception_handler,
+    invalid_resume_file_exception_handler,
+    job_not_found_exception_handler,
+    resume_not_found_exception_handler,
+    resume_too_large_exception_handler,
+    unauthorized_exception_handler,
+    unsupported_resume_type_exception_handler,
+    user_not_found_exception_handler,
+)
+from backend.app.exceptions.resume_exceptions import (
+    InvalidResumeFileException,
+    ResumeNotFoundException,
+    ResumeTooLargeException,
+    UnsupportedResumeTypeException,
+)
+from backend.app.services.health import health_router
+from backend.app.services.metrics import get_metrics
+from backend.app.services.rate_limiter import add_rate_limiting
 
 # ======================================
 # Sentry Error Tracking (if configured)
@@ -45,27 +68,6 @@ except ImportError:
     pass
 except Exception as e:
     print(f"Sentry init failed: {e}")
-from backend.app.exceptions.handlers import (
-    application_not_found_exception_handler,
-    duplicate_email_exception_handler,
-    duplicate_username_exception_handler,
-    global_exception_handler,
-    inactive_user_exception_handler,
-    invalid_credentials_exception_handler,
-    invalid_resume_file_exception_handler,
-    job_not_found_exception_handler,
-    resume_not_found_exception_handler,
-    resume_too_large_exception_handler,
-    unauthorized_exception_handler,
-    unsupported_resume_type_exception_handler,
-    user_not_found_exception_handler,
-)
-from backend.app.exceptions.resume_exceptions import (
-    InvalidResumeFileException,
-    ResumeNotFoundException,
-    ResumeTooLargeException,
-    UnsupportedResumeTypeException,
-)
 
 app = FastAPI(
     title="Career-Ops v2",
@@ -169,8 +171,6 @@ def metrics():
     """
     Expose Prometheus metrics for scraping.
     """
-    from starlette.responses import Response
-
     return Response(
         content=get_metrics(),
         media_type="text/plain; version=0.0.4; charset=utf-8",
@@ -192,11 +192,6 @@ app.include_router(health_router)
 
 app.include_router(api_router)
 
-
-# ======================================
-# WebSocket endpoint (mounted at /api/v1/ws)
-# ======================================
-from backend.app.api.v1.websocket import router as websocket_router
 app.include_router(websocket_router)
 
 if __name__ == "__main__":

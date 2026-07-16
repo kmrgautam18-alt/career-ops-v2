@@ -5,12 +5,12 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from backend.app.services.llm_service import (
-    optimize_resume,
-    LLMServiceError,
-)
 from backend.app.services.ai.resume_optimizer.models import (
     OptimizationReport,
+)
+from backend.app.services.llm_service import (
+    LLMServiceError,
+    optimize_resume,
 )
 
 logger = logging.getLogger(__name__)

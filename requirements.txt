@@ -39,7 +39,7 @@ requests==2.32.4
 google-generativeai==0.8.4
 
 # Redis Cache
-redis[hiredis]==5.4.0
+redis[hiredis]==8.0.1
 
 # Celery (Background Tasks)
 celery[redis]==5.5.2

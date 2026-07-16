@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 import random
-from datetime import datetime, timedelta
 from typing import Any
 
 from backend.app.schemas.auto_application_schema import ScrapedJobItem
@@ -137,7 +136,7 @@ def _generate_mock_description(title: str, company: str) -> str:
         f"In this role, you will work on impactful projects that reach millions of users worldwide.\n\n"
         f"**Responsibilities:**\n"
         + "\n".join(f"• {r}" for r in responsibilities) +
-        f"\n\n**Requirements:**\n"
+        "\n\n**Requirements:**\n"
         + "\n".join(f"• {r}" for r in requirements) +
         f"\n\n**Nice to Have:**\n"
         f"• Experience with our tech stack\n"

@@ -2,7 +2,6 @@
 Module 13 — AI Content Generation
 Cover Letter, HR Email, Follow-up, Thank You, Salary Negotiation, Referral, LinkedIn
 """
-import random
 
 from fastapi import APIRouter, Depends
 
@@ -88,7 +87,7 @@ I'm looking forward to contributing to {company}'s mission of {mission}. If you'
 @router.post("/generate")
 def generate_content(
     content_type: str = "cover_letter",
-    variables: dict = {},
+    variables: dict | None = None,
     current_user=Depends(get_current_active_user),
 ):
     template = _TEMPLATES.get(content_type)
@@ -96,7 +95,7 @@ def generate_content(
         return {"success": False, "message": f"Unknown content type: {content_type}. Available: {', '.join(_TEMPLATES.keys())}"}
 
     filled = template
-    for key, value in variables.items():
+    for key, value in (variables or {}).items():
         placeholder = "{" + key + "}"
         filled = filled.replace(placeholder, str(value))
 

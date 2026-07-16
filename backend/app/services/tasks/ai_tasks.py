@@ -5,7 +5,6 @@ Prevents blocking the API when running expensive Gemini calls.
 
 from __future__ import annotations
 
-import json
 import logging
 from typing import Any
 
@@ -25,7 +24,7 @@ def async_ats_score(self, resume_text: str, job_description: str) -> dict[str, A
         return {"success": True, "data": result}
     except Exception as exc:
         logger.error("Async ATS score failed: %s", exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
 
 
 @celery_app.task(bind=True, max_retries=2, default_retry_delay=30)
@@ -41,7 +40,7 @@ def async_interview_questions(
         return {"success": True, "data": questions}
     except Exception as exc:
         logger.error("Async interview questions failed: %s", exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
 
 
 @celery_app.task(bind=True, max_retries=2, default_retry_delay=30)
@@ -55,7 +54,7 @@ def async_resume_optimize(self, resume_text: str, job_description: str) -> dict[
         return {"success": True, "data": result}
     except Exception as exc:
         logger.error("Async resume optimization failed: %s", exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
 
 
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
@@ -69,7 +68,7 @@ def async_job_match(self, profile: str, job_details: str) -> dict[str, Any]:
         return {"success": True, "data": result}
     except Exception as exc:
         logger.error("Async job match failed: %s", exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
 
 
 @celery_app.task(bind=True, max_retries=2, default_retry_delay=30)
@@ -83,4 +82,4 @@ def async_tailor_resume(self, template_json: str, job_title: str, company: str, 
         return {"success": True, "data": result}
     except Exception as exc:
         logger.error("Async resume tailoring failed: %s", exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc

@@ -10,7 +10,6 @@ Provides async background task processing for:
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from celery import Celery
 from celery.schedules import crontab

@@ -12,7 +12,6 @@ from typing import Any
 from fastapi import Request
 from sqlalchemy.orm import Session
 
-from backend.app.database.dependencies import get_db
 from backend.app.database.session import SessionLocal
 from backend.app.models.audit_log import AuditLog
 from backend.app.models.user import User

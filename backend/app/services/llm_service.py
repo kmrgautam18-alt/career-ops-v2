@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import AsyncGenerator
 from typing import Any
 
 from backend.app.core.config import settings
@@ -251,11 +252,6 @@ def job_match_ai(
 # =============================================================================
 # Public API — Streaming (SSE)
 # =============================================================================
-
-import typing
-
-if typing.TYPE_CHECKING:
-    from collections.abc import AsyncGenerator
 
 
 async def _stream_llm(

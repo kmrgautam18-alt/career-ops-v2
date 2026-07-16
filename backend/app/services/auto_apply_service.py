@@ -10,13 +10,9 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any
 
-from sqlalchemy.orm import Session
-
 from backend.app.core.config import settings
-from backend.app.repositories.user_repository_sa import get_user_by_id
 from backend.app.schemas.auto_application_schema import (
     AutoApplicationCreate,
-    AutoApplicationResponse,
     AutoApplicationUpdate,
     ScrapedJobItem,
 )

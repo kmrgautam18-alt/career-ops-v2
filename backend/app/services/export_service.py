@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import csv
 import io
-import json
 import logging
 from datetime import datetime
 from typing import Any
@@ -18,9 +17,6 @@ from backend.app.models.application import Application
 from backend.app.models.auto_application import AutoApplication, ResumeTemplate
 from backend.app.models.job import Job
 from backend.app.models.resume import Resume
-from backend.app.models.resume_education import ResumeEducation
-from backend.app.models.resume_experience import ResumeExperience
-from backend.app.models.resume_skill import ResumeSkill
 from backend.app.models.user import User
 
 logger = logging.getLogger(__name__)

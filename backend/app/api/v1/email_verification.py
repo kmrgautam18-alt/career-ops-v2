@@ -10,13 +10,13 @@ from sqlalchemy.orm import Session
 from backend.app.database.dependencies import get_db
 from backend.app.repositories.user_repository_sa import get_user_by_id, update_user
 from backend.app.security.dependencies import get_current_active_user
+from backend.app.security.password import hash_password
 from backend.app.services.email_verification import (
     send_password_reset_email,
     send_verification_email,
     verify_email_token,
     verify_password_reset_token,
 )
-from backend.app.security.password import hash_password
 
 logger = logging.getLogger(__name__)
 

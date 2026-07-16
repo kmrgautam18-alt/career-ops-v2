@@ -5,6 +5,9 @@ from datetime import date
 from backend.app.services.experience_extractor.company_detector import (
     detect_companies,
 )
+from backend.app.services.experience_extractor.confidence_engine import (
+    calculate_confidence,
+)
 from backend.app.services.experience_extractor.date_parser import (
     parse_date,
 )
@@ -19,6 +22,18 @@ from backend.app.services.experience_extractor.duration_calculator import (
 )
 from backend.app.services.experience_extractor.employment_type_detector import (
     detect_employment_type,
+)
+from backend.app.services.experience_extractor.experience_builder import (
+    build_experience,
+)
+from backend.app.services.experience_extractor.experience_models import (
+    ExperienceRecord,
+)
+from backend.app.services.experience_extractor.experience_validator import (
+    validate_experience,
+)
+from backend.app.services.experience_extractor.extractor import (
+    extract_experiences,
 )
 from backend.app.services.experience_extractor.location_detector import (
     detect_locations,
@@ -198,13 +213,6 @@ def test_description():
 # Confidence Engine
 # ============================================================
 
-from backend.app.services.experience_extractor.confidence_engine import (
-    calculate_confidence,
-)
-from backend.app.services.experience_extractor.experience_models import (
-    ExperienceRecord,
-)
-
 
 def test_confidence_engine():
 
@@ -233,10 +241,6 @@ def test_partial_confidence():
 # ============================================================
 # Experience Builder
 # ============================================================
-
-from backend.app.services.experience_extractor.experience_builder import (
-    build_experience,
-)
 
 
 def test_build_experience():
@@ -298,10 +302,6 @@ def test_build_experience_without_description():
 # ============================================================
 # Experience Validator
 # ============================================================
-
-from backend.app.services.experience_extractor.experience_validator import (
-    validate_experience,
-)
 
 
 def test_validator_valid_record():
@@ -386,10 +386,6 @@ def test_validator_date_range():
         issue.field == "date_range"
         for issue in result.errors
     )
-
-from backend.app.services.experience_extractor.extractor import (
-    extract_experiences,
-)
 
 # ============================================================
 # End-to-End Experience Extraction

@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
-from backend.app.services.llm_service import (
-    generate_interview_questions,
-    LLMServiceError,
-)
 from backend.app.services.ai.interview.models import (
     InterviewQuestion,
     InterviewReport,
+)
+from backend.app.services.llm_service import (
+    LLMServiceError,
+    generate_interview_questions,
 )
 
 logger = logging.getLogger(__name__)

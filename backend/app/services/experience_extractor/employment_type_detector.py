@@ -7,7 +7,7 @@ from backend.app.services.experience_extractor.utils import (
 )
 
 
-class EmploymentType(str, Enum):
+class EmploymentType(str, Enum):  # noqa: UP042
     FULL_TIME = "Full Time"
     PART_TIME = "Part Time"
     INTERNSHIP = "Internship"

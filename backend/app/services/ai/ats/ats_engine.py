@@ -5,17 +5,16 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from backend.app.services.llm_service import (
-    ats_evaluate,
-    LLMServiceError,
-)
-
 from backend.app.services.ai.ats.ats_models import (
     ATSReport,
     ATSScoreBreakdown,
 )
 from backend.app.services.ai.ats.recommendation_builder import (
     RecommendationBuilder,
+)
+from backend.app.services.llm_service import (
+    LLMServiceError,
+    ats_evaluate,
 )
 
 logger = logging.getLogger(__name__)
@@ -75,17 +74,17 @@ class ATSEngine:
         required_keywords: list[str],
     ) -> ATSReport:
         """Rule-based fallback when LLM is unavailable."""
-        from backend.app.services.ai.ats.keyword_analyzer import (
-            KeywordAnalyzer,
+        from backend.app.services.ai.ats.ats_score_calculator import (
+            ATSScoreCalculator,
         )
         from backend.app.services.ai.ats.formatting_analyzer import (
             FormattingAnalyzer,
         )
+        from backend.app.services.ai.ats.keyword_analyzer import (
+            KeywordAnalyzer,
+        )
         from backend.app.services.ai.ats.section_analyzer import (
             SectionAnalyzer,
-        )
-        from backend.app.services.ai.ats.ats_score_calculator import (
-            ATSScoreCalculator,
         )
 
         keyword_score, missing_keywords = KeywordAnalyzer.analyze(

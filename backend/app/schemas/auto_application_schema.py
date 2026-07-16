@@ -2,11 +2,10 @@
 Pydantic schemas for the Auto Job Application Engine.
 """
 
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
-
 
 # ── Resume Template Schemas ───────────────────────────────────────────
 

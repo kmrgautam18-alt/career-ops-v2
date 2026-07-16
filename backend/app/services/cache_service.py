@@ -13,8 +13,8 @@ import functools
 import hashlib
 import json
 import logging
-import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from backend.app.core.config import settings
 
@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 # Attempt Redis import — gracefully degrade if not available
 try:
-    import redis.asyncio as aioredis
     import redis
+    import redis.asyncio as aioredis
 
     REDIS_AVAILABLE = True
 except ImportError:

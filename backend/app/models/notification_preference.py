@@ -7,20 +7,16 @@ Allows users to control which events trigger which channels.
 
 from __future__ import annotations
 
-import json
 from datetime import datetime
-from typing import Any
 
 from sqlalchemy import (
     Boolean,
-    Column,
     DateTime,
     Integer,
     String,
-    Text,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column, Session
+from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from backend.app.database.base import Base
 

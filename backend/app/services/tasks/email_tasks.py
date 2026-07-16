@@ -40,7 +40,7 @@ def send_application_email_async(
         return {"success": success, "to": to_email}
     except Exception as exc:
         logger.error("Async email to %s failed: %s", to_email, exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
 
 
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
@@ -67,4 +67,4 @@ def send_followup_email_async(
         return {"success": success, "to": to_email}
     except Exception as exc:
         logger.error("Async follow-up to %s failed: %s", to_email, exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc

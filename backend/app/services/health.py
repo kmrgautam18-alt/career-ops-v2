@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from backend.app import __version__
+from backend.app import __version__  # type: ignore[attr-defined]
 from backend.app.database.dependencies import get_db
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ def _check_database(db: Session) -> dict:
     """Check database connectivity."""
     try:
         start = datetime.now()
-        result = db.execute(text("SELECT 1"))
+        db.execute(text("SELECT 1"))
         elapsed = (datetime.now() - start).total_seconds()
         return {"status": "healthy", "latency_ms": round(elapsed * 1000, 2), "type": db.bind.name if db.bind else "unknown"}
     except Exception as e:

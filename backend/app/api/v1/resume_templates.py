@@ -5,9 +5,6 @@ Users can create, share, browse, and use resume templates.
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Any
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
@@ -32,7 +29,7 @@ def list_templates(
     db: Session = Depends(get_db),
 ):
     """List available resume templates, optionally filtered by category or search."""
-    query = db.query(ResumeTemplate).filter(ResumeTemplate.is_public == True)
+    query = db.query(ResumeTemplate).filter(ResumeTemplate.is_public.is_(True))
 
     if category:
         query = query.filter(ResumeTemplate.category == category)
@@ -70,7 +67,7 @@ def list_categories(db: Session = Depends(get_db)):
     """List all available template categories."""
     categories = (
         db.query(ResumeTemplate.category)
-        .filter(ResumeTemplate.is_public == True, ResumeTemplate.category != None)
+        .filter(ResumeTemplate.is_public.is_(True), ResumeTemplate.category.isnot(None))
         .distinct()
         .all()
     )

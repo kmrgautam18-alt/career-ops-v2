@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class EntityType(str, Enum):
+class EntityType(str, Enum):  # noqa: UP042
     """
     Universal entity types used throughout Career-Ops.
     """

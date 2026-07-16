@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 ModelType = TypeVar("ModelType")
 
 
-class BaseRepository(Generic[ModelType]):
+class BaseRepository(Generic[ModelType]):  # noqa: UP046
     """
     Base repository for all repositories.
 

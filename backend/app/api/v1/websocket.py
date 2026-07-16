@@ -3,13 +3,12 @@ WebSocket endpoint for real-time notifications.
 Connect: ws://localhost:8000/api/v1/ws?token=YOUR_JWT
 """
 
-from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, Depends, Query, WebSocket
 from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
-from backend.app.models.user import User
 from backend.app.security.jwt import decode_token
-from backend.app.services.websocket_manager import manager, handle_websocket
+from backend.app.services.websocket_manager import handle_websocket
 
 router = APIRouter(tags=["WebSocket"])
 

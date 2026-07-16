@@ -1,11 +1,14 @@
 """
 Module 15 — Notifications (Email, SMS, Push, Slack, Discord, Telegram, In-App)
 """
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query
 
-from backend.app.schemas.notification_schema import NotificationCreate, NotificationResponse, NotificationPreferences
+from backend.app.schemas.notification_schema import (
+    NotificationCreate,
+    NotificationPreferences,
+)
 from backend.app.security.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
@@ -47,7 +50,7 @@ def create_notification(
         "message": data.message,
         "channel": data.channel,
         "is_read": False,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
     _notifications_db[current_user.id].insert(0, notif)
     return {"success": True, "data": notif}

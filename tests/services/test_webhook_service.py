@@ -21,7 +21,6 @@ from backend.app.services.webhook_service import (
     notify_application_updated,
 )
 
-
 # ── Fixtures ────────────────────────────────────────────────────────────
 
 

@@ -6,19 +6,18 @@ from backend.app.api.v1.applications import router as applications_router
 from backend.app.api.v1.audit_logs import router as audit_logs_router
 from backend.app.api.v1.auth import router as auth_router
 from backend.app.api.v1.auto_apply import router as auto_apply_router
-from backend.app.api.v1.email_verification import router as email_verification_router
-from backend.app.api.v1.export import router as export_router
-from backend.app.api.v1.notification_prefs import router as notification_prefs_router
-from backend.app.api.v1.oauth import router as oauth_router
 from backend.app.api.v1.baserow import router as baserow_router
 from backend.app.api.v1.dashboard import router as dashboard_router
+from backend.app.api.v1.email_verification import router as email_verification_router
+from backend.app.api.v1.export import router as export_router
 from backend.app.api.v1.jobs import router as jobs_router
+from backend.app.api.v1.notification_prefs import router as notification_prefs_router
+from backend.app.api.v1.oauth import router as oauth_router
 from backend.app.api.v1.organizations import router as organizations_router
 from backend.app.api.v1.resume_templates import router as resume_templates_router
 from backend.app.api.v1.resumes import router as resumes_router
 from backend.app.api.v1.users import router as users_router
 from backend.app.api.v1.websocket import router as websocket_router
-
 
 api_router = APIRouter(
     prefix="/api/v1",

@@ -4,23 +4,14 @@ Endpoints for the Auto Job Application Engine.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
 
-from backend.app.database.dependencies import get_db
 from backend.app.schemas.auto_application_schema import (
     AutoApplicationCreate,
-    AutoApplicationResponse,
     AutoApplicationUpdate,
-    AutoApplyTriggerResponse,
-    DashboardStats,
     ResumeBuildRequest,
     ResumeBuildResponse,
-    ResumeTemplateCreate,
-    ResumeTemplateResponse,
-    ResumeTemplateUpdate,
     ScrapeJobRequest,
     ScrapeJobResponse,
-    ScrapedJobItem,
 )
 from backend.app.security.dependencies import (
     get_current_active_user,
@@ -38,11 +29,6 @@ from backend.app.services.auto_apply_service import (
     run_tailor_resume,
     schedule_followup,
     update_auto_application,
-)
-from backend.app.services.job_scraper_service import (
-    scrape_company_career_page,
-    scrape_indeed,
-    scrape_linkedin,
 )
 
 router = APIRouter(

@@ -59,7 +59,7 @@ def list_organizations(
     """List organizations the current user belongs to."""
     memberships = db.query(OrganizationMember).filter(
         OrganizationMember.user_id == current_user.id,
-        OrganizationMember.is_active == True,
+        OrganizationMember.is_active.is_(True),
     ).all()
 
     org_ids = [m.organization_id for m in memberships]
@@ -81,7 +81,7 @@ def list_members(
     """List members of an organization."""
     members = db.query(OrganizationMember).filter(
         OrganizationMember.organization_id == org_id,
-        OrganizationMember.is_active == True,
+        OrganizationMember.is_active.is_(True),
     ).all()
 
     return ApiResponse(success=True, message="Members retrieved.", data=[

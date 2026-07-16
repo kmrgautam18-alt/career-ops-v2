@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import logging
 import os
-import shutil
 import tempfile
 from datetime import datetime, timedelta
 
@@ -21,7 +20,7 @@ def cleanup_temp_files():
     temp_dir = tempfile.gettempdir()
     cutoff = datetime.now() - timedelta(hours=24)
     count = 0
-    for root, dirs, files in os.walk(temp_dir):
+    for root, _dirs, files in os.walk(temp_dir):
         for fname in files:
             path = os.path.join(root, fname)
             try:
@@ -39,7 +38,6 @@ def cleanup_temp_files():
 def warm_popular_caches():
     """Warm frequently accessed caches (runs hourly)."""
     try:
-        from backend.app.services.cache_service import cache
 
         # Pre-warm dashboard stats for active users (would need user list)
         logger.info("Cache warming completed")
@@ -53,8 +51,9 @@ def warm_popular_caches():
 def database_maintenance():
     """Periodic database maintenance tasks."""
     try:
-        from backend.app.database.session import SessionLocal
         from sqlalchemy import text
+
+        from backend.app.database.session import SessionLocal
 
         db = SessionLocal()
         try:

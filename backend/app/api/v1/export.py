@@ -2,11 +2,9 @@
 Data Export endpoints — GDPR-compliant user data portability.
 """
 
-import csv
 import io
 import json
 import logging
-from typing import Literal
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import Response
@@ -14,7 +12,10 @@ from sqlalchemy.orm import Session
 
 from backend.app.database.dependencies import get_db
 from backend.app.security.dependencies import get_current_active_user
-from backend.app.services.export_service import export_user_data_csv, export_user_data_json
+from backend.app.services.export_service import (
+    export_user_data_csv,
+    export_user_data_json,
+)
 
 logger = logging.getLogger(__name__)
 

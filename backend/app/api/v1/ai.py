@@ -1,16 +1,15 @@
-import json
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
 from backend.app.schemas.ats_schema import (
+    ATSRecommendationResponse,
     ATSRequest,
     ATSResponse,
     ATSScoreResponse,
-    ATSRecommendationResponse,
+    OptimizationSuggestionResponse,
     ResumeOptimizerRequest,
     ResumeOptimizerResponse,
-    OptimizationSuggestionResponse,
 )
 from backend.app.schemas.interview_schema import (
     InterviewQuestionResponse,
@@ -32,8 +31,8 @@ from backend.app.services.llm_service import (
     job_match_ai,
     stream_ats_evaluate,
     stream_interview_questions,
-    stream_optimize_resume,
     stream_job_match,
+    stream_optimize_resume,
 )
 
 router = APIRouter(

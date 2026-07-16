@@ -2,8 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.app.database.base import Base
-from backend.app.database.db import engine
 from backend.app.database.init_db import init_database
 from backend.app.database.session import SessionLocal
 from backend.app.main import app

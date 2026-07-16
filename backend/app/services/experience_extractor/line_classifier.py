@@ -16,7 +16,7 @@ from backend.app.services.experience_extractor.location_detector import (
 )
 
 
-class LineType(str, Enum):
+class LineType(str, Enum):  # noqa: UP042
 
     COMPANY = "company"
 

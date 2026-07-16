@@ -1,3 +1,4 @@
+# ruff: noqa: UP017
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import uuid4
