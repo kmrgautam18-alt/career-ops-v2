@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
+import { PageSkeleton } from './PageSkeleton';
 
 const pageVariants = {
   initial: { opacity: 0, y: 24, scale: 0.98 },
@@ -22,7 +23,18 @@ const pageVariants = {
 
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const location = useLocation();
+  const prevKey = useRef(location.key);
+
+  useEffect(() => {
+    if (prevKey.current !== location.key) {
+      prevKey.current = location.key;
+      setIsNavigating(true);
+      const timer = setTimeout(() => setIsNavigating(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [location.key]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -47,16 +59,29 @@ export function Layout() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="relative"
-            >
-              <Outlet />
-            </motion.div>
+            {isNavigating ? (
+              <motion.div
+                key="skeleton"
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="relative"
+              >
+                <PageSkeleton route={location.pathname} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key={location.pathname}
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="relative"
+              >
+                <Outlet />
+              </motion.div>
+            )}
           </AnimatePresence>
         </main>
       </div>
