@@ -12,6 +12,8 @@ import {
   X,
   Sun,
   Moon,
+  Bell,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -24,6 +26,9 @@ const navItems = [
   { to: '/resumes', icon: FileText, label: 'Resumes' },
   { to: '/auto-apply', icon: Zap, label: 'Auto-Apply' },
   { to: '/ai', icon: Sparkles, label: 'AI Tools' },
+  { to: '/interview-coach', icon: Sparkles, label: 'Interview Coach' },
+  { to: '/notifications', icon: Bell, label: 'Notifications' },
+  { to: '/organizations', icon: Users, label: 'Teams' },
 ];
 
 interface SidebarProps {

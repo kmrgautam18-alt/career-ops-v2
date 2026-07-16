@@ -12,6 +12,55 @@ from email import encoders
 
 from backend.app.core.config import settings
 
+
+def send_html_email(
+    to_email: str,
+    to_name: str,
+    subject: str,
+    html_content: str,
+) -> bool:
+    """
+    Send an HTML email.
+
+    Args:
+        to_email: Recipient email address
+        to_name: Recipient name
+        subject: Email subject line
+        html_content: HTML body content
+
+    Returns:
+        True if sent successfully.
+    """
+    if not settings.SMTP_ENABLED:
+        logger.info("SMTP disabled. Would send to: %s - Subject: %s", to_email, subject)
+        return True
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = settings.SMTP_FROM_EMAIL
+        msg["To"] = to_email
+
+        # Plain text fallback
+        import re
+        text_content = re.sub(r"<[^>]+>", "", html_content).strip()
+        msg.attach(MIMEText(text_content, "plain"))
+        msg.attach(MIMEText(html_content, "html"))
+
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=30) as server:
+            if settings.SMTP_TLS:
+                server.starttls()
+            if settings.SMTP_USER:
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            server.send_message(msg)
+
+        logger.info("HTML email sent to %s: %s", to_email, subject)
+        return True
+
+    except Exception as e:
+        logger.error("HTML email error: %s", e)
+        return False
+
 logger = logging.getLogger(__name__)
 
 

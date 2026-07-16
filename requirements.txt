@@ -47,6 +47,13 @@ celery[redis]==5.5.2
 # OAuth Social Login
 authlib==1.5.2
 
+# AI Providers (OpenAI, Claude)
+openai==1.80.1
+anthropic==0.53.1
+
+# Error Tracking
+sentry-sdk==2.29.0
+
 # Testing
 pytest==9.1.1
 pytest-cov==7.1.0

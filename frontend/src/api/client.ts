@@ -184,6 +184,42 @@ export const aiApi = {
   jobMatch: (data: { profile: string; job_details: string }) => apiClient.post('/ai/job-match', data),
 };
 
+// Data Export
+export const exportApi = {
+  json: () => apiClient.get('/export/json', { responseType: 'blob' }),
+  csv: () => apiClient.get('/export/csv', { responseType: 'blob' }),
+};
+
+// Email Verification
+export const verificationApi = {
+  sendVerification: () => apiClient.post('/auth/send-verification'),
+  verify: (userId: number, token: string) => apiClient.get(`/auth/verify-email?user_id=${userId}&token=${token}`),
+  forgotPassword: (email: string) => apiClient.post(`/auth/forgot-password?email=${encodeURIComponent(email)}`),
+  resetPassword: (userId: number, token: string, newPassword: string) =>
+    apiClient.post(`/auth/reset-password?user_id=${userId}&token=${token}&new_password=${encodeURIComponent(newPassword)}`),
+};
+
+// Notification Preferences
+export const notificationPrefsApi = {
+  get: () => apiClient.get('/notifications/preferences/'),
+  update: (eventType: string, channel: string, enabled: boolean) =>
+    apiClient.put(`/notifications/preferences/${eventType}/${channel}?enabled=${enabled}`),
+  updateAll: (enabled: boolean) => apiClient.put(`/notifications/preferences/all?enabled=${enabled}`),
+};
+
+// Organizations
+export const organizationsApi = {
+  list: () => apiClient.get('/organizations/'),
+  create: (name: string, slug: string) => apiClient.post(`/organizations/?name=${encodeURIComponent(name)}&slug=${encodeURIComponent(slug)}`),
+  members: (orgId: number) => apiClient.get(`/organizations/${orgId}/members`),
+  invite: (orgId: number, userId: number, role: string) => apiClient.post(`/organizations/${orgId}/invite?user_id=${userId}&role=${role}`),
+};
+
+// Audit Logs
+export const auditLogsApi = {
+  list: (params?: Record<string, string>) => apiClient.get('/audit-logs/', { params }),
+};
+
 export const aiStreamApi = {
   atsScore: (data: { resume_text: string; job_description: string }, cb: StreamCallbacks) =>
     streamSse(`${API_BASE}/ai/ats-score/stream`, data, cb),

@@ -9,6 +9,7 @@ from backend.app.core.config import settings
 from backend.app.services.health import health_router
 from backend.app.services.metrics import get_metrics
 from backend.app.services.rate_limiter import add_rate_limiting
+from backend.app.core.config import settings
 from backend.app.exceptions.custom_exceptions import (
     ApplicationNotFoundException,
     DuplicateEmailException,
@@ -19,6 +20,31 @@ from backend.app.exceptions.custom_exceptions import (
     UnauthorizedException,
     UserNotFoundException,
 )
+
+# ======================================
+# Sentry Error Tracking (if configured)
+# ======================================
+try:
+    if settings.APP_ENV == "production" and os.getenv("SENTRY_DSN"):
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+        sentry_sdk.init(
+            dsn=os.getenv("SENTRY_DSN"),
+            environment=settings.APP_ENV,
+            traces_sample_rate=0.2,
+            profiles_sample_rate=0.1,
+            integrations=[
+                FastApiIntegration(),
+                SqlalchemyIntegration(),
+            ],
+        )
+        print("Sentry initialized.")
+except ImportError:
+    pass
+except Exception as e:
+    print(f"Sentry init failed: {e}")
 from backend.app.exceptions.handlers import (
     application_not_found_exception_handler,
     duplicate_email_exception_handler,
@@ -165,6 +191,13 @@ app.include_router(health_router)
 
 
 app.include_router(api_router)
+
+
+# ======================================
+# WebSocket endpoint (mounted at /api/v1/ws)
+# ======================================
+from backend.app.api.v1.websocket import router as websocket_router
+app.include_router(websocket_router)
 
 if __name__ == "__main__":
 

@@ -12,6 +12,10 @@ import { Applications } from './pages/Applications';
 import { Resumes } from './pages/Resumes';
 import { AIPage } from './pages/AIPage';
 import { AutoApply } from './pages/AutoApply';
+import { InterviewCoach } from './pages/InterviewCoach';
+import { NotificationPrefs } from './pages/NotificationPrefs';
+import { Organizations } from './pages/Organizations';
+import { VerifyEmail } from './pages/VerifyEmail';
 
 function App() {
   return (
@@ -35,6 +39,10 @@ function App() {
             <Route path="/resumes" element={<Resumes />} />
             <Route path="/auto-apply" element={<AutoApply />} />
             <Route path="/ai" element={<AIPage />} />
+            <Route path="/interview-coach" element={<InterviewCoach />} />
+            <Route path="/notifications" element={<NotificationPrefs />} />
+            <Route path="/organizations" element={<Organizations />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
           </Route>
         </Routes>
       </AuthProvider>
