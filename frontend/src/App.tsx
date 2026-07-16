@@ -21,6 +21,7 @@ const NotificationPrefs = lazy(() => import('./pages/NotificationPrefs').then(m 
 const Organizations = lazy(() => import('./pages/Organizations').then(m => ({ default: m.Organizations })));
 const ResumeTemplates = lazy(() => import('./pages/ResumeTemplates').then(m => ({ default: m.ResumeTemplates })));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail').then(m => ({ default: m.VerifyEmail })));
+const HowItWorks = lazy(() => import('./pages/HowItWorks').then(m => ({ default: m.HowItWorks })));
 
 // Skeleton fallback for lazy-loaded routes
 function PageLoader() {
@@ -67,6 +68,7 @@ function App() {
                     <Route path="/interview-coach" element={<InterviewCoach />} />
                     <Route path="/notifications" element={<NotificationPrefs />} />
                     <Route path="/organizations" element={<Organizations />} />
+                  <Route path="/how-it-works" element={<HowItWorks />} />
                   </Route>
                   {/* 404 catch-all */}
                   <Route path="*" element={<NotFound />} />

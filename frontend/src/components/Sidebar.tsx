@@ -15,6 +15,7 @@ import {
   Bell,
   Users,
   Library,
+  Play,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -31,6 +32,7 @@ const navItems = [
   { to: '/interview-coach', icon: Sparkles, label: 'Coach' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/organizations', icon: Users, label: 'Teams' },
+  { to: '/how-it-works', icon: Play, label: 'How It Works' },
 ];
 
 interface SidebarProps {
