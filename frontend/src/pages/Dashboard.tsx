@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import {
   Briefcase,
   Send,
-  BarChart3,
-  TrendingUp,
   Loader2,
+  Eye,
+  Zap,
+  Activity,
 } from 'lucide-react';
 import { dashboardApi } from '../api/client';
 
@@ -20,6 +21,23 @@ interface DashboardData {
   recent_jobs?: Array<{ id: number; title: string; company: string; status: string }>;
   recent_applications?: Array<{ id: number; job_title: string; company: string; status: string }>;
 }
+
+const statCards = [
+  { label: 'Total Jobs', key: 'total_jobs' as const, icon: Briefcase, gradient: 'from-indigo-500 to-purple-600' },
+  { label: 'Applications', key: 'total_applications' as const, icon: Send, gradient: 'from-cyan-500 to-blue-600' },
+  { label: 'Active', key: 'active_applications' as const, icon: Activity, gradient: 'from-emerald-500 to-teal-600' },
+  { label: 'Interviews', key: 'interviews' as const, icon: Eye, gradient: 'from-amber-500 to-orange-600' },
+];
+
+const statusBadge: Record<string, string> = {
+  saved: 'badge-saved',
+  new: 'badge-new',
+  applied: 'badge-applied',
+  interview: 'badge-interview',
+  offer: 'badge-offer',
+  rejected: 'badge-rejected',
+  accepted: 'badge-accepted',
+};
 
 export function Dashboard() {
   const [data, setData] = useState<DashboardData>({});
@@ -46,80 +64,103 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-text-muted text-sm">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
 
-  const statCards = [
-    { label: 'Total Jobs', value: data.stats?.total_jobs ?? 0, icon: Briefcase, color: 'from-blue-500 to-cyan-500' },
-    { label: 'Applications', value: data.stats?.total_applications ?? 0, icon: Send, color: 'from-purple-500 to-pink-500' },
-    { label: 'Active', value: data.stats?.active_applications ?? 0, icon: TrendingUp, color: 'from-emerald-500 to-teal-500' },
-    { label: 'Interviews', value: data.stats?.interviews ?? 0, icon: BarChart3, color: 'from-orange-500 to-red-500' },
-  ];
-
-  const statusColors: Record<string, string> = {
-    saved: 'bg-blue-500/20 text-blue-400',
-    applied: 'bg-purple-500/20 text-purple-400',
-    interview: 'bg-amber-500/20 text-amber-400',
-    offer: 'bg-emerald-500/20 text-emerald-400',
-    rejected: 'bg-red-500/20 text-red-400',
-    accepted: 'bg-green-500/20 text-green-400',
-  };
+  const getBadge = (status: string) => statusBadge[status.toLowerCase()] || 'bg-gray-500/20 text-gray-400 border-gray-500/20';
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-text-heading">Dashboard</h1>
-        <p className="text-text mt-1">Overview of your career journey</p>
-      </div>
+    <div className="space-y-7 max-w-7xl mx-auto">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-heading flex items-center gap-3">
+            Dashboard
+            <span className="text-xs font-normal px-2.5 py-0.5 rounded-full bg-primary-light text-primary border border-primary/20">
+              v2.0
+            </span>
+          </h1>
+          <p className="text-text-muted mt-1">Overview of your career journey</p>
+        </div>
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-border/60 text-xs text-text-muted">
+          <Zap className="w-3 h-3 text-primary" />
+          Live
+        </div>
+      </motion.div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="relative p-4 rounded-xl bg-surface border border-border overflow-hidden group hover:border-primary/30 transition-all duration-300"
-          >
-            <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full bg-gradient-to-br ${stat.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
-            <div className="relative">
-              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} p-2 mb-3`}>
-                <stat.icon className="w-full h-full text-white" />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {statCards.map((stat, i) => {
+          const value = data.stats?.[stat.key] ?? 0;
+          return (
+            <motion.div
+              key={stat.key}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="group relative p-5 rounded-2xl bg-surface border border-border/60 hover:border-border-glow/40 transition-all duration-500 overflow-hidden"
+            >
+              {/* Gradient Hover Background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500`} />
+              {/* Shine effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               </div>
-              <div className="text-2xl font-bold text-text-heading">{stat.value}</div>
-              <div className="text-sm text-text mt-1">{stat.label}</div>
-            </div>
-          </motion.div>
-        ))}
+
+              <div className="relative">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} p-2.5 mb-3.5 shadow-lg`}>
+                  <stat.icon className="w-full h-full text-white" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold text-text-heading mb-0.5">
+                  {value}
+                </div>
+                <div className="text-xs sm:text-sm text-text-muted">{stat.label}</div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Bottom Grid */}
+      <div className="grid lg:grid-cols-2 gap-5">
         {/* Recent Jobs */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="p-4 rounded-xl bg-surface border border-border"
+          transition={{ delay: 0.2 }}
+          className="p-5 sm:p-6 rounded-2xl bg-surface border border-border/60"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-text-heading flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-primary" />
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-text-heading flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 p-1.5">
+                <Briefcase className="w-full h-full text-white" />
+              </div>
               Recent Jobs
             </h2>
             {(!data.recent_jobs || data.recent_jobs.length === 0) && (
-              <span className="text-xs text-text">No jobs yet</span>
+              <span className="text-xs text-text-muted">Empty</span>
             )}
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {data.recent_jobs?.slice(0, 5).map((job) => (
-              <div key={job.id} className="flex items-center justify-between p-3 rounded-lg bg-surface-light/50 hover:bg-surface-light transition-colors">
-                <div>
-                  <p className="text-sm font-medium text-text-heading">{job.title}</p>
-                  <p className="text-xs text-text">{job.company}</p>
+              <div
+                key={job.id}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-surface-light/30 hover:bg-surface-light/60 border border-border/30 hover:border-border-glow/20 transition-all duration-300"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-text-heading truncate">{job.title}</p>
+                  <p className="text-xs text-text-muted truncate">{job.company}</p>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColors[job.status] || 'bg-gray-500/20 text-gray-400'}`}>
+                <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getBadge(job.status)}`}>
                   {job.status}
                 </span>
               </div>
@@ -131,25 +172,33 @@ export function Dashboard() {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="p-4 rounded-xl bg-surface border border-border"
+          transition={{ delay: 0.25 }}
+          className="p-5 sm:p-6 rounded-2xl bg-surface border border-border/60"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-text-heading flex items-center gap-2">
-              <Send className="w-4 h-5 text-accent" />
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-text-heading flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 p-1.5">
+                <Send className="w-full h-full text-white" />
+              </div>
               Recent Applications
             </h2>
             {(!data.recent_applications || data.recent_applications.length === 0) && (
-              <span className="text-xs text-text">No applications yet</span>
+              <span className="text-xs text-text-muted">Empty</span>
             )}
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {data.recent_applications?.slice(0, 5).map((app) => (
-              <div key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-surface-light/50 hover:bg-surface-light transition-colors">
-                <div>
-                  <p className="text-sm font-medium text-text-heading">{app.job_title}</p>
-                  <p className="text-xs text-text">{app.company}</p>
+              <div
+                key={app.id}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-surface-light/30 hover:bg-surface-light/60 border border-border/30 hover:border-border-glow/20 transition-all duration-300"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-text-heading truncate">
+                    {app.job_title || `Application #${app.id}`}
+                  </p>
+                  <p className="text-xs text-text-muted truncate">{app.company}</p>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColors[app.status] || 'bg-gray-500/20 text-gray-400'}`}>
+                <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getBadge(app.status)}`}>
                   {app.status}
                 </span>
               </div>

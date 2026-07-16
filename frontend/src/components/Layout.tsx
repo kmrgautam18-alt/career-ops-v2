@@ -11,20 +11,22 @@ export function Layout() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="flex items-center justify-between px-4 lg:px-6 h-14 border-b border-border bg-surface/50 backdrop-blur-sm">
+        {/* Top Bar */}
+        <header className="flex items-center justify-between px-4 lg:px-6 h-14 border-b border-border/40 bg-background/60 backdrop-blur-xl">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-text hover:text-text-heading transition-colors"
+            className="lg:hidden p-2 rounded-lg text-text-muted hover:text-text-heading hover:bg-surface-light transition-all"
           >
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-3 ml-auto">
-            <div className="w-8 h-8 rounded-full bg-primary-light border border-primary/20 flex items-center justify-center">
-              <span className="text-xs font-semibold text-primary">CO</span>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-sm">
+              <span className="text-xs font-bold text-white">CO</span>
             </div>
           </div>
         </header>
 
+        {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           <div className="animate-fade-in">
             <Outlet />

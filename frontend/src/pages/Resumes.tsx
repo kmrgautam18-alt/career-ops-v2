@@ -1,13 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Upload, Trash2, Loader2, Download, File } from 'lucide-react';
+import {
+  FileText, Upload, Trash2, Loader2, Download, File,
+  CheckCircle2,
+} from 'lucide-react';
 import { resumesApi } from '../api/client';
 
 interface Resume {
   id: number;
-  file_name: string;
+  title?: string;
+  original_filename?: string;
+  file_name?: string;
+  mime_type?: string;
   file_type?: string;
   file_size?: number;
+  upload_status?: string;
   status?: string;
   created_at?: string;
 }
@@ -16,6 +23,7 @@ export function Resumes() {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchResumes = () => {
@@ -28,13 +36,11 @@ export function Resumes() {
 
   useEffect(() => { fetchResumes(); }, []);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleUpload = async (file: File) => {
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('title', file.name.replace(/\.[^/.]+$/, ''));
     try {
       await resumesApi.upload(formData);
       fetchResumes();
@@ -42,12 +48,23 @@ export function Resumes() {
       console.error('Upload failed', err);
     } finally {
       setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleUpload(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleUpload(file);
+  };
+
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this resume?')) return;
     try {
       await resumesApi.delete(id);
       fetchResumes();
@@ -64,101 +81,166 @@ export function Resumes() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-text-heading">Resumes</h1>
-        <p className="text-text mt-1">Upload and manage your resumes</p>
-      </div>
+    <div className="space-y-7 max-w-7xl mx-auto">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-heading">Resumes</h1>
+        <p className="text-text-muted mt-1">Upload and manage your resume arsenal</p>
+      </motion.div>
 
       {/* Upload Area */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative"
       >
         <input
           ref={fileInputRef}
           type="file"
           accept=".pdf,.docx,.doc"
-          onChange={handleUpload}
+          onChange={handleFileChange}
           className="hidden"
         />
-        <button
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="w-full p-8 rounded-xl border-2 border-dashed border-border hover:border-primary/50 bg-surface hover:bg-surface-light transition-all duration-200 group cursor-pointer disabled:opacity-50"
+          className={`
+            relative p-10 sm:p-14 rounded-2xl border-2 border-dashed cursor-pointer
+            transition-all duration-300 overflow-hidden group
+            ${dragOver
+              ? 'border-primary/60 bg-primary-light'
+              : 'border-border/40 bg-surface hover:border-primary/30 hover:bg-surface-light'
+            }
+            ${uploading ? 'pointer-events-none opacity-70' : ''}
+          `}
         >
-          {uploading ? (
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              <p className="text-sm text-text">Uploading...</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Upload className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-text-heading">Upload Resume</p>
-                <p className="text-xs text-text mt-1">PDF, DOCX — Max 10 MB</p>
-              </div>
-            </div>
-          )}
-        </button>
+          {/* Hover glow */}
+          <div className="absolute -top-32 -right-32 w-64 h-64 rounded-full bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-3xl pointer-events-none" />
+
+          <div className="relative flex flex-col items-center gap-4">
+            {uploading ? (
+              <>
+                <div className="w-16 h-16 rounded-2xl bg-primary-light flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+                <div className="text-center">
+                  <p className="text-text-heading font-medium">Uploading...</p>
+                  <p className="text-text-muted text-sm mt-1">Processing your resume</p>
+                </div>
+                <div className="w-48 h-1.5 rounded-full bg-border overflow-hidden">
+                  <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-primary to-accent animate-shimmer" />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-primary-glow/20">
+                  <Upload className={`w-8 h-8 text-primary transition-all duration-300 ${dragOver ? 'translate-y-1' : ''}`} />
+                </div>
+                <div className="text-center">
+                  <p className="text-text-heading font-medium">
+                    {dragOver ? 'Drop your resume here' : 'Upload Resume'}
+                  </p>
+                  <p className="text-text-muted text-sm mt-1">
+                    Drop a file or click to browse &mdash; PDF, DOCX (Max 10 MB)
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-text-muted/60">
+                  <CheckCircle2 className="w-3 h-3 text-success" />
+                  <span>AI-powered parsing & analysis</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </motion.div>
 
       {/* Resume List */}
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>
-      ) : resumes.length === 0 ? (
-        <div className="text-center py-12">
-          <FileText className="w-12 h-12 text-text/40 mx-auto mb-3" />
-          <p className="text-text">No resumes uploaded yet.</p>
+        <div className="flex justify-center py-16">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            <p className="text-text-muted text-sm">Loading resumes...</p>
+          </div>
         </div>
+      ) : resumes.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center justify-center py-16 glass-panel rounded-2xl"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-primary-light flex items-center justify-center mb-4">
+            <FileText className="w-8 h-8 text-primary" />
+          </div>
+          <p className="text-text-heading font-medium">No resumes yet</p>
+          <p className="text-text-muted text-sm mt-1">Upload your first resume to get started</p>
+        </motion.div>
       ) : (
-        <div className="grid gap-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid gap-3.5"
+        >
           {resumes.map((resume, i) => (
             <motion.div
               key={resume.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center justify-between p-4 rounded-xl bg-surface border border-border hover:border-primary/20 transition-all duration-200"
+              transition={{ delay: i * 0.04 }}
+              className="group relative p-5 rounded-2xl bg-surface border border-border/60 hover:border-border-glow/40 transition-all duration-500 overflow-hidden"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-accent-light flex items-center justify-center">
-                  <File className="w-5 h-5 text-accent" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-text-heading">{resume.file_name}</p>
-                  <div className="flex items-center gap-2 text-xs text-text">
-                    {resume.file_type && <span>{resume.file_type}</span>}
-                    {resume.file_size && <span>{formatSize(resume.file_size)}</span>}
-                    {resume.status && (
-                      <span className="px-1.5 py-0.5 rounded bg-primary-light text-primary text-xs">
-                        {resume.status}
-                      </span>
-                    )}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
+
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <File className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-text-heading truncate">
+                      {resume.title || resume.original_filename || resume.file_name}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1.5 text-xs text-text-muted">
+                      {resume.mime_type && (
+                        <span className="px-2 py-0.5 rounded-full bg-surface-lighter text-text-muted">
+                          {resume.mime_type}
+                        </span>
+                      )}
+                      {resume.file_size && (
+                        <span>{formatSize(resume.file_size)}</span>
+                      )}
+                      {resume.upload_status && (
+                        <span className="flex items-center gap-1 text-success">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {resume.upload_status}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => window.open(`/api/v1/resumes/${resume.id}/download`, '_blank')}
-                  className="p-2 rounded-lg text-text hover:text-text-heading hover:bg-surface-light transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(resume.id)}
-                  className="p-2 rounded-lg text-text hover:text-danger hover:bg-danger/10 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button
+                    onClick={() => window.open(`/api/v1/resumes/${resume.id}/download`, '_blank')}
+                    className="p-2.5 rounded-xl text-text-muted hover:text-text-heading hover:bg-surface-lighter transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(resume.id)}
+                    className="p-2.5 rounded-xl text-text-muted hover:text-danger hover:bg-danger-light transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

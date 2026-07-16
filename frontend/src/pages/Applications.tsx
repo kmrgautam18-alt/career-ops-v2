@@ -1,24 +1,32 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Plus, Loader2, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Send, Plus, Loader2, Trash2, X,
+  Calendar, FileText,
+} from 'lucide-react';
 import { applicationsApi } from '../api/client';
 
 interface Application {
   id: number;
+  job_id?: number;
   job_title?: string;
   company?: string;
   status: string;
   notes?: string;
+  applied_date?: string;
   created_at?: string;
 }
 
-const statusColors: Record<string, string> = {
-  saved: 'bg-blue-500/20 text-blue-400 border-blue-500/20',
-  applied: 'bg-purple-500/20 text-purple-400 border-purple-500/20',
-  interview: 'bg-amber-500/20 text-amber-400 border-amber-500/20',
-  offer: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20',
-  rejected: 'bg-red-500/20 text-red-400 border-red-500/20',
-  accepted: 'bg-green-500/20 text-green-400 border-green-500/20',
+const statusFlow = ['saved', 'applied', 'interview', 'offer', 'rejected', 'accepted'];
+
+const statusBadge: Record<string, string> = {
+  saved: 'badge-saved',
+  new: 'badge-new',
+  applied: 'badge-applied',
+  interview: 'badge-interview',
+  offer: 'badge-offer',
+  rejected: 'badge-rejected',
+  accepted: 'badge-accepted',
 };
 
 export function Applications() {
@@ -26,6 +34,7 @@ export function Applications() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [newApp, setNewApp] = useState({ job_id: '', status: 'applied', notes: '' });
+  const [deleting, setDeleting] = useState<number | null>(null);
 
   const fetchApps = () => {
     setLoading(true);
@@ -44,6 +53,7 @@ export function Applications() {
         job_id: parseInt(newApp.job_id),
         status: newApp.status,
         notes: newApp.notes,
+        applied_date: new Date().toISOString().split('T')[0],
       });
       setShowCreate(false);
       setNewApp({ job_id: '', status: 'applied', notes: '' });
@@ -54,113 +64,184 @@ export function Applications() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this application?')) return;
+    setDeleting(id);
     try {
       await applicationsApi.delete(id);
       fetchApps();
     } catch (err) {
-      console.error('Failed to delete application', err);
+      console.error('Failed to delete', err);
+    } finally {
+      setDeleting(null);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="space-y-7 max-w-7xl mx-auto">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-bold text-text-heading">Applications</h1>
-          <p className="text-text mt-1">Track your job applications</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-heading">Applications</h1>
+          <p className="text-text-muted mt-1">Track every stage of your job applications</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-hover transition-colors"
+          className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold btn-luxury shadow-lg shadow-primary-glow/20 overflow-hidden"
         >
           <Plus className="w-4 h-4" />
-          Add Application
+          <span>Add Application</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
         </button>
-      </div>
+      </motion.div>
 
-      {showCreate && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
+      {/* Create Modal */}
+      <AnimatePresence>
+        {showCreate && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-lg bg-surface border border-border rounded-xl p-6"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowCreate(false)}
           >
-            <h2 className="text-lg font-semibold text-text-heading mb-4">Add Application</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-1">Job ID *</label>
-                <input type="number" value={newApp.job_id} onChange={(e) => setNewApp({ ...newApp, job_id: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text-heading focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  required />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-lg glass-panel-strong rounded-2xl p-6 sm:p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-text-heading">Add Application</h2>
+                <button onClick={() => setShowCreate(false)}
+                  className="p-2 rounded-lg text-text-muted hover:text-text-heading hover:bg-surface-light transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-1">Status</label>
-                <select value={newApp.status} onChange={(e) => setNewApp({ ...newApp, status: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text-heading focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-                  <option value="saved">Saved</option>
-                  <option value="applied">Applied</option>
-                  <option value="interview">Interview</option>
-                  <option value="offer">Offer</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="accepted">Accepted</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-1">Notes</label>
-                <textarea value={newApp.notes} onChange={(e) => setNewApp({ ...newApp, notes: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text-heading focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[80px]" />
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreate(false)}
-                  className="px-4 py-2 rounded-lg text-sm text-text hover:text-text-heading transition-colors">Cancel</button>
-                <button type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-hover transition-colors">Create</button>
-              </div>
-            </form>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-heading mb-1.5">Job ID *</label>
+                  <input type="number" value={newApp.job_id} onChange={(e) => setNewApp({ ...newApp, job_id: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-background border border-border-light text-text-heading focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all"
+                    required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-heading mb-1.5">Status</label>
+                  <select value={newApp.status} onChange={(e) => setNewApp({ ...newApp, status: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-background border border-border-light text-text-heading focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all">
+                    {statusFlow.map(s => (
+                      <option key={s} value={s} className="capitalize">{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-heading mb-1.5">Notes</label>
+                  <textarea value={newApp.notes} onChange={(e) => setNewApp({ ...newApp, notes: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-background border border-border-light text-text-heading focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all min-h-[80px] resize-y" />
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={() => setShowCreate(false)}
+                    className="px-5 py-2.5 rounded-xl text-sm text-text-muted hover:text-text-heading transition-colors">Cancel</button>
+                  <button type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold btn-luxury">Create</button>
+                </div>
+              </form>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
+      {/* App List */}
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>
-      ) : apps.length === 0 ? (
-        <div className="text-center py-12">
-          <Send className="w-12 h-12 text-text/40 mx-auto mb-3" />
-          <p className="text-text">No applications yet. Start tracking your applications!</p>
+        <div className="flex justify-center py-16">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            <p className="text-text-muted text-sm">Loading applications...</p>
+          </div>
         </div>
+      ) : apps.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center justify-center py-20 glass-panel rounded-2xl"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-primary-light flex items-center justify-center mb-4">
+            <Send className="w-8 h-8 text-primary" />
+          </div>
+          <p className="text-text-heading font-medium mb-1">No applications yet</p>
+          <p className="text-text-muted text-sm mb-6">Start tracking your job applications!</p>
+          <button onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold btn-luxury">
+            <Plus className="w-4 h-4" />
+            Add Application
+          </button>
+        </motion.div>
       ) : (
-        <div className="grid gap-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid gap-3.5"
+        >
           {apps.map((app, i) => (
             <motion.div
               key={app.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="p-4 rounded-xl bg-surface border border-border hover:border-primary/20 transition-all duration-200"
+              transition={{ delay: i * 0.04 }}
+              className="group relative p-5 rounded-2xl bg-surface border border-border/60 hover:border-border-glow/40 transition-all duration-500 overflow-hidden"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
+              {/* Hover shine */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
+
+              <div className="relative flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2.5 mb-1.5">
                     <h3 className="text-base font-semibold text-text-heading">
                       {app.job_title || `Application #${app.id}`}
                     </h3>
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium border ${statusColors[app.status] || 'bg-gray-500/20 text-gray-400'}`}>
+                    <span className={`px-2.5 py-1 rounded-lg text-[11px] font-medium ${statusBadge[app.status] || 'badge-saved'}`}>
                       {app.status}
                     </span>
                   </div>
-                  {app.company && <p className="text-sm text-text">{app.company}</p>}
-                  {app.notes && <p className="text-xs text-text/60 mt-1">{app.notes}</p>}
+                  {app.company && (
+                    <p className="text-sm text-text-muted">{app.company}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-2 text-xs text-text-muted/60">
+                    {app.applied_date && (
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {app.applied_date}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <FileText className="w-3 h-3" />
+                      ID: {app.id}
+                    </span>
+                  </div>
+                  {app.notes && (
+                    <p className="text-xs text-text-muted/50 mt-2 line-clamp-1 italic">{app.notes}</p>
+                  )}
                 </div>
-                <button onClick={() => handleDelete(app.id)}
-                  className="p-2 rounded-lg text-text hover:text-danger hover:bg-danger/10 transition-colors">
-                  <Trash2 className="w-4 h-4" />
+                <button
+                  onClick={() => handleDelete(app.id)}
+                  disabled={deleting === app.id}
+                  className="p-2.5 rounded-xl text-text-muted hover:text-danger hover:bg-danger-light transition-all disabled:opacity-50"
+                >
+                  {deleting === app.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

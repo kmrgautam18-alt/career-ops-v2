@@ -1,22 +1,72 @@
 @import "tailwindcss";
 
+/* ======================================
+   Career-Ops v2 — Dark Luxury / Metallic
+   Theme: Indigo + Cyan + Precious Metals
+   ====================================== */
+
 @theme {
-  --color-background: #0a0a0f;
-  --color-surface: #13131a;
-  --color-surface-light: #1c1c26;
-  --color-border: #2a2a3a;
-  --color-text: #9ca3af;
-  --color-text-heading: #f3f4f6;
+  /* Core Backgrounds — Deep Noir */
+  --color-background: #050508;
+  --color-background-alt: #08080f;
+  --color-surface: #0d0d1a;
+  --color-surface-light: #14142a;
+  --color-surface-lighter: #1a1a35;
+  --color-surface-glass: rgba(13, 13, 30, 0.6);
+
+  /* Borders — Iridescent */
+  --color-border: #1e1e3a;
+  --color-border-light: #2a2a50;
+  --color-border-glow: rgba(99, 102, 241, 0.3);
+
+  /* Text — Precious Metal Hierarchy */
+  --color-text: #8892b0;
+  --color-text-muted: #5a6080;
+  --color-text-heading: #e8eaf0;
+  --color-text-bright: #ffffff;
+
+  /* Brand — Indigo & Cyan */
   --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: rgba(99, 102, 241, 0.1);
+  --color-primary-hover: #5558e6;
+  --color-primary-active: #4f46e5;
+  --color-primary-light: rgba(99, 102, 241, 0.12);
+  --color-primary-glow: rgba(99, 102, 241, 0.25);
+  --color-primary-subtle: rgba(99, 102, 241, 0.06);
+
   --color-accent: #22d3ee;
-  --color-accent-light: rgba(34, 211, 238, 0.1);
+  --color-accent-hover: #06b6d4;
+  --color-accent-light: rgba(34, 211, 238, 0.12);
+  --color-accent-glow: rgba(34, 211, 238, 0.2);
+
+  /* Precious Metals */
+  --color-gold: #f59e0b;
+  --color-gold-light: rgba(245, 158, 11, 0.12);
+  --color-silver: #94a3b8;
+  --color-silver-light: rgba(148, 163, 184, 0.1);
+
+  /* Status Colors */
   --color-success: #10b981;
+  --color-success-light: rgba(16, 185, 129, 0.12);
   --color-warning: #f59e0b;
+  --color-warning-light: rgba(245, 158, 11, 0.12);
   --color-danger: #ef4444;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --color-danger-light: rgba(239, 68, 68, 0.12);
+  --color-info: #3b82f6;
+  --color-info-light: rgba(59, 130, 246, 0.12);
+
+  /* Metallic Gradients (Used via bg classes) */
+  --gradient-primary: linear-gradient(135deg, #6366f1, #22d3ee);
+  --gradient-dark: linear-gradient(180deg, #0d0d1a 0%, #050508 100%);
+  --gradient-card: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(34, 211, 238, 0.04));
+
+  /* Font */
+  --font-sans: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
+
+/* ======================================
+   Global Styles
+   ====================================== */
 
 * {
   margin: 0;
@@ -24,53 +74,341 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(34, 211, 238, 0.04) 0%, transparent 50%);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
-/* Custom scrollbar */
+/* ======================================
+   Premium Scrollbar
+   ====================================== */
+
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--color-background);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #3a3a4a;
+  transition: background 0.2s;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-background);
+}
+
+/* ======================================
+   Selection Style
+   ====================================== */
+
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: var(--color-text-bright);
+}
+
+/* ======================================
+   Glassmorphism Utility
+   ====================================== */
+
+.glass-panel {
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.glass-panel-strong {
+  background: rgba(13, 13, 30, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ======================================
+   Metallic Gradient Text
+   ====================================== */
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, #6366f1, #22d3ee, #6366f1);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.text-gradient-silver {
+  background: linear-gradient(135deg, #e2e8f0, #94a3b8, #cbd5e1);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ======================================
+   Gradient Border Cards
+   ====================================== */
+
+.card-gradient-border {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: 12px;
+}
+
+.card-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(34, 211, 238, 0.1), rgba(99, 102, 241, 0.05));
+  z-index: -1;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.card-gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* ======================================
+   Premium Button Base
+   ====================================== */
+
+.btn-luxury {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-luxury::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-luxury:hover::after {
+  opacity: 1;
+}
+
+.btn-luxury:active {
+  transform: scale(0.97);
+}
+
+/* ======================================
+   Glow Effects
+   ====================================== */
+
+.glow-indigo {
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.15),
+    0 0 40px rgba(99, 102, 241, 0.05);
+}
+
+.glow-cyan {
+  box-shadow:
+    0 0 20px rgba(34, 211, 238, 0.15),
+    0 0 40px rgba(34, 211, 238, 0.05);
+}
+
+/* ======================================
+   Noise Texture Overlay
+   ====================================== */
+
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ======================================
+   Animations
+   ====================================== */
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-20px); }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes pulse-glow {
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.25), 0 0 60px rgba(34, 211, 238, 0.1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes borderPulse {
+  0%, 100% { border-color: rgba(99, 102, 241, 0.2); }
+  50% { border-color: rgba(99, 102, 241, 0.5); }
+}
+
+@keyframes shimmerCard {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out forwards;
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
-.animate-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerCard 2s ease-in-out infinite;
+}
+
+/* ======================================
+   Status Badge Colors
+   ====================================== */
+
+.badge-new {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(34, 211, 238, 0.1));
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.badge-saved {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.badge-applied {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.badge-interview {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.badge-offer {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-accepted {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }

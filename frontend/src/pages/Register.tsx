@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Briefcase, UserPlus, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Briefcase, UserPlus, Eye, EyeOff, AlertCircle, CheckCircle2, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function Register() {
@@ -62,112 +62,140 @@ export function Register() {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-success" />
+          <div className="w-20 h-20 rounded-full bg-success-light flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-10 h-10 text-success" />
           </div>
-          <h2 className="text-xl font-bold text-text-heading mb-2">Registration Successful!</h2>
-          <p className="text-text">Redirecting you to sign in...</p>
+          <h2 className="text-2xl font-bold text-text-heading mb-2">Account Created!</h2>
+          <p className="text-text-muted">Redirecting you to sign in...</p>
+          <div className="mt-6 w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-accent/5 to-transparent pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Ambient Glow */}
+      <div className="absolute top-1/4 right-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[80px] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-accent-light/10 via-transparent to-primary-subtle/30 opacity-30 pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
         className="relative w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Briefcase className="w-5 h-5 text-white" />
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-6 group">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent p-2.5 flex items-center justify-center shadow-lg shadow-primary-glow/30 group-hover:shadow-primary-glow/50 transition-all duration-300">
+              <Briefcase className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-text-heading">Career-Ops</span>
+            <span className="text-xl font-bold text-text-heading">
+              Career<span className="text-gradient-primary">Ops</span>
+            </span>
           </Link>
-          <h1 className="text-2xl font-bold text-text-heading">Create your account</h1>
-          <p className="text-text mt-2">Start managing your career journey</p>
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-2xl font-bold text-text-heading"
+          >
+            Create your account
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-text-muted mt-2"
+          >
+            Start managing your career journey
+          </motion.p>
         </div>
 
-        <div className="bg-surface border border-border rounded-xl p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          className="glass-panel-strong rounded-2xl p-6 sm:p-8"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="flex items-center gap-2 p-3 rounded-lg bg-danger/10 border border-danger/20 text-sm text-danger"
+                exit={{ opacity: 0, height: 0 }}
+                className="flex items-center gap-2.5 p-3.5 rounded-xl bg-danger-light border border-danger/20 text-sm text-danger"
               >
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </motion.div>
             )}
 
-            <div>
-              <label htmlFor="full_name" className="block text-sm font-medium text-text-heading mb-1.5">
-                Full Name
-              </label>
-              <input
-                id="full_name"
-                type="text"
-                value={form.full_name}
-                onChange={(e) => updateField('full_name', e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-text-heading placeholder:text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
-                placeholder="John Doe"
-                required
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="full_name" className="block text-sm font-medium text-text-heading mb-1.5">
+                  Full Name
+                </label>
+                <input
+                  id="full_name"
+                  type="text"
+                  value={form.full_name}
+                  onChange={(e) => updateField('full_name', e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-background border border-border-light text-text-heading placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all duration-200"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-text-heading mb-1.5">
+                  Username
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  value={form.username}
+                  onChange={(e) => updateField('username', e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-background border border-border-light text-text-heading placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all duration-200"
+                  placeholder="johndoe"
+                  required
+                />
+              </div>
             </div>
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-text-heading mb-1.5">
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                value={form.username}
-                onChange={(e) => updateField('username', e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-text-heading placeholder:text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
-                placeholder="johndoe"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-heading mb-1.5">
+              <label htmlFor="reg-email" className="block text-sm font-medium text-text-heading mb-1.5">
                 Email
               </label>
               <input
-                id="email"
+                id="reg-email"
                 type="email"
                 value={form.email}
                 onChange={(e) => updateField('email', e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-text-heading placeholder:text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-background border border-border-light text-text-heading placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all duration-200"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-heading mb-1.5">
+              <label htmlFor="reg-password" className="block text-sm font-medium text-text-heading mb-1.5">
                 Password
               </label>
               <div className="relative">
                 <input
-                  id="password"
+                  id="reg-password"
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={(e) => updateField('password', e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-text-heading placeholder:text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors pr-10"
+                  className="w-full px-4 py-3 rounded-xl bg-background border border-border-light text-text-heading placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all duration-200 pr-11"
                   placeholder="Min. 8 characters"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text hover:text-text-heading transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-heading transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -175,15 +203,15 @@ export function Register() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-heading mb-1.5">
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-text-heading mb-1.5">
                 Confirm Password
               </label>
               <input
-                id="confirmPassword"
+                id="confirm-password"
                 type="password"
                 value={form.confirmPassword}
                 onChange={(e) => updateField('confirmPassword', e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-text-heading placeholder:text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-background border border-border-light text-text-heading placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all duration-200"
                 placeholder="Repeat your password"
                 required
               />
@@ -192,26 +220,46 @@ export function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="group relative w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed btn-luxury shadow-lg shadow-primary-glow/20 overflow-hidden"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Creating account...</span>
+                </div>
               ) : (
                 <>
                   <UserPlus className="w-4 h-4" />
-                  Create Account
+                  <span>Create Account</span>
+                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                 </>
               )}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             </button>
           </form>
 
-          <p className="text-center text-sm text-text mt-6">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:text-primary-hover font-medium transition-colors">
-              Sign in
-            </Link>
-          </p>
-        </div>
+          <div className="mt-6 pt-6 border-t border-border/40">
+            <p className="text-center text-sm text-text-muted">
+              Already have an account?{' '}
+              <Link
+                to="/login"
+                className="text-primary hover:text-primary-hover font-medium transition-colors"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex items-center justify-center gap-2 mt-6 text-xs text-text-muted"
+        >
+          <Shield className="w-3 h-3" />
+          <span>Protected with JWT + Argon2 encryption</span>
+        </motion.div>
       </motion.div>
     </div>
   );
