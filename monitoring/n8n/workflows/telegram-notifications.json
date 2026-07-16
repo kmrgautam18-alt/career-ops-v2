@@ -1,0 +1,275 @@
+{
+  "name": "Telegram Notifications — All Events",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "careerops-telegram-all",
+        "options": {}
+      },
+      "id": "webhook-all-events",
+      "name": "Webhook: All Career-Ops Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event }}",
+              "operation": "equal",
+              "value2": "application.created"
+            }
+          ]
+        }
+      },
+      "id": "filter-created",
+      "name": "Is Created?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 150]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event }}",
+              "operation": "equal",
+              "value2": "application.updated"
+            }
+          ]
+        }
+      },
+      "id": "filter-updated",
+      "name": "Is Updated?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 350]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event }}",
+              "operation": "equal",
+              "value2": "application.deleted"
+            }
+          ]
+        }
+      },
+      "id": "filter-deleted",
+      "name": "Is Deleted?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 550]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event }}",
+              "operation": "equal",
+              "value2": "interview.scheduled"
+            }
+          ]
+        }
+      },
+      "id": "filter-interview",
+      "name": "Is Interview?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 750]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "string": [
+            {
+              "name": "telegramMessage",
+              "value": "✅ *New Application Created*\n\n📌 *Company:* {{ $json.company }}\n💼 *Position:* {{ $json.job_title }}\n📅 *Applied:* {{ $json.applied_date }}\n👤 *User:* {{ $json.user_email }}\n\nStatus: {{ $json.status }}"
+            }
+          ]
+        }
+      },
+      "id": "msg-created",
+      "name": "Format: Created",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 100]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "string": [
+            {
+              "name": "telegramMessage",
+              "value": "🔄 *Application Status Updated*\n\n📌 *Company:* {{ $json.company }}\n💼 *Position:* {{ $json.job_title }}\n📊 *Status Change:* {{ $json.previous_status }} → *{{ $json.status }}*\n👤 *User:* {{ $json.user_email }}\n\n{% if $json.status == 'interview_scheduled' %}🎯 Interview scheduled! Check dashboard for details.{% elseif $json.status == 'accepted' %}🎉 Congratulations!{% elseif $json.status == 'rejected' %}💪 Keep going — next one!{% endif %}"
+            }
+          ]
+        }
+      },
+      "id": "msg-updated",
+      "name": "Format: Updated",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "string": [
+            {
+              "name": "telegramMessage",
+              "value": "🗑️ *Application Deleted*\n\n📌 *Company:* {{ $json.company }}\n💼 *Position:* {{ $json.job_title }}\n📊 *Previous Status:* {{ $json.previous_status }}\n👤 *User:* {{ $json.user_email }}"
+            }
+          ]
+        }
+      },
+      "id": "msg-deleted",
+      "name": "Format: Deleted",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 500]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "string": [
+            {
+              "name": "telegramMessage",
+              "value": "🎯 *Interview Scheduled!*\n\n📌 *Company:* {{ $json.company }}\n💼 *Position:* {{ $json.job_title }}\n📅 *Date:* {{ $json.interview_date }}\n🎤 *Type:* {{ $json.interview_type }}\n👤 *User:* {{ $json.user_email }}\n\n📝 *Preparation Tips:*\n1. Research the company\n2. Review the job description\n3. Prepare questions\n4. Test your equipment\n5. Arrive 10 minutes early\n\nGood luck! 🍀"
+            }
+          ]
+        }
+      },
+      "id": "msg-interview",
+      "name": "Format: Interview",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 700]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.telegramMessage }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "telegram-created",
+      "name": "Telegram: Created",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 100]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.telegramMessage }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "telegram-updated",
+      "name": "Telegram: Updated",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.telegramMessage }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "telegram-deleted",
+      "name": "Telegram: Deleted",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 500]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.telegramMessage }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "telegram-interview",
+      "name": "Telegram: Interview",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 700]
+    }
+  ],
+  "connections": {
+    "Webhook: All Career-Ops Events": {
+      "main": [
+        [
+          { "node": "Is Created?", "type": "main", "index": 0 },
+          { "node": "Is Updated?", "type": "main", "index": 0 },
+          { "node": "Is Deleted?", "type": "main", "index": 0 },
+          { "node": "Is Interview?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Is Created?": {
+      "main": [
+        [{ "node": "Format: Created", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Updated?": {
+      "main": [
+        [{ "node": "Format: Updated", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Deleted?": {
+      "main": [
+        [{ "node": "Format: Deleted", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Interview?": {
+      "main": [
+        [{ "node": "Format: Interview", "type": "main", "index": 0 }]
+      ]
+    },
+    "Format: Created": {
+      "main": [
+        [{ "node": "Telegram: Created", "type": "main", "index": 0 }]
+      ]
+    },
+    "Format: Updated": {
+      "main": [
+        [{ "node": "Telegram: Updated", "type": "main", "index": 0 }]
+      ]
+    },
+    "Format: Deleted": {
+      "main": [
+        [{ "node": "Telegram: Deleted", "type": "main", "index": 0 }]
+      ]
+    },
+    "Format: Interview": {
+      "main": [
+        [{ "node": "Telegram: Interview", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["careerops", "telegram", "notifications", "all-events"],
+  "pinData": {}
+}
