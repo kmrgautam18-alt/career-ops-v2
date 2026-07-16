@@ -169,7 +169,36 @@ Job Description:
 
 
 # =============================================================================
-# Public API
+# Job Match AI
+# =============================================================================
+
+JOB_MATCH_SYSTEM_PROMPT = """You are an expert job matching and career coach AI.
+Analyze how well a candidate's profile matches a job posting.
+Return ONLY valid JSON without markdown formatting."""
+
+JOB_MATCH_PROMPT = """Analyze how well this candidate profile matches this job and return a JSON object with:
+- overall_score (0-100): Overall match percentage
+- skill_score (0-100): Skills match
+- experience_score (0-100): Experience match
+- education_score (0-100): Education match
+- strengths (array of strings): Key strengths of this candidate for this role
+- weaknesses (array of strings): Areas where the candidate falls short
+- recommendations (array of strings): Actionable suggestions to improve the match
+
+Candidate Profile:
+---
+{profile}
+---
+
+Job Details:
+---
+{job_details}
+---
+"""
+
+
+# =============================================================================
+# Public API — Non-streaming
 # =============================================================================
 
 def ats_evaluate(resume_text: str, job_description: str) -> dict[str, Any]:
@@ -205,3 +234,109 @@ def optimize_resume(resume_text: str, job_description: str) -> dict[str, Any]:
         job_description=job_description[:8000],
     )
     return _call_llm_json(prompt, RESUME_OPTIMIZE_SYSTEM_PROMPT)
+
+
+def job_match_ai(
+    profile: str,
+    job_details: str,
+) -> dict[str, Any]:
+    """Analyze a candidate profile vs a job posting using AI."""
+    prompt = JOB_MATCH_PROMPT.format(
+        profile=profile[:8000],
+        job_details=job_details[:8000],
+    )
+    return _call_llm_json(prompt, JOB_MATCH_SYSTEM_PROMPT)
+
+
+# =============================================================================
+# Public API — Streaming (SSE)
+# =============================================================================
+
+import typing
+
+if typing.TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+
+async def _stream_llm(
+    prompt: str,
+    system_instruction: str = "",
+) -> AsyncGenerator[str, None]:
+    """Stream Gemini response token by token via SSE."""
+    model = get_model()
+    if model is None:
+        yield f"data: {json.dumps({'error': 'LLM not configured. Set LLM_API_KEY.'})}\n\n"
+        yield "data: [DONE]\n\n"
+        return
+
+    try:
+        contents = []
+        if system_instruction:
+            contents.append({"role": "user", "parts": [system_instruction]})
+        contents.append({"role": "user", "parts": [prompt]})
+
+        response = model.generate_content(contents, stream=True)
+        for chunk in response:
+            if chunk.text:
+                yield f"data: {json.dumps({'text': chunk.text})}\n\n"
+        yield "data: [DONE]\n\n"
+    except Exception as e:
+        logger.error(f"LLM stream failed: {e}")
+        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        yield "data: [DONE]\n\n"
+
+
+async def stream_ats_evaluate(
+    resume_text: str,
+    job_description: str,
+) -> AsyncGenerator[str, None]:
+    """Stream ATS evaluation tokens."""
+    prompt = ATS_SCORE_PROMPT.format(
+        resume_text=resume_text[:8000],
+        job_description=job_description[:8000],
+    )
+    async for token in _stream_llm(prompt, ATS_SYSTEM_PROMPT):
+        yield token
+
+
+async def stream_interview_questions(
+    job_title: str,
+    company: str,
+    difficulty: str = "medium",
+    count: int = 8,
+) -> AsyncGenerator[str, None]:
+    """Stream interview question generation tokens."""
+    prompt = INTERVIEW_QUESTIONS_PROMPT.format(
+        job_title=job_title,
+        company=company,
+        difficulty=difficulty,
+        count=count,
+    )
+    async for token in _stream_llm(prompt, INTERVIEW_SYSTEM_PROMPT):
+        yield token
+
+
+async def stream_optimize_resume(
+    resume_text: str,
+    job_description: str,
+) -> AsyncGenerator[str, None]:
+    """Stream resume optimization tokens."""
+    prompt = RESUME_OPTIMIZE_PROMPT.format(
+        resume_text=resume_text[:8000],
+        job_description=job_description[:8000],
+    )
+    async for token in _stream_llm(prompt, RESUME_OPTIMIZE_SYSTEM_PROMPT):
+        yield token
+
+
+async def stream_job_match(
+    profile: str,
+    job_details: str,
+) -> AsyncGenerator[str, None]:
+    """Stream job match analysis tokens."""
+    prompt = JOB_MATCH_PROMPT.format(
+        profile=profile[:8000],
+        job_details=job_details[:8000],
+    )
+    async for token in _stream_llm(prompt, JOB_MATCH_SYSTEM_PROMPT):
+        yield token

@@ -1,6 +1,16 @@
 from pydantic import BaseModel, Field
 
 
+class JobMatchRequest(BaseModel):
+    """
+    AI Job Match request with free-form profile and job details.
+    """
+
+    profile: str = Field(..., description="Candidate profile text (resume / background)")
+
+    job_details: str = Field(..., description="Job posting details")
+
+
 class MatchComponentResponse(BaseModel):
     """
     Response for an individual matching component.
@@ -22,19 +32,19 @@ class JobMatchResponse(BaseModel):
 
     overall_score: float = Field(..., ge=0, le=100)
 
-    classification: str
+    classification: str = Field(default="moderate")
 
-    skill: MatchComponentResponse
+    skill: MatchComponentResponse | dict = Field(default_factory=dict)
 
-    experience: MatchComponentResponse
+    experience: MatchComponentResponse | dict = Field(default_factory=dict)
 
-    education: MatchComponentResponse
+    education: MatchComponentResponse | dict = Field(default_factory=dict)
 
-    certification: MatchComponentResponse
+    certification: MatchComponentResponse | dict = Field(default_factory=dict)
 
-    keyword: MatchComponentResponse
+    keyword: MatchComponentResponse | dict = Field(default_factory=dict)
 
-    location: MatchComponentResponse
+    location: MatchComponentResponse | dict = Field(default_factory=dict)
 
     strengths: list[str] = Field(default_factory=list)
 
