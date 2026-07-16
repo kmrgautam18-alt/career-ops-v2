@@ -127,7 +127,7 @@ class CacheService:
 
     def flush_namespace(self, namespace: str) -> int:
         """Flush all keys in a namespace (e.g., 'jobs', 'dashboard')."""
-        return self.delete_pattern(f"{namespace}:*")
+        return self.delete_pattern(f"{namespace}:*")  # type: ignore[return-value]
 
 
 # Global cache service instance

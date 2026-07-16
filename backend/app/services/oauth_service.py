@@ -134,7 +134,7 @@ def exchange_code_for_token(provider: str, code: str, redirect_uri: str) -> dict
             timeout=10,
         )
         response.raise_for_status()
-        return response.json()
+        return response.json()  # type: ignore[no-any-return]
     except Exception as e:
         logger.error("OAuth token exchange failed for %s: %s", provider, e)
         return None
@@ -309,8 +309,14 @@ def login_with_oauth(
     user = create_or_get_oauth_user(db_session, user_info)
 
     # Step 4: Generate JWT tokens
-    jwt_access = create_access_token(data={"sub": str(user.id), "role": user.role})
-    jwt_refresh = create_refresh_token(data={"sub": str(user.id)})
+    jwt_access = create_access_token(
+        user_id=user.id,
+        email=user.email,
+        role=user.role,
+    )
+    jwt_refresh = create_refresh_token(
+        user_id=user.id,
+    )
 
     return {
         "access_token": jwt_access,

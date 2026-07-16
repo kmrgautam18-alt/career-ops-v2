@@ -126,7 +126,7 @@ def _load_overrides() -> dict[str, dict[str, Any]]:
     if _OVERRIDE_PATH.exists():
         try:
             with open(_OVERRIDE_PATH) as f:
-                return json.load(f)
+                return json.load(f)  # type: ignore[no-any-return]
         except (json.JSONDecodeError, OSError):
             pass
     return {}
@@ -202,4 +202,4 @@ def set_feature_override(flag_name: str, enabled: bool, rollout_pct: int | None 
 
     _OVERRIDE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(_OVERRIDE_PATH, "w") as f:
-        json.dump(overrides, f, indent=2)
+        json.dump(overrides, f, indent=2)  # type: ignore[no-any-return]

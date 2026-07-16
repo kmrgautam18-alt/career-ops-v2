@@ -204,7 +204,7 @@ class OpenAIModel:
             temperature=kwargs.get("temperature", 0.3),
             max_tokens=kwargs.get("max_tokens", 4096),
         )
-        return response.choices[0].message.content or ""
+        return response.choices[0].message.content or ""  # type: ignore[no-any-return]
 
     async def generate_json(
         self, prompt: str, system_instruction: str = "", **kwargs: Any
@@ -302,7 +302,7 @@ class ClaudeModel:
             system=system_instruction or None,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text if response.content else ""
+        return response.content[0].text if response.content else ""  # type: ignore[no-any-return]
 
     async def generate_json(
         self, prompt: str, system_instruction: str = "", **kwargs: Any

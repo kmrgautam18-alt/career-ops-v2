@@ -38,7 +38,7 @@ class CompanyDetector:
 
         path = RESOURCE_DIR / filename
 
-        values = set()
+        values: set[str] = set()
 
         if not path.exists():
             return values

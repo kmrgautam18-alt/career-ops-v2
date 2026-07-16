@@ -58,7 +58,7 @@ class NotificationPreference(Base):
 def get_default_preferences(user_id: int) -> dict[str, dict[str, bool]]:
     """Get default notification preferences for a new user."""
     # Default: all channels enabled for important events
-    defaults = {}
+    defaults: dict[str, dict[str, bool]] = {}
     for event in EVENT_TYPES:
         defaults[event] = {}
         for channel in NOTIFICATION_CHANNELS:

@@ -72,7 +72,7 @@ class TokenBucket:
         now = time.time()
         cutoff = now - self.window
         self.tokens[key] = [t for t in self.tokens[key] if t > cutoff]
-        return max(0, self.capacity - len(self.tokens[key]))
+        return max(0, self.capacity - len(self.tokens[key]))  # type: ignore[no-any-return]
 
 
 # ── Middleware ──────────────────────────────────────────────────────────

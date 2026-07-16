@@ -60,7 +60,7 @@ def _call_llm(prompt: str, system_instruction: str = "") -> str:
     """Call the Gemini model with a prompt and return the text response."""
     model = get_model()
     if model is None:
-        raise LLMServiceError("LLM is not configured. Set LLM_API_KEY in environment.")
+        raise LLMServiceError("LLM is not configured. Set LLM_API_KEY in environment.")  # type: ignore[arg-type]
 
     try:
         contents = []

@@ -34,7 +34,7 @@ class ATSEngine:
 
         try:
             result = ats_evaluate(resume_text, desc)
-            return ATSEngine._parse_result(result)
+            return ATSEngine._parse_result(result)  # type: ignore[arg-type]
         except LLMServiceError as e:
             logger.warning(f"LLM ATS evaluation failed, using fallback: {e}")
             return ATSEngine._fallback_evaluate(resume_text, required_keywords)

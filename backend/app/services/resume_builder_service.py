@@ -96,10 +96,10 @@ def _call_llm_json(prompt: str, system_instruction: str = "") -> dict[str, Any]:
         return json.loads(text)
     except ImportError:
         logger.warning("google.generativeai not installed")
-        return _fallback_tailored_resume_parts()
+        return _fallback_tailored_resume_parts()  # type: ignore[no-any-return]
     except Exception as e:
         logger.error(f"Resume builder LLM call failed: {e}")
-        return _fallback_tailored_resume_parts()
+        return _fallback_tailored_resume_parts()  # type: ignore[no-any-return]
 
 
 def _fallback_tailored_resume_parts() -> dict[str, Any]:

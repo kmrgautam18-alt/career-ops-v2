@@ -71,7 +71,7 @@ class BaserowService:
             timeout=30,
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
     # ------------------------------------------------------------------
     # Rows
@@ -104,7 +104,7 @@ class BaserowService:
             timeout=30,
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
     def get_row(
         self,
@@ -120,7 +120,7 @@ class BaserowService:
             timeout=30,
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
     def create_row(
         self,
@@ -139,7 +139,7 @@ class BaserowService:
             timeout=30,
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
     def update_row(
         self,
@@ -157,7 +157,7 @@ class BaserowService:
             timeout=30,
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
     def delete_row(
         self,

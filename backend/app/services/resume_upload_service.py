@@ -186,11 +186,3 @@ def upload_resume(
             resume,
         ),
     )
-
-    return ApiResponse(
-        success=True,
-        message="Resume uploaded successfully.",
-        data=ResumeResponse.model_validate(
-            resume,
-        ),
-    )

@@ -41,7 +41,8 @@ def send_verification_email(db: Session, user: User) -> bool:
         "expires_at": expiry,
     }
 
-    verify_url = f"{settings.APP_URL or 'http://localhost:5173'}/verify-email?token={token}&user_id={user.id}"
+    app_url = getattr(settings, 'APP_URL', None) or 'http://localhost:5173'
+    verify_url = f"{app_url}/verify-email?token={token}&user_id={user.id}"
 
     subject = "Verify your Career-Ops account"
     html = f"""
@@ -106,7 +107,8 @@ def send_password_reset_email(db: Session, user: User) -> bool:
         "expires_at": expiry,
     }
 
-    reset_url = f"{settings.APP_URL or 'http://localhost:5173'}/reset-password?token={token}&user_id={user.id}"
+    app_url = getattr(settings, 'APP_URL', None) or 'http://localhost:5173'
+    reset_url = f"{app_url}/reset-password?token={token}&user_id={user.id}"
 
     subject = "Reset your Career-Ops password"
     html = f"""

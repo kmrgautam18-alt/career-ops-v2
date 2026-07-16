@@ -72,7 +72,7 @@ def export_user_data_csv(db: Session, user: User) -> dict[str, str]:
         writer = csv.writer(output)
         writer.writerow(["id", "title", "company", "location", "status", "url", "created_at"])
         for j in jobs:
-            writer.writerow([j.id, j.title, j.company, j.location, j.status, j.url, j.created_at])
+            writer.writerow([j.id, j.title, j.company, getattr(j, 'location', '') or "", j.status, getattr(j, 'url', '') or "", j.created_at or ""])
         result["jobs"] = output.getvalue()
 
     # Applications CSV
@@ -81,7 +81,7 @@ def export_user_data_csv(db: Session, user: User) -> dict[str, str]:
         writer = csv.writer(output)
         writer.writerow(["id", "job_title", "company", "status", "applied_date", "notes", "created_at"])
         for a in applications:
-            writer.writerow([a.id, a.job_title, a.company, a.status, a.applied_date or "", a.notes or "", a.created_at or ""])
+            writer.writerow([a.id, getattr(a, 'job_title', ''), a.company, a.status, getattr(a, 'applied_date', '') or "", getattr(a, 'notes', '') or "", a.created_at or ""])
         result["applications"] = output.getvalue()
 
     # Resumes CSV
@@ -90,7 +90,7 @@ def export_user_data_csv(db: Session, user: User) -> dict[str, str]:
         writer = csv.writer(output)
         writer.writerow(["id", "title", "original_filename", "file_type", "created_at"])
         for r in resumes:
-            writer.writerow([r.id, r.title, r.original_filename, r.file_type, r.created_at])
+            writer.writerow([r.id, r.title, r.original_filename, r.mime_type, r.created_at])
         result["resumes"] = output.getvalue()
 
     # Auto-Applications CSV
