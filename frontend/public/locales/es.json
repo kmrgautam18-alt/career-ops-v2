@@ -1,0 +1,89 @@
+{
+  "app": {
+    "name": "Career-Ops",
+    "tagline": "Tu Carrera, Potenciada por IA",
+    "description": "Sistema Operativo de Carrera impulsado por IA"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "jobs": "Empleos",
+    "applications": "Postulaciones",
+    "resumes": "Currículums",
+    "autoApply": "Auto-Aplicar",
+    "aiTools": "Herramientas IA",
+    "interviewCoach": "Coach de Entrevistas",
+    "notifications": "Notificaciones",
+    "teams": "Equipos",
+    "signOut": "Cerrar Sesión"
+  },
+  "auth": {
+    "welcomeBack": "Bienvenido de nuevo",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Crear Cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "fullName": "Nombre Completo",
+    "username": "Nombre de usuario",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "createOne": "Crea una",
+    "signInHere": "Inicia sesión aquí",
+    "orContinueWith": "O continúa con",
+    "verifyEmail": "Verifica tu correo para activar tu cuenta",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPassword": "Restablecer Contraseña"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "overview": "Resumen de tu trayectoria profesional",
+    "totalJobs": "Total Empleos",
+    "applications": "Postulaciones",
+    "active": "Activas",
+    "interviews": "Entrevistas",
+    "recentJobs": "Empleos Recientes",
+    "recentApplications": "Postulaciones Recientes",
+    "live": "En Vivo",
+    "empty": "Sin datos aún"
+  },
+  "jobs": {
+    "title": "Empleos",
+    "search": "Buscar empleos...",
+    "addJob": "Agregar Empleo",
+    "company": "Empresa",
+    "location": "Ubicación",
+    "status": "Estado",
+    "actions": "Acciones"
+  },
+  "applications": {
+    "title": "Postulaciones",
+    "trackApplications": "Sigue tus postulaciones",
+    "status": "Estado"
+  },
+  "ai": {
+    "title": "Herramientas IA",
+    "atsScore": "Puntaje ATS",
+    "interviewQuestions": "Preguntas de Entrevista",
+    "resumeOptimize": "Optimizar Currículum",
+    "jobMatch": "Coincidencia de Empleo",
+    "streaming": "Transmisión",
+    "generate": "Generar",
+    "analyze": "Analizar"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "noResults": "Sin resultados",
+    "error": "Algo salió mal",
+    "success": "Éxito",
+    "darkMode": "Modo Oscuro",
+    "lightMode": "Modo Claro"
+  }
+}

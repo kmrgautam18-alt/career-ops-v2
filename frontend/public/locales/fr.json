@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "Career-Ops",
+    "tagline": "Votre Carrière, Boostée par l'IA",
+    "description": "Système d'exploitation de carrière alimenté par l'IA"
+  },
+  "nav": {
+    "dashboard": "Tableau de Bord",
+    "jobs": "Emplois",
+    "applications": "Candidatures",
+    "resumes": "CV",
+    "autoApply": "Auto-Postuler",
+    "aiTools": "Outils IA",
+    "interviewCoach": "Coach d'Entretien",
+    "notifications": "Notifications",
+    "teams": "Équipes",
+    "signOut": "Déconnexion"
+  },
+  "auth": {
+    "welcomeBack": "Bon retour",
+    "signIn": "Connexion",
+    "signUp": "Créer un Compte",
+    "email": "Email",
+    "password": "Mot de passe",
+    "fullName": "Nom Complet",
+    "username": "Nom d'utilisateur",
+    "noAccount": "Pas de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "createOne": "Créer un",
+    "signInHere": "Connectez-vous ici",
+    "orContinueWith": "Ou continuer avec",
+    "verifyEmail": "Vérifiez votre email pour activer votre compte",
+    "forgotPassword": "Mot de passe oublié ?",
+    "resetPassword": "Réinitialiser le Mot de Passe"
+  },
+  "dashboard": {
+    "title": "Tableau de Bord",
+    "overview": "Aperçu de votre parcours professionnel",
+    "totalJobs": "Total Emplois",
+    "applications": "Candidatures",
+    "active": "Actives",
+    "interviews": "Entretiens",
+    "recentJobs": "Emplois Récents",
+    "recentApplications": "Candidatures Récentes",
+    "live": "En Direct",
+    "empty": "Aucune donnée"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "noResults": "Aucun résultat",
+    "error": "Une erreur est survenue",
+    "success": "Succès",
+    "darkMode": "Mode Sombre",
+    "lightMode": "Mode Clair"
+  }
+}

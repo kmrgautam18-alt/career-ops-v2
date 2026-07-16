@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "Career-Ops",
+    "tagline": "Deine Karriere, KI-gestärkt",
+    "description": "KI-gestütztes Karriere-Betriebssystem"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "jobs": "Stellen",
+    "applications": "Bewerbungen",
+    "resumes": "Lebensläufe",
+    "autoApply": "Auto-Bewerben",
+    "aiTools": "KI-Tools",
+    "interviewCoach": "Interview-Coach",
+    "notifications": "Benachrichtigungen",
+    "teams": "Teams",
+    "signOut": "Abmelden"
+  },
+  "auth": {
+    "welcomeBack": "Willkommen zurück",
+    "signIn": "Anmelden",
+    "signUp": "Konto erstellen",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "fullName": "Vollständiger Name",
+    "username": "Benutzername",
+    "noAccount": "Kein Konto?",
+    "hasAccount": "Bereits ein Konto?",
+    "createOne": "Erstellen",
+    "signInHere": "Hier anmelden",
+    "orContinueWith": "Oder weiter mit",
+    "verifyEmail": "Bestätige deine E-Mail, um dein Konto zu aktivieren",
+    "forgotPassword": "Passwort vergessen?",
+    "resetPassword": "Passwort zurücksetzen"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Übersicht deiner Karrierereise",
+    "totalJobs": "Stellen gesamt",
+    "applications": "Bewerbungen",
+    "active": "Aktiv",
+    "interviews": "Vorstellungsgespräche",
+    "recentJobs": "Aktuelle Stellen",
+    "recentApplications": "Aktuelle Bewerbungen",
+    "live": "Live",
+    "empty": "Noch keine Daten"
+  },
+  "common": {
+    "loading": "Laden...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "noResults": "Keine Ergebnisse",
+    "error": "Etwas ist schiefgelaufen",
+    "success": "Erfolg",
+    "darkMode": "Dunkelmodus",
+    "lightMode": "Hellmodus"
+  }
+}

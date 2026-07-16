@@ -14,6 +14,7 @@ from backend.app.api.v1.baserow import router as baserow_router
 from backend.app.api.v1.dashboard import router as dashboard_router
 from backend.app.api.v1.jobs import router as jobs_router
 from backend.app.api.v1.organizations import router as organizations_router
+from backend.app.api.v1.resume_templates import router as resume_templates_router
 from backend.app.api.v1.resumes import router as resumes_router
 from backend.app.api.v1.users import router as users_router
 from backend.app.api.v1.websocket import router as websocket_router
@@ -30,6 +31,7 @@ api_router.include_router(applications_router)
 api_router.include_router(audit_logs_router)
 api_router.include_router(admin_router)
 api_router.include_router(resumes_router)
+api_router.include_router(resume_templates_router)
 api_router.include_router(dashboard_router)
 api_router.include_router(ai_router)
 api_router.include_router(auto_apply_router)

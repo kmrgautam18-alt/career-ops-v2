@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "Career-Ops",
+    "tagline": "AIが強化するあなたのキャリア",
+    "description": "AI搭載キャリア・オペレーティング・システム"
+  },
+  "nav": {
+    "dashboard": "ダッシュボード",
+    "jobs": "求人",
+    "applications": "応募",
+    "resumes": "履歴書",
+    "autoApply": "自動応募",
+    "aiTools": "AIツール",
+    "interviewCoach": "面接コーチ",
+    "notifications": "通知",
+    "teams": "チーム",
+    "signOut": "ログアウト"
+  },
+  "auth": {
+    "welcomeBack": "おかえりなさい",
+    "signIn": "ログイン",
+    "signUp": "アカウント作成",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "fullName": "氏名",
+    "username": "ユーザー名",
+    "noAccount": "アカウントをお持ちでない方",
+    "hasAccount": "すでにアカウントをお持ちの方",
+    "createOne": "作成する",
+    "signInHere": "こちらからログイン",
+    "orContinueWith": "または次で続ける",
+    "verifyEmail": "メールアドレスを確認してアカウントを有効化",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "resetPassword": "パスワードをリセット"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "overview": "キャリアの旅の概要",
+    "totalJobs": "総求人数",
+    "applications": "応募数",
+    "active": "アクティブ",
+    "interviews": "面接",
+    "recentJobs": "最近の求人",
+    "recentApplications": "最近の応募",
+    "live": "ライブ",
+    "empty": "データがありません"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "create": "作成",
+    "search": "検索",
+    "filter": "フィルター",
+    "export": "エクスポート",
+    "import": "インポート",
+    "noResults": "結果が見つかりません",
+    "error": "エラーが発生しました",
+    "success": "成功",
+    "darkMode": "ダークモード",
+    "lightMode": "ライトモード"
+  }
+}

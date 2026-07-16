@@ -1,0 +1,95 @@
+{
+  "app": {
+    "name": "Career-Ops",
+    "tagline": "Your Career, Supercharged by AI",
+    "description": "AI-Powered Career Operating System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "jobs": "Jobs",
+    "applications": "Applications",
+    "resumes": "Resumes",
+    "autoApply": "Auto-Apply",
+    "aiTools": "AI Tools",
+    "interviewCoach": "Interview Coach",
+    "notifications": "Notifications",
+    "teams": "Teams",
+    "signOut": "Sign Out"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "signIn": "Sign In",
+    "signUp": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "username": "Username",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "createOne": "Create one",
+    "signInHere": "Sign in here",
+    "orContinueWith": "Or continue with",
+    "verifyEmail": "Verify your email address to activate your account",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset Password"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview of your career journey",
+    "totalJobs": "Total Jobs",
+    "applications": "Applications",
+    "active": "Active",
+    "interviews": "Interviews",
+    "recentJobs": "Recent Jobs",
+    "recentApplications": "Recent Applications",
+    "live": "Live",
+    "empty": "No data yet"
+  },
+  "jobs": {
+    "title": "Jobs",
+    "search": "Search jobs...",
+    "addJob": "Add Job",
+    "company": "Company",
+    "location": "Location",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "applications": {
+    "title": "Applications",
+    "trackApplications": "Track your job applications",
+    "status": "Status",
+    "new": "New",
+    "applied": "Applied",
+    "interview": "Interview",
+    "offer": "Offer",
+    "rejected": "Rejected",
+    "accepted": "Accepted"
+  },
+  "ai": {
+    "title": "AI Tools",
+    "atsScore": "ATS Score",
+    "interviewQuestions": "Interview Questions",
+    "resumeOptimize": "Resume Optimizer",
+    "jobMatch": "Job Match",
+    "streaming": "Streaming",
+    "generate": "Generate",
+    "analyze": "Analyze"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "noResults": "No results found",
+    "error": "Something went wrong",
+    "success": "Success",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode"
+  }
+}
